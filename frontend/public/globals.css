@@ -1,0 +1,129 @@
+/* Material Web typescale utility classes (.md-typescale-*) */
+@import '@material/web/typography/md-typescale-styles.css';
+
+/*
+ * ACTUWISE — Material 3 color scheme
+ * Primary: deeper brand blue #0055A5
+ * Light is default; dark togglable.
+ */
+:root {
+  color-scheme: light;
+
+  /* Primary — deeper ACTUWISE blue */
+  --md-sys-color-primary: #0055a5;
+  --md-sys-color-on-primary: #ffffff;
+  --md-sys-color-primary-container: #d0e4ff;
+  --md-sys-color-on-primary-container: #001d3d;
+
+  /* Secondary — teal-blue */
+  --md-sys-color-secondary: #00658c;
+  --md-sys-color-on-secondary: #ffffff;
+  --md-sys-color-secondary-container: #c5e7ff;
+  --md-sys-color-on-secondary-container: #001e2d;
+
+  /* Tertiary — slate */
+  --md-sys-color-tertiary: #006782;
+  --md-sys-color-on-tertiary: #ffffff;
+  --md-sys-color-tertiary-container: #b9eaff;
+  --md-sys-color-on-tertiary-container: #001f29;
+
+  /* Error */
+  --md-sys-color-error: #b3261e;
+  --md-sys-color-on-error: #ffffff;
+  --md-sys-color-error-container: #ffdad6;
+  --md-sys-color-on-error-container: #410002;
+
+  /* Background & surfaces — very light blue-white */
+  --md-sys-color-background: #f4f8ff;
+  --md-sys-color-on-background: #0d1b2e;
+  --md-sys-color-surface: #f4f8ff;
+  --md-sys-color-on-surface: #0d1b2e;
+  --md-sys-color-surface-variant: #dde8f8;
+  --md-sys-color-on-surface-variant: #2c4260;
+  --md-sys-color-surface-dim: #d4dff0;
+  --md-sys-color-surface-bright: #f9fbff;
+  --md-sys-color-surface-container-lowest: #ffffff;
+  --md-sys-color-surface-container-low: #f0f5ff;
+  --md-sys-color-surface-container: #e8f0fc;
+  --md-sys-color-surface-container-high: #dce7f8;
+  --md-sys-color-surface-container-highest: #cfddf4;
+
+  /* Outline */
+  --md-sys-color-outline: #5a7ea8;
+  --md-sys-color-outline-variant: #c0d4eb;
+
+  /* Misc */
+  --md-sys-color-shadow: #000000;
+  --md-sys-color-scrim: #000000;
+  --md-sys-color-inverse-surface: #1a2e46;
+  --md-sys-color-inverse-on-surface: #edf2ff;
+  --md-sys-color-inverse-primary: #9dc8ff;
+
+  /* Typefaces */
+  --md-ref-typeface-brand: Roboto, system-ui, sans-serif;
+  --md-ref-typeface-plain: Roboto, system-ui, sans-serif;
+}
+
+/* Dark mode override */
+.dark {
+  color-scheme: dark;
+
+  --md-sys-color-primary: #9dc8ff;
+  --md-sys-color-on-primary: #002d5f;
+  --md-sys-color-primary-container: #004488;
+  --md-sys-color-on-primary-container: #d0e4ff;
+  --md-sys-color-secondary: #7fd3f8;
+  --md-sys-color-on-secondary: #00344b;
+  --md-sys-color-secondary-container: #004c6b;
+  --md-sys-color-on-secondary-container: #c5e7ff;
+  --md-sys-color-tertiary: #6dd5f8;
+  --md-sys-color-on-tertiary: #003546;
+  --md-sys-color-tertiary-container: #004d64;
+  --md-sys-color-on-tertiary-container: #b9eaff;
+  --md-sys-color-error: #ffb4ab;
+  --md-sys-color-on-error: #690005;
+  --md-sys-color-error-container: #93000a;
+  --md-sys-color-on-error-container: #ffdad6;
+  --md-sys-color-background: #0d1b2e;
+  --md-sys-color-on-background: #dde8f8;
+  --md-sys-color-surface: #0d1b2e;
+  --md-sys-color-on-surface: #dde8f8;
+  --md-sys-color-surface-variant: #1e3352;
+  --md-sys-color-on-surface-variant: #8aadc8;
+  --md-sys-color-outline: #4d7299;
+  --md-sys-color-outline-variant: #1e3352;
+  --md-sys-color-shadow: #000000;
+  --md-sys-color-scrim: #000000;
+  --md-sys-color-inverse-surface: #dde8f8;
+  --md-sys-color-inverse-on-surface: #0d1b2e;
+  --md-sys-color-inverse-primary: #0055a5;
+  --md-sys-color-surface-dim: #0d1b2e;
+  --md-sys-color-surface-bright: #233a58;
+  --md-sys-color-surface-container-lowest: #080f1e;
+  --md-sys-color-surface-container-low: #111f35;
+  --md-sys-color-surface-container: #172640;
+  --md-sys-color-surface-container-high: #1e3352;
+  --md-sys-color-surface-container-highest: #263d62;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--md-sys-color-background);
+  color: var(--md-sys-color-on-background);
+  font-family: var(--md-ref-typeface-plain);
+  -webkit-font-smoothing: antialiased;
+}
+
+md-icon {
+  font-family: 'Material Symbols Outlined';
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}

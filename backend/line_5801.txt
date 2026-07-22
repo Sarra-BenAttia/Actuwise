@@ -1,0 +1,126 @@
+Created At: 2026-07-20T16:24:13Z
+Completed At: 2026-07-20T16:24:13Z
+File Path: `file:///C:/Users/LENOVO/Desktop/ddd/actuwise_app/frontend/public/login.html`
+Total Lines: 287
+Total Bytes: 9089
+Showing lines 170 to 287
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+170:             border-radius: 10px;
+171:             font-family: 'Inter', sans-serif;
+172:             font-weight: 600;
+173:             font-size: 15px;
+174:             cursor: pointer;
+175:             transition: all 0.2s ease;
+176:             box-shadow: 0 4px 12px rgba(0, 192, 127, 0.2);
+177:             margin-top: 12px;
+178:         }
+179: 
+180:         .btn-submit:hover {
+181:             background: var(--blue-hover);
+182:             transform: translateY(-1px);
+183:             box-shadow: 0 6px 16px rgba(0, 192, 127, 0.3);
+184:         }
+185: 
+186:         .error-message {
+187:             color: #ef4444;
+188:             font-size: 13px;
+189:             font-weight: 500;
+190:             margin-top: 12px;
+191:             display: none;
+192:             text-align: center;
+193:             background: #fef2f2;
+194:             padding: 10px;
+195:             border-radius: 8px;
+196:             border: 1px solid #fecaca;
+197:         }
+198: 
+199:         @media (max-width: 900px) {
+200:             .image-section { display: none; }
+201:             .form-section { padding: 20px; }
+202:         }
+203:     </style>
+204: </head>
+205: <body>
+206: 
+207:     <div class="split-layout">
+208:         <!-- Image Section -->
+209:         <div class="image-section">
+210:             <div class="image-overlay"></div>
+211:             <div class="image-content">
+212:                 <h1>ACTUWISE</h1>
+213:                 <p>La plateforme actuarielle intelligente. Prédisez les risques, maîtrisez vos provisions et optimisez votre rentabilité grâce à l'IA.</p>
+214:             </div>
+215:         </div>
+216: 
+217:         <!-- Form Section -->
+218:         <div class="form-section">
+219:             <div class="login-box">
+220:                 <div class="logo">
+221:                     <div class="logo-icon">AW</div>
+222:                     ACTUWISE
+223:                 </div>
+224: 
+225:                 <h2>Connexion Espace Actuaire</h2>
+226:                 <p class="subtitle">Veuillez vous connecter pour accéder au tableau de bord.</p>
+227: 
+228:                 <form id="login-form">
+229:                     <div class="input-group">
+230:                         <label for="email">Adresse Email</label>
+231:                         <input type="email" id="email" placeholder="actuaire@actuwise.com" required value="actuaire@actuwise.com">
+232:                     </div>
+233: 
+234:                     <div class="input-group">
+235:                         <label for="password">Mot de passe</label>
+236:                         <input type="password" id="password" placeholder="••••••••" required>
+237:                     </div>
+238: 
+239:                     <button type="submit" class="btn-submit" id="btn-submit">Se Connecter</button>
+240:                     <div id="error-msg" class="error-message">Identifiants incorrects.</div>
+241:                 </form>
+242:             </div>
+243:         </div>
+244:     </div>
+245: 
+246:     <script>
+247:         document.getElementById('login-form').addEventListener('submit', async (e) => {
+248:             e.preventDefault();
+249:             const email = document.getElementById('email').value;
+250:             const password = document.getElementById('password').value;
+251:             const btn = document.getElementById('btn-submit');
+252:             const errorMsg = document.getElementById('error-msg');
+253: 
+254:             btn.textContent = 'Connexion...';
+255:             btn.style.opacity = '0.7';
+256:             errorMsg.style.display = 'none';
+257: 
+258:             try {
+259:                 const response = await fetch('http://127.0.0.1:8000/api/auth/login', {
+260:                     method: 'POST',
+261:                     headers: {
+262:                         'Content-Type': 'application/json'
+263:                     },
+264:                     body: JSON.stringify({ email, password })
+265:                 });
+266: 
+267:                 if (response.ok) {
+268:                     const data = await response.json();
+269:                     localStorage.setItem('actuwise_token', data.access_token);
+270:                     window.location.href = '/app.html';
+271:                 } else {
+272:                     errorMsg.style.display = 'block';
+273:                     errorMsg.textContent = 'Email ou mot de passe incorrect.';
+274:                 }
+275:             } catch (err) {
+276:                 console.error(err);
+277:                 errorMsg.style.display = 'block';
+278:                 errorMsg.textContent = 'Erreur de connexion au serveur.';
+279:             } finally {
+280:                 btn.textContent = 'Se Connecter';
+281:                 btn.style.opacity = '1';
+282:             }
+283:         });
+284:     </script>
+285: </body>
+286: </html>
+287: 
+The above content does NOT show the entire file contents. If you need to view any lines of the file which were not shown to complete your task, call this tool again to view those lines.

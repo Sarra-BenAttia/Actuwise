@@ -1,0 +1,2617 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BIAT Assurance — Tableau de Bord Actuariel</title>
+  
+  <!-- Protection de la route (JWT Check) -->
+  <script>
+    if (!localStorage.getItem('actuwise_token')) {
+      window.location.href = '/login.html';
+    }
+    
+    function logout() {
+      localStorage.removeItem('actuwise_token');
+      window.location.href = '/login.html';
+    }
+
+    async function handleTarificationSubmit(e) {
+      e.preventDefault();
+      const btn = document.getElementById('tarif_btn');
+      const errDiv = document.getElementById('tarif_error');
+      const resDiv = document.getElementById('tarif_result');
+      const amtSpan = document.getElementById('tarif_amount');
+      
+      btn.disabled = true;
+      btn.textContent = 'Calcul en cours...';
+      btn.style.opacity = '0.7';
+      errDiv.style.display = 'none';
+      resDiv.style.display = 'none';
+
+      const payload = {
+        "driver_age": parseInt(document.getElementById('tarif_driver_age').value, 10),
+        "vehicle_age": parseInt(document.getElementById('tarif_vehicle_age').value, 10),
+        "Puissance fiscale": parseInt(document.getElementById('tarif_puissance').value, 10),
+        "Valeur venale": parseFloat(document.getElementById('tarif_valeur').value),
+        "Classe BM": parseInt(document.getElementById('tarif_bm').value, 10),
+        "Usage": document.getElementById('tarif_usage').value,
+        "CLI_SEX": document.getElementById('tarif_sex').value,
+        "Region": document.getElementById('tarif_region').value,
+        "Energie": document.getElementById('tarif_energie').value
+      };
+
+      try {
+        const res = await fetch('http://localhost:8000/api/tarification/score', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + localStorage.getItem('actuwise_token')
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+          const errData = await res.json();
+          throw new Error(errData.detail || 'Erreur lors du calcul');
+        }
+
+        const data = await res.json();
+        amtSpan.textContent = data.prime_pure_calibree.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        resDiv.style.display = 'flex';
+      } catch (err) {
+        errDiv.textContent = 'Erreur : ' + err.message;
+        errDiv.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Calculer la Prime Pure';
+        btn.style.opacity = '1';
+      }
+    }
+  </script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="dashboard.css?v=7">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      /* Palette BIAT - thème vert exécutif */
+      --navy:        #0d2b1f; /* sidebar dark petrol */
+      --navy-dark:   #082117;
+      --navy-mid:    #123827;
+      --blue:        #1b5e3a; /* principal vert */
+      --blue-light:  #d4ecd9; /* vert clair */
+      --pink:        #e91e8c;
+      --pink-light:  #fce7f3;
+      --accent:      #2e7d4f; /* accent vert secondaire */
+      --success:     #16a34a;
+      --danger:      #ef4444;
+      --warning:     #f59e0b;
+      --bg:          #f5f7f6; /* fond général très clair */
+      --white:       #ffffff;
+      --sidebar-bg:  linear-gradient(180deg,#0d2b1f 0%, #0f3a2b 100%);
+      --text:        #2d2d2d;
+      --text-sec:    #6b6b6b;
+      --muted:       #8a8a8a;
+      --border:      #e6efe6;
+      --border-light:#f0f6f1;
+      --sidebar-w:   240px;
+      --topbar-h:    64px;
+      --radius:      12px;
+      --shadow-sm:   0 2px 6px rgba(11,45,34,0.06);
+      --shadow-md:   0 8px 20px rgba(11,45,34,0.06);
+    }
+
+    html, body { height: 100%; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      min-height: 100vh;
+      font-size: 13px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── SIDEBAR (Aurora Style) ─── */
+    .sidebar { width: var(--sidebar-w); min-height: 100vh; background: var(--sidebar-bg); color: #eaf6ee; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; overflow-y: auto; overflow-x: hidden; box-shadow: 4px 0 18px rgba(2,18,12,0.12); }
+    .sidebar-brand {
+      padding: 24px 20px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .brand-logo-box {
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg,var(--blue),var(--accent));
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(2,18,12,0.15);
+      display: none;
+    }
+    .brand-logo-img {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      object-fit: contain;
+      background: #fff;
+      padding: 6px;
+      box-shadow: 0 8px 20px rgba(2,18,12,0.15);
+    }
+    .brand-text { display: flex; flex-direction: column; }
+    .brand-name { font-weight: 800; font-size: 18px; color: #eaf6ee; letter-spacing: 0.4px; line-height: 1.05; }
+    .brand-sub { font-size: 12px; color: rgba(234,246,238,0.85); }
+
+    .sidebar-section { padding: 10px 0; }
+    .sidebar-item { display: flex; align-items: center; padding: 14px 18px; cursor: pointer; color: rgba(234,246,238,0.95); font-size: 14px; font-weight: 600; border-left: 4px solid transparent; transition: all 0.15s ease; border-radius: 8px; margin: 6px 8px; }
+    .sidebar-item:hover { background: rgba(255,255,255,0.03); color: #ffffff; border-left: 4px solid rgba(255,255,255,0.06); }
+    .sidebar-item.active { background: rgba(255,255,255,0.14); color: #ffffff; font-weight: 700; border-left: 4px solid var(--accent); }
+    .sidebar-item .si-icon { display: inline-flex; margin-right: 10px; color: rgba(255,255,255,0.95); }
+    
+    .sidebar-badge { margin-left: auto; font-size: 11px; font-weight: 800; padding: 5px 10px; border-radius: 999px; background: rgba(255,255,255,0.08); color: #eaf6ee; border: 1px solid rgba(255,255,255,0.12); }
+    .sidebar-item.active .sidebar-badge { background: #eaf6ee; color: #0d2b1f; border: none; }
+    .sidebar-badge.coming { opacity: 0.7; }
+    
+    .sidebar-footer {
+      margin-top: auto; padding: 20px;
+    }
+    .sidebar-footer a { display: block; color: #475569; font-size: 12px; text-decoration: none; margin-bottom: 10px; }
+    .sidebar-footer a:hover { color: #0f172a; text-decoration: underline; }
+
+    /* ─── MAIN WRAPPER ─── */
+    .main-wrapper {
+      margin-left: var(--sidebar-w);
+      flex: 1; display: flex; flex-direction: column; min-height: 100vh;
+    }
+
+    /* ─── TOP BAR ─── */
+    .topbar {
+      background: var(--white);
+      height: var(--topbar-h);
+      padding: 0 28px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 90;
+      border-bottom: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+    .topbar-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+    .filter-group { display: flex; flex-direction: column; align-items: flex-start; min-width: 130px; }
+    .topbar-left { display: flex; align-items: center; gap: 14px; }
+    .topbar-title {
+      font-size: 18px; font-weight: 800; color: #08321f;
+      letter-spacing: -0.3px;
+    }
+    .topbar-title span { color: var(--blue); }
+    .topbar-breadcrumb {
+      font-size: 11px; color: var(--muted); font-weight: 500;
+      padding-left: 14px; border-left: 1.5px solid var(--border); margin-left: 4px;
+    }
+    .topbar-filters { display: flex; align-items: center; gap: 8px; }
+    .filter-group { display: flex; flex-direction: column; align-items: flex-start; }
+    .filter-label {
+      font-size: 9px; color: var(--muted); text-transform: uppercase;
+      letter-spacing: 0.6px; margin-bottom: 2px; font-weight: 700;
+    }
+    .filter-select {
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 7px;
+      color: var(--text);
+      font-size: 11.5px; font-weight: 600;
+      padding: 5px 28px 5px 10px;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2394a3b8'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+      background-color: var(--bg);
+      transition: border-color 0.15s;
+    }
+    .filter-select:focus { outline: none; border-color: var(--blue); box-shadow: 0 6px 18px rgba(27,94,58,0.08); }
+    .filter-select option { background: #fff; color: var(--text); }
+    .topbar-reset {
+      background: var(--white); border: 1.5px solid var(--border);
+      border-radius: 999px; color: var(--text-sec);
+      font-size: 11px; font-weight: 700; padding: 8px 12px;
+      cursor: pointer; font-family: 'Inter', sans-serif;
+      display: flex; align-items: center; gap: 6px; transition: all 0.15s;
+    }
+    .topbar-reset:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-light); }
+    .topbar-right { display: flex; align-items: center; gap: 8px; }
+    .home-btn {
+      display: flex; align-items: center; gap: 6px;
+      background: var(--navy); color: #fff;
+      border: none; border-radius: 7px;
+      padding: 8px 16px; font-size: 12px; font-weight: 600;
+      font-family: 'Inter', sans-serif; cursor: pointer;
+      transition: all 0.15s; text-decoration: none;
+    }
+    .home-btn:hover { background: var(--blue); }
+
+    /* ─── CONTENT ─── */
+    .content { padding: 22px 28px; flex: 1; }
+
+    /* ─── SECTION PANEL ─── */
+    .section-panel { display: none; animation: fadeIn 0.2s ease; }
+    .section-panel.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ─── KPI GRID ─── */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 12px; margin-bottom: 16px;
+    }
+    .kpi-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 18px 16px 16px;
+      box-shadow: 0 10px 24px rgba(15, 37, 22, 0.06);
+      transition: box-shadow 0.25s, transform 0.2s;
+      position: relative; overflow: hidden;
+      border: 1px solid rgba(15, 37, 22, 0.07);
+    }
+    .kpi-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+      background: linear-gradient(90deg, var(--blue), var(--accent));
+      border-radius: 12px 12px 0 0;
+    }
+    .kpi-card::before {
+      content: ''; position: absolute;
+      top: 0; left: 0; right: 0; height: 4px;
+      background: linear-gradient(90deg, var(--blue), var(--accent));
+      border-radius: var(--radius) var(--radius) 0 0;
+    }
+    .kpi-card.accent-yellow::before { background: linear-gradient(90deg, var(--accent), #f97316); }
+    .kpi-card.accent-green::before  { background: linear-gradient(90deg, var(--success), #34d399); }
+    .kpi-card.accent-danger::before { background: linear-gradient(90deg, var(--danger), #f97316); }
+    .kpi-card.accent-pink::before   { background: linear-gradient(90deg, #e91e8c, #8b5cf6); }
+    .kpi-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .kpi-card .kc-head {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .kpi-card .kc-label {
+      font-size: 9px; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.6px; line-height: 1.2;
+    }
+    .kpi-card .kc-icon {
+      width: 28px; height: 28px; border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0; background: var(--blue-light);
+    }
+    .kpi-card .kc-icon svg { width: 14px; height: 14px; stroke: var(--blue); }
+    .kpi-card.accent-yellow .kc-icon { background: #fef3c7; }
+    .kpi-card.accent-yellow .kc-icon svg { stroke: var(--accent); }
+    .kpi-card.accent-green  .kc-icon { background: #d1fae5; }
+    .kpi-card.accent-green .kc-icon svg { stroke: var(--success); }
+    .kpi-card.accent-danger .kc-icon { background: #fee2e2; }
+    .kpi-card.accent-danger .kc-icon svg { stroke: var(--danger); }
+    .kpi-card.accent-pink   .kc-icon { background: #fce7f3; }
+    .kpi-card.accent-pink .kc-icon svg { stroke: var(--pink); }
+    .kpi-card .kc-value {
+      font-size: 20px; font-weight: 900; color: var(--navy);
+      line-height: 1; margin-bottom: 6px; letter-spacing: -0.5px;
+    }
+    .kpi-card .kc-value small {
+      font-size: 12px; font-weight: 600; color: var(--muted); margin-left: 2px;
+    }
+    .kpi-card .kc-footer { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .trend {
+      font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; gap: 3px;
+    }
+    .trend.up { color: var(--success); }
+    .trend.down-good { color: var(--success); }
+    .trend.down { color: var(--danger); }
+    .trend.up-bad { color: var(--danger); }
+    .trend-vs { font-size: 10px; color: var(--muted); }
+
+    /* ─── SUB-KPI ROW ─── */
+    .sub-kpi-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .sub-kpi-card {
+      background: var(--white);
+      border-radius: 8px;
+      padding: 14px 18px;
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    }
+    .sub-kpi-card .sk-info {}
+    .sub-kpi-card .sk-label {
+      font-size: 10px; font-weight: 600; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;
+    }
+    .sub-kpi-card .sk-value {
+      font-size: 24px; font-weight: 800; color: var(--navy);
+    }
+    .sub-kpi-card .sk-value small {
+      font-size: 12px; font-weight: 500; color: var(--muted);
+    }
+    .sub-kpi-card .sk-badge {
+      font-size: 10px; font-weight: 600; margin-top: 4px;
+      padding: 2px 8px; border-radius: 10px;
+      display: inline-block;
+    }
+    .sk-donut { flex-shrink: 0; }
+
+    /* ─── CHART GRID ─── */
+    .chart-row {
+      display: grid; gap: 12px; margin-bottom: 16px;
+    }
+    .chart-row.cols-3 { grid-template-columns: 1.8fr 1fr 1fr; }
+    .chart-row.cols-2 { grid-template-columns: 1.6fr 1fr; }
+    .chart-row.cols-2-equal { grid-template-columns: 1fr 1fr; }
+    .chart-row.cols-1 { grid-template-columns: 1fr; }
+    .chart-card {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 20px 22px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      border: 1px solid var(--border-light);
+      transition: box-shadow 0.2s;
+    }
+    .chart-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+    .chart-card .cc-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .chart-card .cc-title {
+      font-size: 13px; font-weight: 700; color: var(--navy); line-height: 1.3;
+    }
+    .chart-card .cc-subtitle { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .chart-card .cc-badge {
+      font-size: 10px; font-weight: 700;
+      background: var(--blue-light); color: var(--blue);
+      padding: 3px 9px; border-radius: 20px;
+    }
+
+    /* ─── TABLE ─── */
+    .data-table-card {
+      background: var(--white);
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
+    .data-table-card .dtc-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 18px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .data-table-card .dtc-title {
+      font-size: 13px; font-weight: 700; color: var(--navy);
+    }
+    .dt {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .dt thead th {
+      background: #f8fafc;
+      font-size: 10px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.5px;
+      color: var(--muted);
+      padding: 9px 16px;
+      text-align: left;
+      border-bottom: 2px solid var(--border);
+    }
+    .dt tbody td {
+      padding: 9px 16px;
+      font-size: 12px; color: var(--text);
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .dt tbody tr:last-child td { border-bottom: none; }
+    .dt tbody tr:hover td { background: #f8fafc; }
+
+    .pill {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 10px; border-radius: 99px; font-size: 10px; font-weight: 700;
+    }
+    .pill.green  { background: #d1fae5; color: #065f46; }
+    .pill.yellow { background: #fef3c7; color: #92400e; }
+    .pill.red    { background: #fee2e2; color: #991b1b; }
+    .pill.blue   { background: var(--blue-light); color: var(--blue); }
+
+    /* ─── PROGRESS ─── */
+    .pbar-wrap { display: flex; align-items: center; gap: 8px; }
+    .pbar { flex: 1; height: 6px; background: #edf7ee; border-radius: 999px; overflow: hidden; }
+    .pbar-fill { height: 100%; border-radius: 999px; }
+    .pbar-fill.blue   { background: linear-gradient(90deg, var(--blue), var(--accent)); }
+    .pbar-fill.green  { background: var(--success); }
+    .pbar-fill.red    { background: var(--danger); }
+    .pbar-fill.yellow { background: var(--accent); }
+    .pbar-fill.gray   { background: #94a3b8; }
+
+    /* ─── IBNR TRIANGLE ─── */
+    .triangle-table th, .triangle-table td {
+      font-size: 11px; padding: 6px 10px; text-align: right;
+      border: 1px solid var(--border);
+    }
+    .triangle-table th { background: var(--navy); color: #fff; font-weight: 600; text-align: center; }
+    .triangle-table .projected { background: #e6faf2; color: var(--blue); font-style: italic; }
+    .triangle-table .ibnr-total { background: #1e3a5f; color: #fff; font-weight: 800; }
+    .triangle-table td:first-child { text-align: left; font-weight: 700; color: var(--navy); }
+
+    /* ─── FORM ─── */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-group label {
+      display: block; font-size: 11px; font-weight: 600; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 5px;
+    }
+    .form-group input, .form-group select {
+      width: 100%; padding: 8px 10px;
+      border: 1.5px solid var(--border); border-radius: 6px;
+      font-family: 'Inter', sans-serif; font-size: 13px; color: var(--text);
+      transition: border-color 0.15s;
+    }
+    .form-group input:focus, .form-group select:focus {
+      outline: none; border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(26,86,219,0.08);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--blue), #3b82f6);
+      color: #fff; border: none; border-radius: 8px;
+      padding: 10px 22px; font-size: 13px; font-weight: 700;
+      font-family: 'Inter', sans-serif; cursor: pointer;
+      transition: all 0.2s; display: inline-flex; align-items: center; gap: 7px;
+      box-shadow: 0 4px 12px rgba(37,99,235,0.25);
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #1d4ed8, var(--blue));
+      box-shadow: 0 6px 18px rgba(37,99,235,0.35); transform: translateY(-1px);
+    }
+    .btn-outline {
+      background: var(--white); border: 1.5px solid var(--border); color: var(--text-sec);
+      border-radius: 8px; padding: 9px 18px; font-size: 12px; font-weight: 600;
+      font-family: 'Inter', sans-serif; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s;
+    }
+    .btn-outline:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-light); }
+
+    /* ─── RESULT CARDS ─── */
+    .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .result-card {
+      background: var(--bg); border-radius: 10px; padding: 14px 16px;
+      border: 1.5px solid var(--border); text-align: center; transition: all 0.15s;
+    }
+    .result-card:hover { border-color: var(--blue); }
+    .result-card.featured {
+      background: linear-gradient(135deg, var(--navy), var(--blue));
+      border-color: transparent; color: #fff;
+      box-shadow: 0 4px 16px rgba(37,99,235,0.3);
+    }
+    .result-card .rc-label {
+      font-size: 10px; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.6px;
+    }
+    .result-card.featured .rc-label { color: rgba(255,255,255,0.6); }
+    .result-card .rc-value {
+      font-size: 22px; font-weight: 900; color: var(--navy);
+      margin: 6px 0; letter-spacing: -0.3px;
+    }
+    .result-card.featured .rc-value { color: #fff; }
+
+    /* ─── PLACEHOLDER ─── */
+    .placeholder-section {
+      background: var(--white); border-radius: 12px;
+      padding: 70px 40px; text-align: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      border: 1px solid var(--border-light);
+    }
+    .placeholder-icon { font-size: 4rem; margin-bottom: 18px; opacity: 0.8; }
+    .placeholder-title { font-size: 20px; font-weight: 800; color: var(--navy); margin-bottom: 10px; letter-spacing: -0.3px; }
+    .placeholder-desc { font-size: 13px; color: var(--muted); max-width: 520px; margin: 0 auto 26px; line-height: 1.7; }
+    .coming-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #fef3c7; color: #92400e;
+      font-size: 11px; font-weight: 700; padding: 6px 14px; border-radius: 99px;
+      border: 1.5px solid #fde68a;
+    }
+
+    /* ─── SHAP ─── */
+    .shap-row { margin-bottom: 10px; }
+    .shap-row .shap-label {
+      font-size: 11px; color: var(--text-sec); margin-bottom: 4px;
+      font-weight: 500; display: flex; justify-content: space-between;
+    }
+
+    /* ─── DIVIDER ─── */
+    .section-divider { display: flex; align-items: center; gap: 10px; margin: 20px 0 16px; }
+    .section-divider h3 {
+      font-size: 11px; font-weight: 800; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.8px; white-space: nowrap;
+    }
+    .section-divider::after {
+      content: ''; flex: 1; height: 1px;
+      background: linear-gradient(90deg, var(--border) 0%, transparent 100%);
+    }
+
+    /* ─── EDITABLE CELLS ─── */
+    [contenteditable="true"] {
+      cursor: text; border-bottom: 1.5px dashed var(--border);
+      outline: none; transition: border-color 0.15s, background 0.15s;
+      border-radius: 3px; padding: 2px 4px !important;
+    }
+    [contenteditable="true"]:focus {
+      border-bottom-color: var(--blue); background: var(--blue-light);
+    }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+  </style>
+  <style>
+    /* Overrides: compact sidebar + larger logo */
+    :root { --sidebar-w: 96px; }
+    .sidebar { padding-top: 20px; }
+    .brand-logo-img { width:72px !important; height:72px !important; padding:8px !important; border-radius:12px !important; box-shadow:0 12px 28px rgba(2,18,12,0.18) !important; }
+    .brand-text { display:none !important; }
+    .sidebar-section-label { display:none !important; }
+    .sidebar-item { display:flex !important; align-items:center !important; justify-content:center !important; padding:10px !important; margin:10px !important; border-radius:12px !important; }
+    .sidebar-item > :not(.sidebar-badge):not(.si-icon) { display:none !important; }
+    .sidebar-badge { display:inline-flex !important; width:44px !important; height:44px !important; border-radius:999px !important; align-items:center; justify-content:center; background:rgba(255,255,255,0.04) !important; color:#eaf6ee !important; border:1px solid rgba(255,255,255,0.06) !important; font-weight:800 !important; }
+    .sidebar-item.active .sidebar-badge { background: linear-gradient(135deg,var(--blue),var(--accent)) !important; color:#fff !important; box-shadow:0 8px 18px rgba(2,18,12,0.18) !important; }
+    .sidebar-footer { padding:12px !important; }
+    /* Ensure main content shifts correctly */
+    .main-wrapper { margin-left: var(--sidebar-w) !important; }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════════════════════════════════════
+       SIDEBAR
+  ════════════════════════════════════════════ -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <img src="images/biat-logo.png" alt="BIAT" class="brand-logo-img">
+      <div class="brand-text">
+        <span class="brand-name">BIAT Assurance</span>
+        <span class="brand-sub">Plateforme Actuarielle</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Tableau de Bord</div>
+      <a class="sidebar-item active" onclick="showSection('overview')" href="#">
+        <span class="si-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg></span> Vue Générale
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Modules Actuariels</div>
+      <a class="sidebar-item" onclick="showSection('sinistralite')" href="#">
+        <span class="si-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg></span> Sinistralité
+        <span class="sidebar-badge">M1</span>
+      </a>
+      <a class="sidebar-item" onclick="showSection('provisionnement')" href="#">
+        <span class="si-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></span> Provisionnement
+        <span class="sidebar-badge">M2</span>
+      </a>
+      <a class="sidebar-item" onclick="showSection('modelisation')" href="#">
+        <span class="si-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg></span> Modélisation
+        <span class="sidebar-badge">M3</span>
+      </a>
+      <a class="sidebar-item" onclick="showSection('series')" href="#" style="opacity:.65;">
+        <span class="si-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"></path></svg></span> Séries Temporelles
+        <span class="sidebar-badge coming">Bientôt</span>
+      </a>
+      <a class="sidebar-item" onclick="showSection('ratio')" href="#">
+        <span class="si-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg></span> Ratio Combiné
+        <span class="sidebar-badge">M5</span>
+      </a>
+      <a class="sidebar-item" onclick="showSection('tarification')" href="#">
+        <span class="si-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="14"></line><line x1="12" y1="14" x2="12" y2="14"></line><line x1="8" y1="14" x2="8" y2="14"></line><line x1="16" y1="18" x2="16" y2="18"></line><line x1="12" y1="18" x2="12" y2="18"></line><line x1="8" y1="18" x2="8" y2="18"></line></svg></span> Bonus Malus
+        <span class="sidebar-badge" style="background:#2563eb;color:white;">New</span>
+      </a>
+    </div>
+
+    <div class="sidebar-footer">
+      <a href="/home">🏠 Page d'accueil</a>
+      <a href="http://localhost:8000/docs" target="_blank">⚡ API FastAPI Docs</a>
+      <a href="http://localhost:8000" target="_blank">🔗 Backend :8000</a>
+    </div>
+  </aside>
+
+  <!-- ════════════════════════════════════════════
+       MAIN
+  ════════════════════════════════════════════ -->
+  <div class="main-wrapper">
+
+    <!-- TOP BAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-title">TABLEAU DE BORD <span>VUE EXÉCUTIVE</span></div>
+        <span class="topbar-breadcrumb" id="topbar-breadcrumb">BIAT Assurance — Plateforme Actuarielle</span>
+      </div>
+
+      <div class="topbar-filters">
+        <div class="filter-group">
+          <span class="filter-label">Année</span>
+          <select class="filter-select" id="f-annee" onchange="applyFilters()">
+            <option>Toutes</option>
+            <option>2023</option><option>2022</option><option>2021</option>
+            <option>2020</option><option>2019</option><option>2018</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">Garantie</span>
+          <select class="filter-select" id="f-garantie" onchange="applyFilters()">
+            <option>Toutes</option>
+            <option>RC Dommages</option><option>RC Corporel</option>
+            <option>Vol</option><option>Incendie</option><option>Bris de Glace</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">Usage</span>
+          <select class="filter-select" id="f-usage" onchange="applyFilters()">
+            <option>Tout</option>
+            <option>Privé</option><option>Commercial</option><option>Administratif</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">Énergie</span>
+          <select class="filter-select" id="f-energie" onchange="applyFilters()">
+            <option>Tout</option>
+            <option>Diesel</option><option>Essence</option><option>GPL</option><option>Électrique</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">Région</span>
+          <select class="filter-select" id="f-region" onchange="applyFilters()">
+            <option>Tout</option>
+            <option>Tunis</option><option>Sfax</option><option>Sousse</option>
+            <option>Nabeul</option><option>Bizerte</option><option>Gabès</option><option>Kairouan</option>
+          </select>
+        </div>
+        <button class="topbar-reset" onclick="resetFilters()">↺ Réinitialiser</button>
+      </div>
+
+      <div class="topbar-right">
+        <a href="/home.html" class="home-btn">🏠 Accueil</a>
+        <a href="http://localhost:8000/docs" target="_blank" class="topbar-icon-btn" title="API Docs" style="text-decoration:none;font-size:15px;">⚡</a>
+        <button onclick="logout()" class="home-btn" style="background:#ef4444; margin-left:8px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+          Déconnexion
+        </button>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- ══════════════════════════════════════
+           VUE GÉNÉRALE
+      ══════════════════════════════════════ -->
+      <div class="section-panel active" id="panel-overview">
+
+        <!-- KPI row 1 -->
+        <div class="kpi-row">
+          <div class="kpi-card">
+            <div class="kc-head">
+              <div class="kc-label">Polices<br>analysées</div>
+              <div class="kc-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></div>
+            </div>
+            <div class="kc-value" id="kpi-primes-value">93 760</div>
+            <div class="kc-footer">
+              <span class="trend up" id="kpi-primes-trend">▲ +5,2%</span>
+              <span class="trend-vs">vs 2022</span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kc-head">
+              <div class="kc-label">Nombre de<br>sinistres</div>
+              <div class="kc-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div>
+            </div>
+            <div class="kc-value" id="kpi-sinistres-value">64 250</div>
+            <div class="kc-footer">
+              <span class="trend up" id="kpi-sinistres-trend">▲ +3,1%</span>
+              <span class="trend-vs">vs 2022</span>
+            </div>
+          </div>
+          <div class="kpi-card accent-yellow">
+            <div class="kc-head">
+              <div class="kc-label">Fréquence<br>sinistre</div>
+              <div class="kc-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg></div>
+            </div>
+            <div class="kc-value" id="kpi-frequence-value">68,5<small>%</small></div>
+            <div class="kc-footer">
+              <span class="trend up-bad" id="kpi-frequence-trend">▲ +1,2 pts</span>
+              <span class="trend-vs">vs 2022</span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kc-head">
+              <div class="kc-label">Coût moyen<br>sinistre</div>
+              <div class="kc-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg></div>
+            </div>
+            <div class="kc-value" id="kpi-cout-moyen-value">4 823<small> TND</small></div>
+            <div class="kc-footer">
+              <span class="trend up-bad" id="kpi-cout-moyen-trend">▲ +8,4%</span>
+              <span class="trend-vs">vs 2022</span>
+            </div>
+          </div>
+          <div class="kpi-card accent-green">
+            <div class="kc-head">
+              <div class="kc-label">IBNR total<br>Chain-Ladder</div>
+              <div class="kc-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></div>
+            </div>
+            <div class="kc-value" id="kpi-ibnr-value">12,4<small> M TND</small></div>
+            <div class="kc-footer">
+              <span class="trend up-bad" id="kpi-ibnr-trend">▲ +6,9%</span>
+              <span class="trend-vs">vs 2022</span>
+            </div>
+          </div>
+          <div class="kpi-card accent-green">
+            <div class="kc-head">
+              <div class="kc-label">Ratio<br>combiné</div>
+              <div class="kc-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg></div>
+            </div>
+            <div class="kc-value" id="kpi-ratio-value">97<small>%</small></div>
+            <div class="kc-footer">
+              <span class="trend down-good" id="kpi-ratio-trend">▼ -1,5 pts</span>
+              <span class="trend-vs">vs 2022</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sub-KPI row -->
+        <div class="sub-kpi-row">
+          <div class="sub-kpi-card">
+            <div class="sk-info">
+              <div class="sk-label">Part RC Dommages</div>
+              <div class="sk-value">67,0<small>%</small></div>
+              <span class="sk-badge pill blue">Garantie principale</span>
+            </div>
+            <div class="sk-donut" id="donut1"></div>
+          </div>
+          <div class="sub-kpi-card">
+            <div class="sk-info">
+              <div class="sk-label">Gini XGBoost (M3)</div>
+              <div class="sk-value">0,71</div>
+              <span class="sk-badge pill green">vs GLM : 0,58</span>
+            </div>
+            <div class="sk-donut" id="donut2"></div>
+          </div>
+          <div class="sub-kpi-card">
+            <div class="sk-info">
+              <div class="sk-label">Segments déficitaires (M5)</div>
+              <div class="sk-value">3<small>/7</small></div>
+              <span class="sk-badge pill red">Ratio > 100%</span>
+            </div>
+            <div class="sk-donut" id="donut3"></div>
+          </div>
+        </div>
+
+        <!-- Charts row 1 -->
+        <div class="chart-row cols-3">
+          <div class="chart-card">
+            <div class="cc-header">
+              <div>
+                <div class="cc-title">Évolution du coût total sinistres (M TND)</div>
+                <div class="cc-subtitle">Portefeuille automobile tunisien 2018–2023</div>
+              </div>
+              <span class="cc-badge">2018–2023</span>
+            </div>
+            <div id="chart-evolution"></div>
+          </div>
+          <div class="chart-card">
+            <div class="cc-header">
+              <div>
+                <div class="cc-title">Répartition par Garantie</div>
+                <div class="cc-subtitle">Coût total sinistres</div>
+              </div>
+            </div>
+            <div id="chart-garantie"></div>
+          </div>
+          <div class="chart-card">
+            <div class="cc-header">
+              <div>
+                <div class="cc-title">Top Régions — Sinistralité</div>
+                <div class="cc-subtitle">Coût total (M TND)</div>
+              </div>
+            </div>
+            <div id="chart-regions"></div>
+          </div>
+        </div>
+
+        <!-- Charts row 2 -->
+        <div class="chart-row cols-2">
+          <div class="chart-card">
+            <div class="cc-header">
+              <div>
+                <div class="cc-title">Sinistres par mois</div>
+                <div class="cc-subtitle">Nombre de sinistres déclarés — 2023</div>
+              </div>
+            </div>
+            <div id="chart-mensuel"></div>
+          </div>
+          <div class="chart-card">
+            <div class="cc-header">
+              <div>
+                <div class="cc-title">Ratio Combiné par Année</div>
+                <div class="cc-subtitle">Seuil critique : 100%</div>
+              </div>
+            </div>
+            <div id="chart-ratio-years"></div>
+          </div>
+        </div>
+
+      </div><!-- /panel-overview -->
+
+      <!-- ══════════════════════════════════════
+           MODULE 1 — SINISTRALITÉ
+      ══════════════════════════════════════ -->
+      <div class="section-panel" id="panel-sinistralite">
+
+        <div class="kpi-row">
+          <div class="kpi-card">
+            <div class="kc-head"><div class="kc-label">Nb Polices</div><div class="kc-icon">📋</div></div>
+            <div class="kc-value">93 760</div>
+            <div class="kc-footer"><span class="trend up">▲ +5,2%</span><span class="trend-vs">vs 2022</span></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kc-head"><div class="kc-label">Nb Sinistres</div><div class="kc-icon">⚠️</div></div>
+            <div class="kc-value">64 250</div>
+            <div class="kc-footer"><span class="trend up">▲ +3,1%</span><span class="trend-vs">vs 2022</span></div>
+          </div>
+          <div class="kpi-card accent-yellow">
+            <div class="kc-head"><div class="kc-label">Fréquence</div><div class="kc-icon" style="background:#fef3c7;">📉</div></div>
+            <div class="kc-value">68,5<small>%</small></div>
+            <div class="kc-footer"><span class="trend up-bad">▲ +1,2 pts</span><span class="trend-vs">vs 2022</span></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kc-head"><div class="kc-label">Sévérité moy.</div><div class="kc-icon">💰</div></div>
+            <div class="kc-value">4 823<small> TND</small></div>
+            <div class="kc-footer"><span class="trend up-bad">▲ +8,4%</span></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kc-head"><div class="kc-label">Coût total</div><div class="kc-icon">📊</div></div>
+            <div class="kc-value">310<small> M TND</small></div>
+            <div class="kc-footer"><span class="trend up-bad">▲ +12,0%</span><span class="trend-vs">vs 2022</span></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kc-head"><div class="kc-label">Garanties</div><div class="kc-icon">🔖</div></div>
+            <div class="kc-value">5</div>
+            <div class="kc-footer"><span class="trend-vs">RC + Vol + Inc. + BdG</span></div>
+          </div>
+        </div>
+
+        <div class="chart-row cols-2">
+          <div class="chart-card">
+            <div class="cc-header">
+              <div><div class="cc-title">Sinistralité mensuelle — 2018 à 2023</div><div class="cc-subtitle">Nombre de sinistres par mois</div></div>
+            </div>
+            <div id="sin-chart-mensuel"></div>
+          </div>
+          <div class="chart-card">
+            <div class="cc-header">
+              <div><div class="cc-title">Coût total par Garantie</div><div class="cc-subtitle">En millions TND</div></div>
+            </div>
+            <div id="sin-chart-garantie"></div>
+          </div>
+        </div>
+
+        <div class="data-table-card">
+          <div class="dtc-header">
+            <div class="dtc-title">Sinistralité détaillée par Segment (Usage × Énergie)</div>
+          </div>
+          <table class="dt" id="table-m1">
+            <thead>
+              <tr>
+                <th>Segment</th><th>Usage</th><th>Énergie</th>
+                <th>Nb Polices (Éditable)</th><th>Nb Sinistres (Éditable)</th>
+                <th>Fréquence</th><th>Sévérité (TND)</th><th>Coût total (M TND) (Éditable)</th>
+                <th>Tendance</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="row-m1">
+                <td><strong>Privé · Diesel</strong></td><td>Privé</td><td><span class="pill blue">Diesel</span></td>
+                <td contenteditable="true" class="val-polices" onblur="recalculerM1()">38 450</td>
+                <td contenteditable="true" class="val-sinistres" onblur="recalculerM1()">24 890</td>
+                <td class="val-freq">64,7%</td>
+                <td class="val-sev">4 420</td>
+                <td contenteditable="true" class="val-cout" onblur="recalculerM1()">110,0</td>
+                <td><span class="pill green">▲ Stable</span></td>
+              </tr>
+              <tr class="row-m1">
+                <td><strong>Privé · Essence</strong></td><td>Privé</td><td><span class="pill green">Essence</span></td>
+                <td contenteditable="true" class="val-polices" onblur="recalculerM1()">28 300</td>
+                <td contenteditable="true" class="val-sinistres" onblur="recalculerM1()">18 950</td>
+                <td class="val-freq">66,9%</td>
+                <td class="val-sev">4 180</td>
+                <td contenteditable="true" class="val-cout" onblur="recalculerM1()">79,2</td>
+                <td><span class="pill green">▲ Stable</span></td>
+              </tr>
+              <tr class="row-m1">
+                <td><strong>Commercial · Diesel</strong></td><td>Commercial</td><td><span class="pill blue">Diesel</span></td>
+                <td contenteditable="true" class="val-polices" onblur="recalculerM1()">14 200</td>
+                <td contenteditable="true" class="val-sinistres" onblur="recalculerM1()">11 350</td>
+                <td class="val-freq">79,9%</td>
+                <td class="val-sev">5 680</td>
+                <td contenteditable="true" class="val-cout" onblur="recalculerM1()">64,5</td>
+                <td><span class="pill yellow">⚠ Hausse</span></td>
+              </tr>
+              <tr class="row-m1">
+                <td><strong>Commercial · GPL</strong></td><td>Commercial</td><td><span class="pill red">GPL</span></td>
+                <td contenteditable="true" class="val-polices" onblur="recalculerM1()">5 430</td>
+                <td contenteditable="true" class="val-sinistres" onblur="recalculerM1()">4 850</td>
+                <td class="val-freq">89,3%</td>
+                <td class="val-sev">6 920</td>
+                <td contenteditable="true" class="val-cout" onblur="recalculerM1()">33,6</td>
+                <td><span class="pill red">▲ Forte hausse</span></td>
+              </tr>
+              <tr class="row-m1">
+                <td><strong>Administratif · Diesel</strong></td><td>Administratif</td><td><span class="pill blue">Diesel</span></td>
+                <td contenteditable="true" class="val-polices" onblur="recalculerM1()">4 890</td>
+                <td contenteditable="true" class="val-sinistres" onblur="recalculerM1()">3 150</td>
+                <td class="val-freq">64,4%</td>
+                <td class="val-sev">4 950</td>
+                <td contenteditable="true" class="val-cout" onblur="recalculerM1()">15,6</td>
+                <td><span class="pill green">▼ Baisse</span></td>
+              </tr>
+              <tr class="row-m1">
+                <td><strong>Privé · Électrique</strong></td><td>Privé</td><td><span class="pill blue">Électrique</span></td>
+                <td contenteditable="true" class="val-polices" onblur="recalculerM1()">2 490</td>
+                <td contenteditable="true" class="val-sinistres" onblur="recalculerM1()">1 060</td>
+                <td class="val-freq">42,6%</td>
+                <td class="val-sev">3 150</td>
+                <td contenteditable="true" class="val-cout" onblur="recalculerM1()">3,3</td>
+                <td><span class="pill green">▼ Faible risque</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+
+        <!-- IA PREDICTION SINISTRALITÉ -->
+        <div style="margin-top:28px; background:linear-gradient(135deg,#1e1b4b 0%,#312e81 100%); border-radius:20px; padding:32px; color:white;">
+          <div style="display:flex; align-items:center; gap:16px; margin-bottom:24px;">
+            <div style="font-size:40px; line-height:1;">🤖</div>
+            <div>
+              <div style="font-size:20px; font-weight:800; letter-spacing:-0.3px;">Prédiction IA — Sinistralité par Segment</div>
+              <div style="font-size:13px; color:rgba(255,255,255,0.65); margin-top:4px;">Modèle XGBoost · Fréquence &amp; Sévérité en temps réel</div>
+            </div>
+          </div>
+
+          <!-- Formulaire -->
+          <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:20px;">
+            <div>
+              <label style="font-size:11px; font-weight:700; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.8px; display:block; margin-bottom:6px;">Usage</label>
+              <select id="m1-usage" style="--md-sys-color-surface-container-lowest:white; --md-sys-color-on-surface:#1e1b4b; --md-sys-color-outline-variant:#6366f1; width:100%; padding:10px 14px; border-radius:10px; font-size:14px; font-weight:600;">
+                <option value="Privé">Privé</option>
+                <option value="Commercial">Commercial</option>
+                <option value="Administratif">Administratif</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:11px; font-weight:700; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.8px; display:block; margin-bottom:6px;">Énergie</label>
+              <select id="m1-energie" style="--md-sys-color-surface-container-lowest:white; --md-sys-color-on-surface:#1e1b4b; --md-sys-color-outline-variant:#6366f1; width:100%; padding:10px 14px; border-radius:10px; font-size:14px; font-weight:600;">
+                <option value="Essence">Essence</option>
+                <option value="Diesel">Diesel</option>
+                <option value="GPL">GPL</option>
+                <option value="Électrique">Électrique</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:11px; font-weight:700; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.8px; display:block; margin-bottom:6px;">Région</label>
+              <select id="m1-region" style="--md-sys-color-surface-container-lowest:white; --md-sys-color-on-surface:#1e1b4b; --md-sys-color-outline-variant:#6366f1; width:100%; padding:10px 14px; border-radius:10px; font-size:14px; font-weight:600;">
+                <option value="Tunis">Tunis</option>
+                <option value="Sfax">Sfax</option>
+                <option value="Sousse">Sousse</option>
+                <option value="Bizerte">Bizerte</option>
+                <option value="Gabès">Gabès</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:11px; font-weight:700; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.8px; display:block; margin-bottom:6px;">Puissance Fiscale</label>
+              <input type="number" id="m1-puissance" value="8" min="4" max="20" style="--md-sys-color-surface-container-lowest:white; --md-sys-color-on-surface:#1e1b4b; --md-sys-color-outline-variant:#6366f1; width:100%; padding:10px 14px; border-radius:10px; font-size:14px; font-weight:600;">
+            </div>
+          </div>
+          <div style="display:flex; justify-content:center;">
+            <button id="m1-predict-btn" onclick="predireSinistralite()" style="padding:14px 40px; border-radius:12px; background:linear-gradient(135deg,#6366f1,#8b5cf6); border:none; color:white; font-size:15px; font-weight:700; cursor:pointer; letter-spacing:0.3px; box-shadow:0 4px 20px rgba(99,102,241,0.4); transition:transform 0.2s;">
+              ⚡ Calculer la Prédiction IA
+            </button>
+          </div>
+
+          <!-- Résultats -->
+          <div id="m1-results" style="display:none; margin-top:28px;">
+            <div style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12); border-radius:16px; padding:24px;">
+              <div style="font-size:13px; font-weight:700; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:1px; margin-bottom:20px;">Résultats du Modèle XGBoost</div>
+              <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:16px;">
+                <div style="background:rgba(255,255,255,0.08); border-radius:12px; padding:18px; text-align:center;">
+                  <div style="font-size:11px; color:rgba(255,255,255,0.5); margin-bottom:8px; text-transform:uppercase;">Fréquence</div>
+                  <div id="m1-out-freq" style="font-size:28px; font-weight:900; color:#fbbf24;">—</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.08); border-radius:12px; padding:18px; text-align:center;">
+                  <div style="font-size:11px; color:rgba(255,255,255,0.5); margin-bottom:8px; text-transform:uppercase;">Sévérité moy.</div>
+                  <div id="m1-out-sev" style="font-size:28px; font-weight:900; color:#34d399;">—</div>
+                  <div style="font-size:11px; color:rgba(255,255,255,0.4);">TND</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.08); border-radius:12px; padding:18px; text-align:center;">
+                  <div style="font-size:11px; color:rgba(255,255,255,0.5); margin-bottom:8px; text-transform:uppercase;">Prime Pure</div>
+                  <div id="m1-out-prime" style="font-size:28px; font-weight:900; color:#60a5fa;">—</div>
+                  <div style="font-size:11px; color:rgba(255,255,255,0.4);">TND</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.08); border-radius:12px; padding:18px; text-align:center;">
+                  <div style="font-size:11px; color:rgba(255,255,255,0.5); margin-bottom:8px; text-transform:uppercase;">Niveau de Risque</div>
+                  <div id="m1-out-risque" style="font-size:22px; font-weight:900;">—</div>
+                </div>
+              </div>
+              <div id="m1-out-interpretation" style="margin-top:16px; padding:14px 18px; background:rgba(255,255,255,0.06); border-radius:10px; font-size:13px; color:rgba(255,255,255,0.75); line-height:1.7;"></div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /panel-sinistralite -->
+
+
+      <!-- ══════════════════════════════════════
+           MODULE 2 — PROVISIONNEMENT
+      ══════════════════════════════════════ -->
+      <div class="section-panel" id="panel-provisionnement">
+
+        <div class="kpi-row" style="grid-template-columns:repeat(4,1fr);">
+          <div class="kpi-card accent-green">
+            <div class="kc-head"><div class="kc-label">IBNR Chain-Ladder<br><small style="text-transform:none;font-size:9px;">(Méthode retenue)</small></div><div class="kc-icon" style="background:#dcfce7;">⭐</div></div>
+            <div class="kc-value">12,40<small> M TND</small></div>
+            <div class="kc-footer"><span class="pill green">Méthode principale</span></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kc-head"><div class="kc-label">IBNR Bornhuetter-Ferguson</div><div class="kc-icon">🛡️</div></div>
+            <div class="kc-value">11,80<small> M TND</small></div>
+            <div class="kc-footer"><span class="trend-vs">A priori GLM</span></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kc-head"><div class="kc-label">IBNR Cape Cod</div><div class="kc-icon">🧮</div></div>
+            <div class="kc-value">12,10<small> M TND</small></div>
+            <div class="kc-footer"><span class="trend-vs">Ratio sinistres/primes</span></div>
+          </div>
+          <div class="kpi-card accent-yellow">
+            <div class="kc-head"><div class="kc-label">Écart CL vs BF</div><div class="kc-icon" style="background:#fef3c7;">📐</div></div>
+            <div class="kc-value">+600<small> K TND</small></div>
+            <div class="kc-footer"><span class="trend-vs">Convergence satisfaisante</span></div>
+          </div>
+        </div>
+
+        <!-- IA PREDICTION PROVISIONNEMENT -->
+        <div style="margin-top:28px; background:linear-gradient(135deg,#1e1b4b 0%,#312e81 100%); border-radius:20px; padding:32px; color:white;">
+          <div style="display:flex; align-items:center; gap:16px; margin-bottom:24px;">
+            <div style="font-size:40px; line-height:1;">🧠</div>
+            <div>
+              <div style="font-size:20px; font-weight:800; letter-spacing:-0.3px;">Prédiction IA — Réserves et Triangle</div>
+              <div style="font-size:13px; color:rgba(255,255,255,0.65); margin-top:4px;">Modèles XGBoost et Chain-Ladder · Complétion dynamique du Triangle</div>
+            </div>
+          </div>
+
+          <!-- Formulaire -->
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:20px;">
+            <div>
+              <label style="font-size:11px; font-weight:700; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.8px; display:block; margin-bottom:6px;">Ligne d'Activité (Triangle de Base)</label>
+              <select id="m2-segment" style="--md-sys-color-surface-container-lowest:white; --md-sys-color-on-surface:#1e1b4b; --md-sys-color-outline-variant:#6366f1; width:100%; padding:10px 14px; border-radius:10px; font-size:14px; font-weight:600;">
+                <option value="Auto">Branche Auto</option>
+                <option value="Incendie">Branche Incendie</option>
+                <option value="RC">Responsabilité Civile</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:11px; font-weight:700; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.8px; display:block; margin-bottom:6px;">Choc Inflation (%)</label>
+              <input type="number" id="m2-inflation" value="0" min="0" max="20" style="--md-sys-color-surface-container-lowest:white; --md-sys-color-on-surface:#1e1b4b; --md-sys-color-outline-variant:#6366f1; width:100%; padding:10px 14px; border-radius:10px; font-size:14px; font-weight:600;">
+            </div>
+            <div>
+              <label style="font-size:11px; font-weight:700; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.8px; display:block; margin-bottom:6px;">Accélération Paiement (%)</label>
+              <input type="number" id="m2-acceleration" value="0" min="-20" max="20" style="--md-sys-color-surface-container-lowest:white; --md-sys-color-on-surface:#1e1b4b; --md-sys-color-outline-variant:#6366f1; width:100%; padding:10px 14px; border-radius:10px; font-size:14px; font-weight:600;">
+            </div>
+          </div>
+          <div style="display:flex; justify-content:center;">
+            <button id="m2-predict-btn" onclick="predireReserves()" style="padding:14px 40px; border-radius:12px; background:linear-gradient(135deg,#6366f1,#8b5cf6); border:none; color:white; font-size:15px; font-weight:700; cursor:pointer; letter-spacing:0.3px; box-shadow:0 4px 20px rgba(99,102,241,0.4); transition:transform 0.2s;">
+              🚀 Calculer le Triangle IA
+            </button>
+          </div>
+
+          <!-- Résultats -->
+          <div id="m2-results" style="display:none; margin-top:28px;">
+            <div style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12); border-radius:16px; padding:24px;">
+              <div style="font-size:13px; font-weight:700; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:1px; margin-bottom:20px;">Comparaison des IBNR</div>
+              <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:16px;">
+                <div style="background:rgba(255,255,255,0.08); border-radius:12px; padding:18px; text-align:center;">
+                  <div style="font-size:11px; color:rgba(255,255,255,0.5); margin-bottom:8px; text-transform:uppercase;">IBNR Chain-Ladder (Classique)</div>
+                  <div id="m2-out-ibnr-cl" style="font-size:28px; font-weight:900; color:#fbbf24;">—</div>
+                  <div style="font-size:11px; color:rgba(255,255,255,0.4);">TND</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.08); border-radius:12px; padding:18px; text-align:center; position:relative; overflow:hidden;">
+                  <div style="position:absolute; top:0; left:0; right:0; height:4px; background:linear-gradient(90deg,#10b981,#3b82f6);"></div>
+                  <div style="font-size:11px; color:rgba(255,255,255,0.5); margin-bottom:8px; text-transform:uppercase;">IBNR XGBoost (IA)</div>
+                  <div id="m2-out-ibnr-xgb" style="font-size:28px; font-weight:900; color:#34d399;">—</div>
+                  <div style="font-size:11px; color:rgba(255,255,255,0.4);">TND</div>
+                </div>
+              </div>
+              
+              <div style="margin-top:24px; font-size:13px; font-weight:700; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:1px; margin-bottom:12px;">Triangle Complété par l'IA</div>
+              <div style="overflow-x:auto;">
+                <table class="triangle-table" style="width:100%; min-width:700px; background:white; border-radius:8px; overflow:hidden;">
+                  <thead id="m2-tri-head"></thead>
+                  <tbody id="m2-tri-body"></tbody>
+                </table>
+              </div>
+
+              <!-- Recommandation Financière -->
+              <div style="margin-top:24px; padding:20px; background:linear-gradient(135deg, rgba(16,185,129,0.1), rgba(59,130,246,0.1)); border:2px solid rgba(16,185,129,0.4); border-radius:12px; text-align:center;">
+                <div style="font-size:14px; font-weight:800; color:#34d399; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">💰 Recommandation Financière (Fonds à bloquer)</div>
+                <div style="font-size:36px; font-weight:900; color:white; margin-bottom:8px;"><span id="m2-out-provision">—</span> <span style="font-size:16px; color:rgba(255,255,255,0.6);">TND</span></div>
+                <div style="font-size:13px; color:rgba(255,255,255,0.7);">C'est le montant total estimé par l'IA que vous devez mettre de côté (réserve) pour faire face aux sinistres survenus mais non encore payés ou déclarés.</div>
+              </div>
+
+              <div id="m2-out-interpretation" style="margin-top:16px; padding:14px 18px; background:rgba(255,255,255,0.06); border-radius:10px; font-size:13px; color:rgba(255,255,255,0.75); line-height:1.7;"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-row cols-2">
+          <div class="chart-card">
+            <div class="cc-header">
+              <div><div class="cc-title">IBNR par Année de Survenance — Comparaison des 3 méthodes</div></div>
+            </div>
+            <div id="prov-chart-ibnr"></div>
+          </div>
+          <div class="chart-card">
+            <div class="cc-header">
+              <div><div class="cc-title">Cadences de Développement Chain-Ladder</div><div class="cc-subtitle">Facteurs d'âge à âge</div></div>
+            </div>
+            <div id="prov-chart-cadences"></div>
+          </div>
+        </div>
+
+        <!-- Formulaire IBNR -->
+        <div class="chart-card">
+          <div class="cc-header">
+            <div><div class="cc-title">Calculateur Actuariel IBNR Interactif</div><div class="cc-subtitle">Entrez vos données de triangle de développement, primes et a priori</div></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1.2fr;gap:20px;align-items:start;">
+            <div>
+              <div class="form-group mb-12">
+                <label>Triangle de sinistres cumulés (JSON)</label>
+                <textarea id="triangle-input" style="width:100%;height:110px;font-family:monospace;font-size:11px;padding:10px;border:1.5px solid var(--border);border-radius:6px;resize:vertical;" placeholder='{"triangle": [[8420000,10650000,11890000],[9150000,11820000,null],[7680000,null,null]]}'></textarea>
+              </div>
+              <div class="row">
+                <div class="col-md-6 form-group">
+                  <label>Loss Ratio A Priori (%)</label>
+                  <input type="number" id="ibnr-prior-lr" value="75" min="20" max="150" style="padding:6px 10px;">
+                </div>
+                <div class="col-md-6 form-group">
+                  <label>Primes par année (2018-2023)</label>
+                  <input type="text" id="ibnr-primes-input" value="15M, 16.5M, 14M, 18.5M, 20M, 22.5M" style="padding:6px 10px;" placeholder="ex: 15M, 16.5M...">
+                </div>
+              </div>
+              <div style="margin-top:12px;display:flex;gap:8px;">
+                <button class="btn-primary" onclick="estimerIBNR()">🧮 Calculer les provisions IBNR</button>
+                <button class="btn-outline" onclick="chargerExemple()">📂 Charger données BIAT</button>
+              </div>
+            </div>
+            
+            <div>
+              <div class="data-table-card" id="ibnr-result-box" style="display:none;margin-bottom:0;box-shadow:none;border:1px solid var(--border);">
+                <div class="dtc-header" style="background:var(--navy);color:#fff;padding:10px 14px;"><div class="dtc-title" style="color:#fff;font-size:11px;">Comparaison des provisions IBNR (TND)</div></div>
+                <table class="dt" style="font-size:11px;" id="ibnr-comp-table">
+                  <thead>
+                    <tr>
+                      <th>Survenance</th><th>Dernier Connu</th><th>Chain-Ladder</th><th>BF (a priori)</th><th>Cape Cod</th>
+                    </tr>
+                  </thead>
+                  <tbody id="ibnr-comp-tbody">
+                    <!-- Rempli par JS -->
+                  </tbody>
+                  <tfoot>
+                    <tr style="background:#f8fafc;font-weight:700;border-top:2px solid var(--border);" id="ibnr-comp-tfoot">
+                      <!-- Rempli par JS -->
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /panel-provisionnement -->
+
+      <!-- ══════════════════════════════════════
+           MODULE 3 — MODÉLISATION
+      ══════════════════════════════════════ -->
+      <div class="section-panel" id="panel-modelisation">
+
+        <div class="kpi-row" style="grid-template-columns:repeat(3,1fr);">
+          <div class="kpi-card accent-green">
+            <div class="kc-head"><div class="kc-label">Gini — XGBoost</div><div class="kc-icon" style="background:#dcfce7;">🏆</div></div>
+            <div class="kc-value">0,71</div>
+            <div class="kc-footer"><span class="pill green">Meilleur modèle</span></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kc-head"><div class="kc-label">Gini — GLM Tweedie</div><div class="kc-icon">📐</div></div>
+            <div class="kc-value">0,58</div>
+            <div class="kc-footer"><span class="trend-vs">Référence actuarielle</span></div>
+          </div>
+          <div class="kpi-card" style="border-top-color:#22c55e;">
+            <div class="kc-head"><div class="kc-label">Gini — CANN</div><div class="kc-icon" style="background:#dcfce7;">🧠</div></div>
+            <div class="kc-value">0,74</div>
+            <div class="kc-footer"><span class="pill green">Combiné Actuariel-Neuronal</span></div>
+          </div>
+        </div>
+
+        <div class="chart-row cols-2">
+          <div class="chart-card">
+            <div class="cc-header">
+              <div><div class="cc-title">Courbe de Lorenz — Comparaison des modèles</div><div class="cc-subtitle">Discrimination du risque automobile</div></div>
+            </div>
+            <div id="mod-lorenz"></div>
+          </div>
+          <div class="chart-card">
+            <div class="cc-header">
+              <div><div class="cc-title">Benchmark Modèles</div><div class="cc-subtitle">Indice de Gini par modèle</div></div>
+            </div>
+            <div id="mod-benchmark"></div>
+          </div>
+        </div>
+
+        <!-- Formulaire Prédiction -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div class="chart-card">
+            <div class="cc-header"><div><div class="cc-title">Prédire la Prime Pure d'un Assuré</div><div class="cc-subtitle">Modèle XGBoost — 14 variables</div></div></div>
+            <form id="form-pred" onsubmit="predire(event)" style="margin-top:4px;">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Âge conducteur</label>
+                  <input type="number" id="p-age" value="35" min="18" max="80">
+                </div>
+                <div class="form-group">
+                  <label>Classe Bonus-Malus</label>
+                  <select id="p-bm">
+                    <option value="1">1 — Excellent</option>
+                    <option value="5">5</option>
+                    <option value="10" selected>10 — Moyen</option>
+                    <option value="15">15</option>
+                    <option value="22">22 — Malus max</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Puissance fiscale (CV)</label>
+                  <input type="number" id="p-puissance" value="8" min="3" max="25">
+                </div>
+                <div class="form-group">
+                  <label>Ancienneté véhicule (ans)</label>
+                  <input type="number" id="p-anciennete" value="5" min="0" max="30">
+                </div>
+                <div class="form-group">
+                  <label>Région</label>
+                  <select id="p-region">
+                    <option>Tunis</option><option>Sfax</option><option>Sousse</option>
+                    <option>Nabeul</option><option>Bizerte</option><option>Gabès</option>
+                    <option>Kairouan</option><option>Autre</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Usage</label>
+                  <select id="p-usage">
+                    <option>Privé</option><option>Commercial</option><option>Administratif</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Énergie</label>
+                  <select id="p-energie">
+                    <option>Essence</option><option>Diesel</option><option>GPL</option><option>Électrique</option>
+                  </select>
+                </div>
+              </div>
+              <div style="margin-top:12px;">
+                <button type="submit" class="btn-primary">🎯 Calculer la Prime Pure</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="chart-card" id="pred-result-panel" style="display:none;">
+            <div class="cc-header"><div><div class="cc-title">Résultat de Prédiction</div><div class="cc-subtitle">XGBoost · Fréquence × Sévérité</div></div></div>
+            <div class="result-grid" style="margin-bottom:12px;">
+              <div class="result-card">
+                <div class="rc-label">Fréquence prédite</div>
+                <div class="rc-value" id="pred-freq">—</div>
+              </div>
+              <div class="result-card" style="background:#fff3cd; border-color:#ffe69c;">
+                <div class="rc-label" style="color:#664d03;">Probabilité d'Accident</div>
+                <div class="rc-value" id="pred-prob" style="color:#856404;">—</div>
+              </div>
+              <div class="result-card">
+                <div class="rc-label">Sévérité prédite (TND)</div>
+                <div class="rc-value" id="pred-sev">—</div>
+              </div>
+              <div class="result-card featured" style="grid-column:1/-1;">
+                <div class="rc-label">Prime Pure</div>
+                <div class="rc-value" id="pred-prime">—</div>
+                <div style="font-size:11px;color:rgba(255,255,255,.6);">TND / année</div>
+              </div>
+            </div>
+
+            <div class="section-divider"><h3>Explicabilité SHAP — Top 3 facteurs</h3></div>
+            <div id="shap-container"></div>
+
+            <div class="section-divider" style="margin-top:14px;"><h3>Score de Risque</h3></div>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <div id="risk-badge" style="padding:8px 18px;border-radius:8px;font-weight:800;font-size:14px;"></div>
+              <div id="risk-desc" style="font-size:12px;color:var(--muted);"></div>
+            </div>
+          </div>
+
+          <div class="chart-card" id="pred-placeholder-panel">
+            <div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;text-align:center;">
+              <div style="font-size:2.5rem;margin-bottom:12px;">🎯</div>
+              <div style="font-weight:700;color:var(--navy);margin-bottom:6px;">Prédiction prête</div>
+              <div style="color:var(--muted);font-size:12px;line-height:1.5;">Renseignez les caractéristiques de l'assuré et cliquez sur <strong>"Calculer la Prime Pure"</strong></div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /panel-modelisation -->
+
+      <!-- ══════════════════════════════════════
+           MODULE 4 — SÉRIES TEMP.
+      ══════════════════════════════════════ -->
+      <div class="section-panel" id="panel-series">
+        <div style="display:grid;grid-template-columns:350px 1fr;gap:40px;align-items:start; padding: 20px;">
+          
+          <!-- Colonne gauche : Formulaire de Saisie --> <div class="chart-card" style="box-shadow: 0 20px 40px -10px rgba(0,0,0,0.15); border-radius: 12px; padding: 24px; transform: translateZ(0); transition: transform 0.3s;">
+            <div class="cc-header" style="margin-bottom:16px;">
+              <div class="cc-title">Paramètres LSTM</div>
+            </div>
+            
+            <label style="display:block;margin-bottom:6px;font-size:12px;font-weight:600;">Variable à prédire</label>
+            <select id="m4-variable-input" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:6px;font-size:14px;margin-bottom:16px;">
+              <option value="nb_sinistres">Nombre de sinistres</option>
+              <option value="cout_total">Coût total des sinistres</option>
+            </select>
+            
+            <label style="display:block;margin-bottom:6px;font-size:12px;font-weight:600;">Horizon (Mois)</label>
+            <select id="m4-months-input" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:6px;font-size:14px;margin-bottom:20px;">
+              <option value="3">3 mois</option>
+              <option value="6">6 mois</option>
+              <option value="12" selected>12 mois</option>
+            </select>
+            
+            <div style="display:flex; gap:10px;">
+              <button class="btn-primary" onclick="predireSaisieManuelle('lstm')" style="flex:1; justify-content:center; background:var(--blue);">Prédire (LSTM)</button>
+              <button class="btn-primary" onclick="predireSaisieManuelle('arima')" style="flex:1; justify-content:center; background:var(--success); border-color:var(--success);">Prédire (ARIMA)</button>
+            </div>
+          </div>
+
+          <!-- Colonne droite : Graphique -->
+          <div class="chart-card">
+            <div class="cc-header">
+              <div>
+                <div class="cc-title">Prévisions Mensuelles de Sinistralité</div>
+                <div class="cc-subtitle">Modèles LSTM & ARIMA · Saisie Manuelle</div>
+              </div>
+            </div>
+            <div id="chart-m4-forecast" style="height:500px; width:100%;"></div>
+          </div>
+
+        </div><!-- /grid 2 cols -->
+
+        <!-- ═══════════════════════════════════════════
+             SHAP EXPLAINABILITY — PLEINE LARGEUR
+        ═══════════════════════════════════════════ -->
+        <div id="m4-shap-panel" style="display:none; margin-top:28px;">
+
+          <!-- En-tête dégradé -->
+          <div style="background:linear-gradient(135deg,#4f46e5 0%,#7c3aed 100%); border-radius:16px 16px 0 0; padding:24px 32px; display:flex; align-items:center; gap:20px;">
+            <div style="font-size:36px; line-height:1;">🧠</div>
+            <div style="flex:1;">
+              <div style="font-size:18px; font-weight:800; color:white; letter-spacing:-0.3px;">Explication de la prévision — Intelligence Artificielle LSTM</div>
+              <div style="font-size:13px; color:rgba(255,255,255,0.75); margin-top:4px;">Quels mois passés ont le plus pesé sur la décision du modèle ?</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.2); border-radius:12px; padding:12px 20px; font-size:13px; color:white; line-height:1.6; max-width:380px;">
+              💡 Le modèle s'appuie sur votre historique comme un actuaire expérimenté.
+              Voici <strong>les mois clés</strong> qui ont guidé sa prévision.
+            </div>
+          </div>
+
+          <!-- Cartes en grille pleine largeur -->
+          <div id="m4-shap-container" style="display:grid; grid-template-columns:repeat(5,1fr); border:1px solid var(--border); border-top:none; border-radius:0 0 16px 16px; overflow:hidden;"></div>
+
+          <!-- Légende -->
+          <div style="margin-top:14px; padding:14px 24px; background:white; border:1px solid var(--border); border-radius:12px; display:flex; align-items:center; gap:32px; flex-wrap:wrap;">
+            <span style="font-size:13px; font-weight:700; color:var(--text);">📖 Légende :</span>
+            <span style="font-size:12px; color:#64748b;"><span style="color:#dc2626; font-weight:700;">📈 Rouge · Hausse</span> — Ce mois a aggravé la sinistralité prévisionnelle</span>
+            <span style="font-size:12px; color:#64748b;"><span style="color:#16a34a; font-weight:700;">📉 Vert · Baisse</span> — Ce mois a atténué la sinistralité prévisionnelle</span>
+            <span style="font-size:12px; color:#64748b;"><strong>Force d'influence</strong> = importance relative du mois par rapport au plus décisif</span>
+          </div>
+
+          <!-- Paragraphe d'interprétation actuarielle dynamique -->
+          <div id="m4-shap-interpretation" style="margin-top:16px; padding:24px 28px; background:linear-gradient(135deg,#f0f4ff 0%,#faf5ff 100%); border:1px solid #c7d2fe; border-radius:16px; display:none;">
+            <div style="display:flex; align-items:flex-start; gap:16px;">
+              <div style="font-size:32px; line-height:1; flex-shrink:0;">🧠</div>
+              <div>
+                <div style="font-size:15px; font-weight:800; color:#3730a3; margin-bottom:8px;">Interprétation Actuarielle — Lecture du Modèle LSTM</div>
+                <div id="m4-shap-text" style="font-size:13px; color:#374151; line-height:1.8;"></div>
+              </div>
+            </div>
+          </div>
+
+
+        </div><!-- /m4-shap-panel -->
+
+      </div><!-- /panel-series -->
+
+      <!-- ══════════════════════════════════════
+           MODULE 5 — RATIO COMBINÉ
+      ══════════════════════════════════════ -->
+      <div class="section-panel" id="panel-ratio">
+      
+        <!-- Contrôles de simulation -->
+        <div class="chart-card" style="margin-bottom:20px; padding:20px; background:#f8fafc; border:1px solid #e2e8f0;">
+            <div style="font-weight:600; margin-bottom:15px;">Simulateur de Scénarios de Stress (ML Dynamics)</div>
+            <div style="display:flex; gap:30px; align-items:center;">
+                <div style="flex:1;">
+                    <label style="font-size:13px; font-weight:600; display:block; margin-bottom:8px;">Inflation (% d'augmentation des coûts)</label>
+                    <input type="range" id="m5-inflation" min="0" max="20" value="0" style="width:100%;" oninput="document.getElementById('m5-inflation-val').innerText = this.value + '%'">
+                    <div style="text-align:right; font-size:12px; font-weight:700; color:var(--blue);" id="m5-inflation-val">0%</div>
+                </div>
+                <div style="flex:1;">
+                    <label style="font-size:13px; font-weight:600; display:block; margin-bottom:8px;">Retard Règlement (% d'impact)</label>
+                    <input type="range" id="m5-retard" min="0" max="30" value="0" style="width:100%;" oninput="document.getElementById('m5-retard-val').innerText = this.value + '%'">
+                    <div style="text-align:right; font-size:12px; font-weight:700; color:var(--blue);" id="m5-retard-val">0%</div>
+                </div>
+                <div>
+                    <button class="btn-primary" onclick="simulateRatioCombine(event)" style="padding:10px 20px; border-radius:8px;">Simuler</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="kpi-row" style="grid-template-columns:repeat(4,1fr);">
+          <div class="kpi-card accent-green">
+            <div class="kc-head"><div class="kc-label">Ratio Combiné Global</div><div class="kc-icon" style="background:#dcfce7;">⚖️</div></div>
+            <div class="kc-value">97<small>%</small></div>
+            <div class="kc-footer"><span class="pill green">< 100% · Rentable</span></div>
+          </div>
+          <div class="kpi-card accent-green">
+            <div class="kc-head"><div class="kc-label">Meilleur segment</div><div class="kc-icon" style="background:#dcfce7;">🏅</div></div>
+            <div class="kc-value">78<small>%</small></div>
+            <div class="kc-footer"><span class="trend-vs">Privé · Électrique</span></div>
+          </div>
+          <div class="kpi-card accent-danger">
+            <div class="kc-head"><div class="kc-label">Pire segment</div><div class="kc-icon" style="background:#fee2e2;">⚠️</div></div>
+            <div class="kc-value">108<small>%</small></div>
+            <div class="kc-footer"><span class="trend-vs">Commercial · GPL</span></div>
+          </div>
+          <div class="kpi-card accent-yellow">
+            <div class="kc-head"><div class="kc-label">Segments déficitaires</div><div class="kc-icon" style="background:#fef3c7;">🔴</div></div>
+            <div class="kc-value">3<small>/7</small></div>
+            <div class="kc-footer"><span class="trend-vs">Ratio > 100%</span></div>
+          </div>
+        </div>
+
+        <div class="chart-row cols-2">
+          <div class="chart-card">
+            <div class="cc-header"><div><div class="cc-title">Ratio Combiné par Segment</div><div class="cc-subtitle">Classement décroissant · Seuil 100%</div></div></div>
+            <div id="ratio-chart-segments"></div>
+          </div>
+          <div class="chart-card">
+            <div class="cc-header"><div><div class="cc-title">Évolution du Ratio Combiné (2018–2023)</div><div class="cc-subtitle">Ratio sinistres + frais généraux</div></div></div>
+            <div id="ratio-chart-years"></div>
+          </div>
+        </div>
+
+        <div class="data-table-card">
+          <div class="dtc-header"><div class="dtc-title">Ratio Combiné détaillé par Segment (Usage × Énergie) — Éditable</div></div>
+          <table class="dt" id="table-m5">
+            <thead>
+              <tr>
+                <th>Segment</th><th>Usage</th><th>Énergie</th>
+                <th>Primes Acquises (TND) (Éditable)</th><th>Sinistres Payés (TND) (Éditable)</th>
+                <th>Ratio Sinistres</th><th>Frais (Éditable)</th><th>Ratio Combiné</th><th>Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="row-m5">
+                <td><strong>Privé · Électrique</strong></td><td>Privé</td><td><span class="pill blue">Élec.</span></td>
+                <td contenteditable="true" class="val-m5-primes" onblur="recalculerM5()">4 800 000</td>
+                <td contenteditable="true" class="val-m5-sinistres" onblur="recalculerM5()">3 180 000</td>
+                <td class="val-m5-ratio-sin">66%</td>
+                <td contenteditable="true" class="val-m5-frais" onblur="recalculerM5()">12%</td>
+                <td class="val-m5-ratio-comb"><strong style="color:var(--success);">78%</strong></td>
+                <td class="val-m5-status"><span class="pill green">✓ Excellent</span></td>
+              </tr>
+              <tr class="row-m5">
+                <td><strong>Privé · Diesel</strong></td><td>Privé</td><td><span class="pill blue">Diesel</span></td>
+                <td contenteditable="true" class="val-m5-primes" onblur="recalculerM5()">128 500 000</td>
+                <td contenteditable="true" class="val-m5-sinistres" onblur="recalculerM5()">96 400 000</td>
+                <td class="val-m5-ratio-sin">75%</td>
+                <td contenteditable="true" class="val-m5-frais" onblur="recalculerM5()">13%</td>
+                <td class="val-m5-ratio-comb"><strong style="color:var(--success);">88%</strong></td>
+                <td class="val-m5-status"><span class="pill green">✓ Rentable</span></td>
+              </tr>
+              <tr class="row-m5">
+                <td><strong>Privé · Essence</strong></td><td>Privé</td><td><span class="pill green">Essence</span></td>
+                <td contenteditable="true" class="val-m5-primes" onblur="recalculerM5()">89 200 000</td>
+                <td contenteditable="true" class="val-m5-sinistres" onblur="recalculerM5()">71 400 000</td>
+                <td class="val-m5-ratio-sin">80%</td>
+                <td contenteditable="true" class="val-m5-frais" onblur="recalculerM5()">12%</td>
+                <td class="val-m5-ratio-comb"><strong style="color:var(--success);">92%</strong></td>
+                <td class="val-m5-status"><span class="pill green">✓ Rentable</span></td>
+              </tr>
+              <tr class="row-m5">
+                <td><strong>Commercial · Diesel</strong></td><td>Commercial</td><td><span class="pill blue">Diesel</span></td>
+                <td contenteditable="true" class="val-m5-primes" onblur="recalculerM5()">67 800 000</td>
+                <td contenteditable="true" class="val-m5-sinistres" onblur="recalculerM5()">62 400 000</td>
+                <td class="val-m5-ratio-sin">92%</td>
+                <td contenteditable="true" class="val-m5-frais" onblur="recalculerM5()">6%</td>
+                <td class="val-m5-ratio-comb"><strong style="color:var(--warning);">98%</strong></td>
+                <td class="val-m5-status"><span class="pill yellow">⚠ Limite</span></td>
+              </tr>
+              <tr class="row-m5">
+                <td><strong>Administratif · Diesel</strong></td><td>Administratif</td><td><span class="pill blue">Diesel</span></td>
+                <td contenteditable="true" class="val-m5-primes" onblur="recalculerM5()">17 200 000</td>
+                <td contenteditable="true" class="val-m5-sinistres" onblur="recalculerM5()">15 600 000</td>
+                <td class="val-m5-ratio-sin">91%</td>
+                <td contenteditable="true" class="val-m5-frais" onblur="recalculerM5()">8%</td>
+                <td class="val-m5-ratio-comb"><strong style="color:var(--warning);">99%</strong></td>
+                <td class="val-m5-status"><span class="pill yellow">⚠ Attention</span></td>
+              </tr>
+              <tr class="row-m5">
+                <td><strong>Commercial · Essence</strong></td><td>Commercial</td><td><span class="pill green">Essence</span></td>
+                <td contenteditable="true" class="val-m5-primes" onblur="recalculerM5()">12 400 000</td>
+                <td contenteditable="true" class="val-m5-sinistres" onblur="recalculerM5()">12 200 000</td>
+                <td class="val-m5-ratio-sin">98%</td>
+                <td contenteditable="true" class="val-m5-frais" onblur="recalculerM5()">6%</td>
+                <td class="val-m5-ratio-comb"><strong style="color:var(--danger);">104%</strong></td>
+                <td class="val-m5-status"><span class="pill red">✗ Déficitaire</span></td>
+              </tr>
+              <tr class="row-m5">
+                <td><strong>Commercial · GPL</strong></td><td>Commercial</td><td><span class="pill red">GPL</span></td>
+                <td contenteditable="true" class="val-m5-primes" onblur="recalculerM5()">28 600 000</td>
+                <td contenteditable="true" class="val-m5-sinistres" onblur="recalculerM5()">29 200 000</td>
+                <td class="val-m5-ratio-sin">102%</td>
+                <td contenteditable="true" class="val-m5-frais" onblur="recalculerM5()">6%</td>
+                <td class="val-m5-ratio-comb"><strong style="color:var(--danger);">108%</strong></td>
+                <td class="val-m5-status"><span class="pill red">✗ Déficitaire</span></td>
+              </tr>
+              <tr style="background:#f8fafc;" id="row-m5-total">
+                <td colspan="3" style="font-weight:700;color:var(--navy);">TOTAL PORTEFEUILLE</td>
+                <td id="total-m5-primes" style="font-weight:700;">348 500 000</td>
+                <td id="total-m5-sinistres" style="font-weight:700;">287 160 000</td>
+                <td id="total-m5-ratio-sin" style="font-weight:700;">82%</td>
+                <td id="total-m5-frais" style="font-weight:700;">11%</td>
+                <td id="total-m5-ratio-comb" style="font-weight:700;"><strong style="color:var(--success);">93%</strong></td>
+                <td id="total-m5-status"><span class="pill green">✓ Rentable</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ══════════════════════════════════════
+             EXPLAINABLE AI — DÉCOMPOSITION DU RATIO
+        ══════════════════════════════════════ -->
+        <div id="m5-xai-panel" style="display:none; margin-top:24px; background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 100%); border-radius:20px; padding:28px; color:white;">
+          <div style="display:flex; align-items:center; gap:16px; margin-bottom:24px;">
+            <div style="font-size:36px; line-height:1;">🔬</div>
+            <div>
+              <div style="font-size:18px; font-weight:800; letter-spacing:-0.3px;">Explainable AI — Décomposition du Ratio Combiné</div>
+              <div style="font-size:13px; color:rgba(255,255,255,0.6); margin-top:3px;">Quels facteurs expliquent votre ratio simulé ? (Valeurs de Shapley simplifiées)</div>
+            </div>
+          </div>
+
+          <!-- Waterfall Visuel -->
+          <div id="m5-xai-waterfall" style="display:flex; flex-direction:column; gap:12px; margin-bottom:24px;"></div>
+
+          <!-- Résultat final + Interprétation -->
+          <div style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.15); border-radius:14px; padding:20px;">
+            <div style="font-size:13px; font-weight:700; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:1px; margin-bottom:12px;">📋 Interprétation Actuarielle Générée par l'IA</div>
+            <div id="m5-xai-text" style="font-size:14px; color:rgba(255,255,255,0.85); line-height:1.8;"></div>
+          </div>
+        </div>
+
+      </div><!-- /panel-ratio -->
+
+      <!-- ══════════════════════════════════════
+           BONUS MALUS — TARIFICATION PRÉDICTIVE
+      ══════════════════════════════════════ -->
+      <div class="section-panel" id="panel-tarification">
+        <div class="section-header">
+          <div class="section-title">🧮 Tarification Prédictive — Bonus Malus</div>
+          <div class="section-subtitle">Modèle XGBoost Tweedie · Portefeuille 2018-2023 · 94 852 polices analysées</div>
+        </div>
+
+        <!-- ── KPI Cards ── -->
+        <div class="kpi-row" style="margin-bottom:24px;">
+          <div class="kpi-card">
+            <div class="kc-head">
+              <div class="kc-label">Indice de Gini</div>
+              <div class="kc-icon">🎯</div>
+            </div>
+            <div class="kc-value" id="tarif-kpi-gini" style="color:var(--blue);">—</div>
+            <div class="kc-footer"><span class="trend-up">↑ Bon pouvoir discriminant</span></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kc-head">
+              <div class="kc-label">Loss Ratio Portefeuille</div>
+              <div class="kc-icon">📊</div>
+            </div>
+            <div class="kc-value" id="tarif-kpi-lr">—</div>
+            <div class="kc-footer"><span class="trend-vs">2018 – 2023</span></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kc-head">
+              <div class="kc-label">Nb Sinistres total</div>
+              <div class="kc-icon">📋</div>
+            </div>
+            <div class="kc-value" id="tarif-kpi-expo">—</div>
+            <div class="kc-footer"><span class="trend-vs">Portefeuille 2018-2023</span></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kc-head">
+              <div class="kc-label">Taux de sinistralité</div>
+              <div class="kc-icon">⚠️</div>
+            </div>
+            <div class="kc-value" id="tarif-kpi-tx">—</div>
+            <div class="kc-footer"><span class="trend-vs">Sinistres / exposition annuelle</span></div>
+          </div>
+        </div>
+
+        <!-- ── Row 1 : Courbe de Lift + Importance des Variables ── -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:24px;">
+
+          <!-- Courbe de Lift -->
+          <div style="background:var(--white); border-radius:12px; padding:20px; border:1px solid var(--border); box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+            <div style="font-weight:700; font-size:13px; color:var(--navy); margin-bottom:4px;">📈 Courbe de Lift — Déciles de risque</div>
+            <div style="font-size:11px; color:var(--muted); margin-bottom:14px;">Prime prédite vs coût réel vs prime actuelle (échantillon test)</div>
+            <div id="chart-tarif-lift" style="height:240px;"></div>
+          </div>
+
+          <!-- Importance des variables -->
+          <div style="background:var(--white); border-radius:12px; padding:20px; border:1px solid var(--border); box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+            <div style="font-weight:700; font-size:13px; color:var(--navy); margin-bottom:4px;">🔍 Importance des variables</div>
+            <div style="font-size:11px; color:var(--muted); margin-bottom:14px;">Contribution de chaque facteur au modèle XGBoost</div>
+            <div id="chart-tarif-importance" style="height:240px;"></div>
+          </div>
+        </div>
+
+        <!-- ── Tableau des déciles ── -->
+        <div style="background:var(--white); border-radius:12px; padding:20px; border:1px solid var(--border); box-shadow:0 2px 8px rgba(0,0,0,0.04); margin-bottom:24px;">
+          <div style="font-weight:700; font-size:13px; color:var(--navy); margin-bottom:4px;">📋 Comparaison Tarif Actuel vs Risque Réel vs Modèle</div>
+          <div style="font-size:11px; color:var(--muted); margin-bottom:16px;">Portefeuille complet 2018-2023 réparti en 10 déciles de risque selon le score du modèle (TND / année d'exposition)</div>
+          <div style="overflow-x:auto;">
+            <table style="width:100%; border-collapse:collapse; font-size:13px;">
+              <thead>
+                <tr style="background:var(--navy); color:white;">
+                  <th style="padding:10px 14px; text-align:left; border-radius:8px 0 0 0; font-weight:600;">Décile</th>
+                  <th style="padding:10px 14px; text-align:right; font-weight:600;">Coût réel / expo (TND)</th>
+                  <th style="padding:10px 14px; text-align:right; font-weight:600;">Prime prédite / expo (TND)</th>
+                  <th style="padding:10px 14px; text-align:right; border-radius:0 8px 0 0; font-weight:600;">Prime actuelle / expo (TND)</th>
+                </tr>
+              </thead>
+              <tbody id="tarif-decile-tbody">
+                <tr style="background:#e6faf2;">
+                  <td style="padding:9px 14px; font-weight:600; color:var(--blue);">1 — Meilleur risque</td>
+                  <td style="padding:9px 14px; text-align:right; color:#059669; font-weight:700;">158</td>
+                  <td style="padding:9px 14px; text-align:right;">181</td>
+                  <td style="padding:9px 14px; text-align:right; color:#dc2626; font-weight:600;">455 <span style="font-size:10px;">⚠️ sur-facturé</span></td>
+                </tr>
+                <tr>
+                  <td style="padding:9px 14px; font-weight:500;">2</td>
+                  <td style="padding:9px 14px; text-align:right; color:#059669; font-weight:600;">219</td>
+                  <td style="padding:9px 14px; text-align:right;">300</td>
+                  <td style="padding:9px 14px; text-align:right; color:#dc2626;">490</td>
+                </tr>
+                <tr style="background:var(--bg);">
+                  <td style="padding:9px 14px; font-weight:500;">3</td>
+                  <td style="padding:9px 14px; text-align:right; color:#059669; font-weight:600;">336</td>
+                  <td style="padding:9px 14px; text-align:right;">395</td>
+                  <td style="padding:9px 14px; text-align:right; color:#dc2626;">562</td>
+                </tr>
+                <tr>
+                  <td style="padding:9px 14px; font-weight:500;">4</td>
+                  <td style="padding:9px 14px; text-align:right; color:#059669; font-weight:600;">453</td>
+                  <td style="padding:9px 14px; text-align:right;">510</td>
+                  <td style="padding:9px 14px; text-align:right; color:#dc2626;">670</td>
+                </tr>
+                <tr style="background:var(--bg);">
+                  <td style="padding:9px 14px; font-weight:500;">5</td>
+                  <td style="padding:9px 14px; text-align:right;">629</td>
+                  <td style="padding:9px 14px; text-align:right;">650</td>
+                  <td style="padding:9px 14px; text-align:right;">846</td>
+                </tr>
+                <tr>
+                  <td style="padding:9px 14px; font-weight:500;">6</td>
+                  <td style="padding:9px 14px; text-align:right;">739</td>
+                  <td style="padding:9px 14px; text-align:right;">815</td>
+                  <td style="padding:9px 14px; text-align:right;">981</td>
+                </tr>
+                <tr style="background:var(--bg);">
+                  <td style="padding:9px 14px; font-weight:500;">7</td>
+                  <td style="padding:9px 14px; text-align:right;">1 033</td>
+                  <td style="padding:9px 14px; text-align:right;">1 024</td>
+                  <td style="padding:9px 14px; text-align:right;">1 013</td>
+                </tr>
+                <tr>
+                  <td style="padding:9px 14px; font-weight:500;">8</td>
+                  <td style="padding:9px 14px; text-align:right;">1 239</td>
+                  <td style="padding:9px 14px; text-align:right;">1 276</td>
+                  <td style="padding:9px 14px; text-align:right;">1 219</td>
+                </tr>
+                <tr style="background:var(--bg);">
+                  <td style="padding:9px 14px; font-weight:500;">9</td>
+                  <td style="padding:9px 14px; text-align:right; color:#d97706; font-weight:600;">1 581</td>
+                  <td style="padding:9px 14px; text-align:right;">1 485</td>
+                  <td style="padding:9px 14px; text-align:right;">1 613</td>
+                </tr>
+                <tr style="background:#fef2f2;">
+                  <td style="padding:9px 14px; font-weight:700; color:#dc2626;">10 — Risque le plus élevé</td>
+                  <td style="padding:9px 14px; text-align:right; color:#dc2626; font-weight:700;">3 147</td>
+                  <td style="padding:9px 14px; text-align:right;">2 378</td>
+                  <td style="padding:9px 14px; text-align:right; color:#059669; font-weight:600;">2 784 <span style="font-size:10px;">⚠️ sous-facturé</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div style="margin-top:12px; padding:10px 14px; background:#fffbeb; border:1px solid #fcd34d; border-radius:8px; font-size:12px; color:#92400e;">
+            💡 <strong>Lecture :</strong> Les déciles 1-4 sont <strong>sur-facturés</strong> (la prime actuelle dépasse le coût réel), subventionnant les déciles 8-10 qui sont <strong>sous-facturés</strong>. Le modèle permet de corriger cet écart.
+          </div>
+        </div>
+
+        <!-- ── Calculateur de prime ── -->
+        <div style="background:var(--white); border-radius:12px; padding:28px; border:1px solid var(--border); box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+          <div style="font-weight:700; font-size:14px; color:var(--navy); margin-bottom:4px;">🧮 Calculateur de Prime Pure Individuelle</div>
+          <div style="font-size:12px; color:var(--muted); margin-bottom:20px;">Entrez les caractéristiques du profil pour obtenir une estimation du coût technique attendu</div>
+          <form id="tarificationForm" onsubmit="handleTarificationSubmit(event)">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+
+              <div style="display:flex; flex-direction:column; gap:5px;">
+                <label style="font-size:11px; font-weight:600; color:var(--navy); text-transform:uppercase; letter-spacing:0.5px;">Âge du conducteur (16-100)</label>
+                <input type="number" id="tarif_driver_age" value="35" min="16" max="100" required
+                  style="padding:9px 12px; border-radius:7px; border:1px solid var(--border); font-family:inherit; font-size:14px; background:var(--bg);">
+              </div>
+
+              <div style="display:flex; flex-direction:column; gap:5px;">
+                <label style="font-size:11px; font-weight:600; color:var(--navy); text-transform:uppercase; letter-spacing:0.5px;">Âge du véhicule (0-40)</label>
+                <input type="number" id="tarif_vehicle_age" value="5" min="0" max="40" required
+                  style="padding:9px 12px; border-radius:7px; border:1px solid var(--border); font-family:inherit; font-size:14px; background:var(--bg);">
+              </div>
+
+              <div style="display:flex; flex-direction:column; gap:5px;">
+                <label style="font-size:11px; font-weight:600; color:var(--navy); text-transform:uppercase; letter-spacing:0.5px;">Puissance Fiscale (CV)</label>
+                <input type="number" id="tarif_puissance" value="7" min="1" required
+                  style="padding:9px 12px; border-radius:7px; border:1px solid var(--border); font-family:inherit; font-size:14px; background:var(--bg);">
+              </div>
+
+              <div style="display:flex; flex-direction:column; gap:5px;">
+                <label style="font-size:11px; font-weight:600; color:var(--navy); text-transform:uppercase; letter-spacing:0.5px;">Valeur Vénale (TND)</label>
+                <input type="number" id="tarif_valeur" value="45000" min="0" required
+                  style="padding:9px 12px; border-radius:7px; border:1px solid var(--border); font-family:inherit; font-size:14px; background:var(--bg);">
+              </div>
+
+              <div style="display:flex; flex-direction:column; gap:5px;">
+                <label style="font-size:11px; font-weight:600; color:var(--navy); text-transform:uppercase; letter-spacing:0.5px;">Classe Bonus Malus (1-11)</label>
+                <select id="tarif_bm" style="padding:9px 12px; border-radius:7px; border:1px solid var(--border); font-family:inherit; font-size:14px; background:var(--bg);">
+                  <option value="1">1 — Bonus maximum</option><option value="2">2</option><option value="3">3</option>
+                  <option value="4">4</option><option value="5">5</option><option value="6">6 — Neutre</option>
+                  <option value="7">7</option><option value="8">8</option><option value="9">9</option>
+                  <option value="10">10</option><option value="11">11 — Malus maximum</option>
+                </select>
+              </div>
+
+              <div style="display:flex; flex-direction:column; gap:5px;">
+                <label style="font-size:11px; font-weight:600; color:var(--navy); text-transform:uppercase; letter-spacing:0.5px;">Usage</label>
+                <select id="tarif_usage" style="padding:9px 12px; border-radius:7px; border:1px solid var(--border); font-family:inherit; font-size:14px; background:var(--bg);">
+                  <option value="Promenade et affaire">Promenade et affaire</option>
+                  <option value="Utilitaire I">Utilitaire I</option>
+                </select>
+              </div>
+
+              <div style="display:flex; flex-direction:column; gap:5px;">
+                <label style="font-size:11px; font-weight:600; color:var(--navy); text-transform:uppercase; letter-spacing:0.5px;">Sexe</label>
+                <select id="tarif_sex" style="padding:9px 12px; border-radius:7px; border:1px solid var(--border); font-family:inherit; font-size:14px; background:var(--bg);">
+                  <option value="M">Masculin</option>
+                  <option value="F">Féminin</option>
+                  <option value="Inconnu">Inconnu</option>
+                </select>
+              </div>
+
+              <div style="display:flex; flex-direction:column; gap:5px;">
+                <label style="font-size:11px; font-weight:600; color:var(--navy); text-transform:uppercase; letter-spacing:0.5px;">Énergie</label>
+                <select id="tarif_energie" style="padding:9px 12px; border-radius:7px; border:1px solid var(--border); font-family:inherit; font-size:14px; background:var(--bg);">
+                  <option value="Essence">Essence</option>
+                  <option value="Diesel">Diesel</option>
+                  <option value="Gaz">Gaz</option>
+                  <option value="HYBRIDE">Hybride</option>
+                  <option value="Electrique">Électrique</option>
+                </select>
+              </div>
+
+              <div style="display:flex; flex-direction:column; gap:5px; grid-column:1 / -1;">
+                <label style="font-size:11px; font-weight:600; color:var(--navy); text-transform:uppercase; letter-spacing:0.5px;">Région / Gouvernorat</label>
+                <select id="tarif_region" style="padding:9px 12px; border-radius:7px; border:1px solid var(--border); font-family:inherit; font-size:14px; background:var(--bg);">
+                  <option value="TUNIS">TUNIS</option><option value="SFAX">SFAX</option><option value="SOUSSE">SOUSSE</option>
+                  <option value="ARIANA">ARIANA</option><option value="BEJA">BEJA</option><option value="BEN AROUS">BEN AROUS</option>
+                  <option value="BIZERTE">BIZERTE</option><option value="GABES">GABES</option><option value="GAFSA">GAFSA</option>
+                  <option value="JENDOUBA">JENDOUBA</option><option value="KAIROUAN">KAIROUAN</option><option value="KASSERINE">KASSERINE</option>
+                  <option value="KEBILI">KEBILI</option><option value="KEF">KEF</option><option value="MAHDIA">MAHDIA</option>
+                  <option value="MANOUBA">MANOUBA</option><option value="MEDENINE">MEDENINE</option><option value="MONASTIR">MONASTIR</option>
+                  <option value="NABEUL">NABEUL</option><option value="SIDI BOUZID">SIDI BOUZID</option><option value="SILIANA">SILIANA</option>
+                  <option value="TATAOUINE">TATAOUINE</option><option value="TOZEUR">TOZEUR</option><option value="ZAGHOUAN">ZAGHOUAN</option>
+                  <option value="INCONNU">INCONNU</option>
+                </select>
+              </div>
+
+            </div><!-- /grid -->
+            <div style="margin-top:20px; display:flex; justify-content:flex-end;">
+              <button type="submit" id="tarif_btn"
+                style="background:linear-gradient(135deg, var(--blue), #1d4ed8); color:white; border:none; padding:12px 28px; border-radius:8px; cursor:pointer; font-weight:700; font-size:14px; font-family:inherit; box-shadow:0 4px 12px rgba(37,99,235,0.35);">
+                🧮 Calculer la Prime Pure
+              </button>
+            </div>
+          </form>
+
+          <div id="tarif_error" style="display:none; margin-top:16px; padding:14px 18px; background:#fef2f2; border:1px solid #f87171; color:#b91c1c; border-radius:8px; font-size:13px;"></div>
+
+          <div id="tarif_result" style="display:none; margin-top:20px; padding:24px 28px; background:linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border:2px solid #6ee7b7; border-radius:12px;">
+            <div style="font-size:11px; font-weight:700; color:#065f46; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">✅ Résultat de Tarification</div>
+            <div style="font-size:38px; font-weight:900; color:#047857; line-height:1.1;">
+              <span id="tarif_amount">—</span>
+              <span style="font-size:18px; font-weight:600; color:#065f46;"> TND / an</span>
+            </div>
+            <div style="font-size:12px; color:#065f46; opacity:0.75; margin-top:10px;">
+              ⚠️ <strong>Note :</strong> Coût technique estimé (Prime Pure calibrée). Les chargements, taxes et frais de gestion ne sont pas inclus dans ce montant — il s'agit du risque pur attendu.
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /panel-tarification -->
+
+      <!-- ══════════════════════════════════════
+           MODULE 6 — ASSISTANT IA
+      ══════════════════════════════════════ -->
+      <div class="section-panel" id="panel-assistant">
+        <div style="display:flex; flex-direction:column; height:100%; border:1px solid var(--border); border-radius:12px; background:var(--white); overflow:hidden; box-shadow:0 4px 6px -1px rgba(0,0,0,0.05);">
+          <!-- Header Chat -->
+          <div style="padding:16px 20px; border-bottom:1px solid var(--border); background:linear-gradient(to right, var(--navy), var(--blue)); color:white; display:flex; align-items:center; gap:12px;">
+            <div style="font-size:24px;">🤖</div>
+            <div>
+              <div style="font-weight:700; font-size:15px; letter-spacing:0.3px;">Assistant IA Actuariel</div>
+              <div style="font-size:11px; opacity:0.8;">Modèle RAG · Connaissance du portefeuille BIAT</div>
+            </div>
+          </div>
+          
+          <!-- Chat Messages Area -->
+          <div id="chat-messages" style="flex:1; padding:20px; overflow-y:auto; background:var(--bg); display:flex; flex-direction:column; gap:16px;">
+            <div style="align-self:flex-start; max-width:75%; background:white; padding:12px 16px; border-radius:12px 12px 12px 0; border:1px solid var(--border); box-shadow:0 1px 2px rgba(0,0,0,0.02);">
+              <div style="font-size:13px; color:var(--text); line-height:1.5;">
+                Bonjour ! Je suis l'Assistant IA Actuariel. Je peux répondre à vos questions sur :
+                <ul style="margin-top:6px; padding-left:20px; color:var(--muted);">
+                  <li>Le provisionnement IBNR (M2)</li>
+                  <li>La modélisation des risques (M3)</li>
+                  <li>La sinistralité et la rentabilité (M1 & M5)</li>
+                </ul>
+                <br>
+                <em>Note : Les vrais modèles <code>.pkl</code> et les notebooks Python ne sont pas encore branchés dans le dossier <code>notebooks</code>, mais je peux vous faire une démonstration de mes réponses.</em>
+              </div>
+            </div>
+          </div>
+
+          <!-- Suggested Prompts -->
+          <div style="padding:10px 20px; background:white; display:flex; gap:8px; overflow-x:auto; border-top:1px solid var(--border-light);" id="chat-suggestions">
+            <button onclick="fillChat('Combien dois-je mettre de côté pour les sinistres tardifs (IBNR) ?')" style="white-space:nowrap; background:#f1f5f9; border:1px solid var(--border); border-radius:99px; padding:6px 12px; font-size:11px; color:var(--navy); cursor:pointer;">Combien mettre de côté (IBNR) ?</button>
+            <button onclick="fillChat('Que dit la décision du ministre des finances du 8 Mai 2019 sur le provisionnement ?')" style="white-space:nowrap; background:#f1f5f9; border:1px solid var(--border); border-radius:99px; padding:6px 12px; font-size:11px; color:var(--navy); cursor:pointer;">Décision du 8 Mai 2019 ?</button>
+            <button onclick="fillChat('Quels sont les segments les plus déficitaires de notre portefeuille automobile ?')" style="white-space:nowrap; background:#f1f5f9; border:1px solid var(--border); border-radius:99px; padding:6px 12px; font-size:11px; color:var(--navy); cursor:pointer;">Segments déficitaires ?</button>
+            <button onclick="fillChat('Quels sont les principes clés de la norme IFRS 17 pour les contrats d\\'assurance ?')" style="white-space:nowrap; background:#f1f5f9; border:1px solid var(--border); border-radius:99px; padding:6px 12px; font-size:11px; color:var(--navy); cursor:pointer;">Principes IFRS 17 ?</button>
+            <button onclick="fillChat('Quels sont les modèles de Machine Learning utilisés par BIAT pour la tarification ?')" style="white-space:nowrap; background:#f1f5f9; border:1px solid var(--border); border-radius:99px; padding:6px 12px; font-size:11px; color:var(--navy); cursor:pointer;">Modèles de Tarification ML ?</button>
+          </div>
+
+          <!-- Input Area -->
+          <div style="padding:16px 20px; background:white; border-top:1px solid var(--border); display:flex; gap:12px; align-items:center;">
+            <input type="text" id="chat-input" placeholder="Posez votre question actuarielle ici..." style="flex:1; padding:12px 16px; border:1px solid var(--border); border-radius:8px; font-family:'Inter', sans-serif; font-size:13px; outline:none;" onkeypress="if(event.key === 'Enter') sendChatMessage()">
+            <button onclick="sendChatMessage()" style="background:var(--blue); color:white; border:none; border-radius:8px; padding:12px 20px; font-weight:600; cursor:pointer; font-family:'Inter', sans-serif; font-size:13px; box-shadow:0 2px 4px rgba(37,99,235,0.2);">
+              Envoyer
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main-wrapper -->
+
+  <!-- ApexCharts -->
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+  <script>
+    // ══════════════════════════════════════════════════
+    // MODULE 1 — PRÉDICTION IA SINISTRALITÉ
+    // ══════════════════════════════════════════════════
+    async function predireSinistralite() {
+      const btn = document.getElementById('m1-predict-btn');
+      const usage = document.getElementById('m1-usage').value;
+      const energie = document.getElementById('m1-energie').value;
+      const region = document.getElementById('m1-region').value;
+      const puissance = parseInt(document.getElementById('m1-puissance').value) || 8;
+
+      btn.innerHTML = '⏳ Calcul en cours...';
+      btn.disabled = true;
+
+      try {
+        const response = await fetch('http://127.0.0.1:8000/api/predict/assure', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            age_conducteur: 35,
+            classe_bm: 1,
+            puissance_fiscale: puissance,
+            region: region,
+            usage: usage,
+            energie: energie,
+            anciennete_vehicule: 5,
+            valeur_venale: 25000
+          })
+        });
+
+        const res = await response.json();
+        if (res.status === 'ok') {
+          const freq = res.data.frequence;
+          const sev = res.data.severite;
+          const prime = res.data.prime_pure;
+
+          document.getElementById('m1-out-freq').textContent = (freq * 100).toFixed(1) + '%';
+          document.getElementById('m1-out-sev').textContent = Math.round(sev).toLocaleString('fr-TN');
+          document.getElementById('m1-out-prime').textContent = Math.round(prime).toLocaleString('fr-TN');
+
+          // Niveau de risque
+          let risque, risqueCoul;
+          if (freq > 0.7) { risque = '🔴 Élevé'; risqueCoul = '#f87171'; }
+          else if (freq > 0.4) { risque = '🟡 Modéré'; risqueCoul = '#fbbf24'; }
+          else { risque = '🟢 Faible'; risqueCoul = '#34d399'; }
+          document.getElementById('m1-out-risque').textContent = risque;
+          document.getElementById('m1-out-risque').style.color = risqueCoul;
+
+          // Interprétation
+          const interp = `Le modèle XGBoost prédit pour un véhicule <strong>${usage}</strong> · <strong>${energie}</strong> en région <strong>${region}</strong> (puissance ${puissance} CV) :<br>
+          → Fréquence de sinistre de <strong>${(freq*100).toFixed(1)}%</strong> — sur 100 polices similaires, environ <strong>${Math.round(freq*100)} déclarent un sinistre</strong>.<br>
+          → Sévérité moyenne de <strong>${Math.round(sev).toLocaleString('fr-TN')} TND</strong> par sinistre déclaré.<br>
+          → Prime pure actuarielle recommandée : <strong>${Math.round(prime).toLocaleString('fr-TN')} TND</strong>.`;
+          document.getElementById('m1-out-interpretation').innerHTML = interp;
+
+          document.getElementById('m1-results').style.display = 'block';
+        } else {
+          alert('Erreur modèle : ' + (res.message || 'Inconnu'));
+        }
+      } catch(e) {
+        alert('Impossible de contacter le serveur : ' + e.message);
+      } finally {
+        btn.innerHTML = '⚡ Calculer la Prédiction IA';
+        btn.disabled = false;
+      }
+    }
+
+    // ══════════════════════════════════════════════════
+    // MODULE 2 — PRÉDICTION IA PROVISIONNEMENT
+    // ══════════════════════════════════════════════════
+    async function predireReserves() {
+      const btn = document.getElementById('m2-predict-btn');
+      const segment = document.getElementById('m2-segment').value;
+      const inflation = parseFloat(document.getElementById('m2-inflation').value) || 0;
+      const acceleration = parseFloat(document.getElementById('m2-acceleration').value) || 0;
+
+      btn.innerHTML = '⏳ Calcul du Triangle...';
+      btn.disabled = true;
+
+      // Triangles de base (en TND)
+      const baseTriangles = {
+        "Auto": [
+          [8420000, 10650000, 11890000, 12250000, 12380000, 12450000],
+          [9150000, 11820000, 13100000, 13650000, 13820000, null],
+          [7680000, 9890000, 11050000, 11450000, null, null],
+          [10350000, 13280000, 14890000, null, null, null],
+          [11200000, 14350000, null, null, null, null],
+          [12800000, null, null, null, null, null]
+        ],
+        "Incendie": [
+          [2000000, 4500000, 5200000, 5800000, 5950000, 6000000],
+          [2100000, 4800000, 5400000, 6100000, 6300000, null],
+          [1900000, 4200000, 4900000, 5600000, null, null],
+          [2300000, 5100000, 5800000, null, null, null],
+          [2500000, 5600000, null, null, null, null],
+          [2800000, null, null, null, null, null]
+        ],
+        "RC": [
+          [500000, 1200000, 2500000, 3800000, 4500000, 5100000],
+          [550000, 1300000, 2800000, 4200000, 4900000, null],
+          [480000, 1150000, 2400000, 3600000, null, null],
+          [600000, 1400000, 3100000, null, null, null],
+          [650000, 1500000, null, null, null, null],
+          [700000, null, null, null, null, null]
+        ]
+      };
+
+      let triData = baseTriangles[segment].map(row => [...row]);
+
+      // Appliquer les chocs : inflation et accélération
+      const infFactor = 1 + (inflation / 100);
+      const accFactor = 1 + (acceleration / 100);
+      
+      for(let i=0; i<triData.length; i++) {
+        for(let j=0; j<triData[i].length; j++) {
+          if (triData[i][j] !== null) {
+            // Inflation s'applique plus fort sur les années récentes (diagonale bas)
+            const anneeActuelle = 2018 + i + j;
+            if (anneeActuelle >= 2021) {
+                triData[i][j] = triData[i][j] * infFactor;
+            }
+            // L'accélération augmente les paiements précoces (j=0 ou 1) et réduit les tardifs
+            if (j <= 1) triData[i][j] = triData[i][j] * accFactor;
+            if (j >= 3) triData[i][j] = triData[i][j] / accFactor;
+          }
+        }
+      }
+
+      try {
+        const response = await fetch('http://127.0.0.1:8000/api/predict/reserving', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            triangle_data: triData,
+            annees_survenance: [2018, 2019, 2020, 2021, 2022, 2023]
+          })
+        });
+
+        const res = await response.json();
+        if (res.status === 'ok') {
+          const d = res.data;
+
+          document.getElementById('m2-out-ibnr-cl').textContent = Math.round(d.ibnr_total).toLocaleString('fr-TN');
+          if (d.ibnr_total_xgb) {
+            document.getElementById('m2-out-ibnr-xgb').textContent = Math.round(d.ibnr_total_xgb).toLocaleString('fr-TN');
+            document.getElementById('m2-out-ibnr-xgb').parentElement.style.display = 'block';
+            document.getElementById('m2-out-provision').textContent = Math.round(d.ibnr_total_xgb).toLocaleString('fr-TN');
+          } else {
+            document.getElementById('m2-out-ibnr-xgb').parentElement.style.display = 'none';
+            document.getElementById('m2-out-provision').textContent = Math.round(d.ibnr_total).toLocaleString('fr-TN');
+          }
+
+          // Construction du tableau dynamique
+          const triComplet = d.triangle_complet;
+          const thead = document.getElementById('m2-tri-head');
+          const tbody = document.getElementById('m2-tri-body');
+          
+          let headHtml = `<tr><th style="text-align:left; background:var(--navy); color:white;">Année \\ Dév.</th>`;
+          for(let j=0; j<triComplet[0].length; j++) {
+            headHtml += `<th style="background:var(--navy); color:white;">${j}</th>`;
+          }
+          headHtml += `<th style="background:#1e4620; color:white;">IBNR IA</th></tr>`;
+          thead.innerHTML = headHtml;
+
+          let bodyHtml = '';
+          for(let i=0; i<triComplet.length; i++) {
+            let rowHtml = `<tr><td style="text-align:left; font-weight:700; color:var(--navy); border:1px solid #e2e8f0; padding:8px;">${2018 + i}</td>`;
+            for(let j=0; j<triComplet[i].length; j++) {
+              let val = triComplet[i][j];
+              // Vérifier si c'est une donnée historique (base) ou une prédiction (IA)
+              let isPred = (triData[i][j] === null);
+              if (val === null) val = 0;
+              
+              if (isPred) {
+                rowHtml += `<td style="border:1px solid #e2e8f0; padding:8px; text-align:right; background:#e6faf2; color:var(--blue); font-style:italic;">${Math.round(val).toLocaleString('fr-TN')}</td>`;
+              } else {
+                rowHtml += `<td style="border:1px solid #e2e8f0; padding:8px; text-align:right;">${Math.round(val).toLocaleString('fr-TN')}</td>`;
+              }
+            }
+            
+            // Calcul de l'IBNR par année (Ultime - Dernier connu)
+            const dernierConnu = triData[i].filter(v => v !== null).pop() || 0;
+            const ultime = triComplet[i][triComplet[i].length - 1] || 0;
+            const ibnrLigne = ultime - dernierConnu;
+            
+            rowHtml += `<td style="border:1px solid #e2e8f0; padding:8px; text-align:right; background:#1e3a5f; color:white; font-weight:800;">${Math.round(ibnrLigne).toLocaleString('fr-TN')}</td></tr>`;
+            bodyHtml += rowHtml;
+          }
+          tbody.innerHTML = bodyHtml;
+
+          // Interprétation
+          let diff = d.ibnr_total_xgb ? (d.ibnr_total_xgb - d.ibnr_total) : 0;
+          let diffStr = Math.abs(diff).toLocaleString('fr-TN');
+          let interp = `L'IA a complété le triangle de développement sur la base des cadences historiques. `;
+          if (d.ibnr_total_xgb) {
+            interp += `Le modèle Machine Learning (XGBoost) ajuste l'IBNR Chain-Ladder avec un écart de <strong>${diffStr} TND</strong> en tenant compte des caractéristiques latentes du portefeuille. `;
+          }
+          if (inflation > 0) {
+            interp += `<br>Le choc d'inflation de ${inflation}% a mécaniquement alourdi la sinistralité des années récentes, augmentant le besoin de provisionnement.`;
+          }
+          document.getElementById('m2-out-interpretation').innerHTML = interp;
+
+          document.getElementById('m2-results').style.display = 'block';
+        } else {
+          alert('Erreur modèle : ' + (res.message || 'Inconnu'));
+        }
+      } catch(e) {
+        alert('Impossible de contacter le serveur : ' + e.message);
+      } finally {
+        btn.innerHTML = '🚀 Calculer le Triangle IA';
+        btn.disabled = false;
+      }
+    }
+
+    // ══════════════════════════════════════════════════
+    // NAVIGATION
+    // ══════════════════════════════════════════════════
+    function showSection(name) {
+      document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+      document.getElementById('panel-' + name).classList.add('active');
+      document.querySelectorAll('.sidebar-item').forEach(i => {
+        if (i.getAttribute('onclick') && i.getAttribute('onclick').includes("'" + name + "'")) {
+          i.classList.add('active');
+        }
+      });
+
+      // Re-rendre les graphiques du module affiché (ApexCharts ne se rend pas correctement sur display:none)
+      requestAnimationFrame(() => {
+        if (typeof window.renderChartsForModule === 'function') {
+          window.renderChartsForModule(name);
+        }
+      });
+    }
+
+    // ══════════════════════════════════════════════════
+    // PRÉDICTION PRIME PURE — Modèle Fréquence × Sévérité
+    // ══════════════════════════════════════════════════
+    async function predire(event) {
+      event.preventDefault();
+      
+      const pPanel = document.getElementById('pred-placeholder-panel');
+      if (pPanel) pPanel.style.display = 'none';
+      const rPanel = document.getElementById('pred-result-panel');
+      if (rPanel) rPanel.style.display = 'block';
+
+      const age = parseInt(document.getElementById('p-age').value) || 35;
+      const bm  = parseInt(document.getElementById('p-bm').value)  || 10;
+      const pui = parseInt(document.getElementById('p-puissance').value) || 8;
+      const anc = parseInt(document.getElementById('p-anciennete').value) || 5;
+      const reg = document.getElementById('p-region').value;
+      const usa = document.getElementById('p-usage').value;
+      const eng = document.getElementById('p-energie').value;
+      
+      const payload = {
+        age_conducteur: age,
+        classe_bm: bm,
+        puissance_fiscale: pui,
+        region: reg,
+        usage: usa,
+        energie: eng,
+        anciennete_vehicule: anc
+      };
+
+      try {
+        const response = await fetch('http://localhost:8000/api/predict/assure', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        
+        const res = await response.json();
+        
+        if (res.status === 'ok') {
+          const data = res.data;
+          const prime = data.prime_pure;
+          const freq = data.frequence;
+          const sev = data.severite;
+          
+          if (prime === null || prime === undefined || freq === null || freq === undefined) {
+              alert("Prédiction indisponible (Modèle non chargé ou profil hors domaine).");
+              return;
+          }
+          
+          // Afficher les résultats
+          document.getElementById('pred-freq').textContent  = (freq * 100).toFixed(2) + '%';
+          const probEl = document.getElementById('pred-prob');
+          if (probEl) probEl.textContent = (freq * 100).toFixed(2) + '%';
+          document.getElementById('pred-sev').textContent   = Math.round(sev).toLocaleString('fr-TN') + ' TND';
+          document.getElementById('pred-prime').textContent = Math.round(prime).toLocaleString('fr-TN') + ' TND';
+
+          // ── SHAP — Top 3 facteurs les plus impactants (VENANT DE L'IA EN TEMPS RÉEL)
+          const shapFactors = data.shap_top3;
+          
+          if (shapFactors && shapFactors.length > 0) {
+            document.getElementById('shap-container').innerHTML = shapFactors.map(f => {
+              // f.importance est la valeur SHAP
+              const w   = Math.min(100, Math.round(Math.abs(f.importance) * 200)); // Mise à l'échelle visuelle
+              const dir = f.importance >= 0;
+              const col = dir ? '#dc2626' : '#16a34a'; // rouge = risque +, vert = risque −
+              const sign = dir ? '+' : '';
+              return `<div class="shap-row">
+                <div class="shap-label">${f.feature}<span style="color:${col};font-weight:700;margin-left:5px;">${sign}${(f.importance * 100).toFixed(2)}</span></div>
+                <div class="pbar-wrap">
+                  <div class="pbar"><div class="pbar-fill" style="width:${w}%;background:${col};"></div></div>
+                </div>
+              </div>`;
+            }).join('');
+          } else {
+             document.getElementById('shap-container').innerHTML = "<div style='font-size:13px; color:var(--slate-500)'>Explicabilité SHAP indisponible.</div>";
+          }
+
+        } else {
+          alert('Erreur API: ' + (res.message || 'Inconnue'));
+        }
+      } catch (err) {
+        document.getElementById('pred-freq').textContent = 'API Injoignable';
+      }
+    }
+
+    function resetFilters() {
+      ['f-annee','f-garantie','f-usage','f-energie','f-region'].forEach(id => {
+        document.getElementById(id).selectedIndex = 0;
+      });
+    }
+    function applyFilters() { /* API call placeholder */ }
+
+    // ══════════════════════════════════════════════════
+    // COLORS
+    // ══════════════════════════════════════════════════
+    const NAVY = '#0d2b1f', BLUE = '#1b5e3a', ACCENT = '#2e7d4f';
+    const SUCCESS = '#16a34a', DANGER = '#dc2626', WARN = '#d97706';
+    const PALETTE = [NAVY, BLUE, '#2e7d4f', '#86efac', '#d4ecd9'];
+
+    const chartOpts = {
+      chart: { toolbar: { show: false }, fontFamily: 'Inter, sans-serif', animations: { enabled: true, speed: 600 } },
+      dataLabels: { enabled: false },
+      tooltip: { style: { fontSize: '11px' } },
+      grid: { borderColor: '#f1f5f9', strokeDashArray: 4 }
+    };
+
+    // ══════════════════════════════════════════════════
+    // VUE GÉNÉRALE & MODULES CHARTS (Dynamique)
+    // ══════════════════════════════════════════════════
+    // Les graphiques sont désormais chargés dynamiquement depuis les modèles et notebooks.
+    // Voir le fichier js/dashboard-dynamic.js
+    // Graphiques dynamiques : voir script tag js/dashboard-dynamic.js en bas de page
+
+
+
+    // ══════════════════════════════════════════════════
+    // IBNR ESTIMATOR
+    // ══════════════════════════════════════════════════
+    function chargerExemple() {
+      document.getElementById('triangle-input').value = JSON.stringify({
+        triangle: [
+          [8420000, 10650000, 11890000, 12250000, 12380000, 12450000],
+          [9150000, 11820000, 13100000, 13650000, 13820000, null],
+          [7680000, 9890000, 11050000, 11450000, null, null],
+          [10350000, 13280000, 14890000, null, null, null],
+          [11200000, 14350000, null, null, null, null],
+          [12800000, null, null, null, null, null]
+        ]
+      }, null, 2);
+    }
+
+    async function estimerIBNR() {
+      const rawInput = document.getElementById('triangle-input').value.trim();
+      
+      // Si vide, charger l'exemple automatiquement
+      if (!rawInput) {
+        chargerExemple();
+      }
+      
+      let tri;
+      try {
+        const parsed = JSON.parse(document.getElementById('triangle-input').value.trim());
+        tri = parsed.triangle || parsed;
+        if (!Array.isArray(tri)) throw new Error('Format invalide');
+      } catch(err) {
+        alert('Format JSON invalide.\n\nExemple valide :\n{"triangle": [[8420000, 10650000, null],[9150000, null, null]]}');
+        return;
+      }
+      
+      // Bouton : état chargement
+      const btn = document.querySelector('[onclick="estimerIBNR()"]');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '⏳ Calcul en cours...';
+      btn.disabled = true;
+      
+      try {
+        const response = await fetch('http://localhost:8000/api/predict/reserving', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ triangle_data: tri })
+        });
+        
+        const res = await response.json();
+        
+        if (res.status === 'ok') {
+          const data = res.data;
+          const rows = data.ibnr_par_annee || [];
+          
+          // Remplir le tableau
+          const tbody = document.getElementById('ibnr-comp-tbody');
+          const tfoot = document.getElementById('ibnr-comp-tfoot');
+          
+          tbody.innerHTML = rows.map(r => {
+            const ibnr = r.ibnr ? Math.round(r.ibnr).toLocaleString('fr-TN') : '0';
+            const connu = r.dernier_connu ? Math.round(r.dernier_connu).toLocaleString('fr-TN') : '—';
+            const ultimate = r.cout_ultimate ? Math.round(r.cout_ultimate).toLocaleString('fr-TN') : '—';
+            return `<tr>
+              <td style="font-weight:600;">${r.annee}</td>
+              <td>${connu}</td>
+              <td style="color:var(--blue);font-weight:600;">${ultimate}</td>
+              <td style="color:#7c3aed;">${ibnr}</td>
+              <td style="color:#059669;">${ibnr}</td>
+            </tr>`;
+          }).join('');
+          
+          tfoot.innerHTML = `
+            <td>TOTAL</td>
+            <td>—</td>
+            <td style="color:var(--blue);">${Math.round(data.cout_ultimate_total).toLocaleString('fr-TN')}</td>
+            <td style="color:#7c3aed;font-weight:800;">${Math.round(data.ibnr_total).toLocaleString('fr-TN')}</td>
+            <td style="color:#059669;">${Math.round(data.ibnr_total).toLocaleString('fr-TN')}</td>
+          `;
+          
+          document.getElementById('ibnr-result-box').style.display = 'block';
+          document.getElementById('ibnr-result-box').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          
+        } else {
+          alert('Erreur API : ' + (res.message || 'Inconnu'));
+        }
+        
+      } catch(err) {
+        alert('Impossible de contacter le serveur.\nVérifiez que le backend tourne sur http://localhost:8000');
+      } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }
+    }
+    
+    // ══════════════════════════════════════════════════
+    // MODULE 4 - SÉRIES TEMPORELLES
+    // ══════════════════════════════════════════════════
+    let m4Chart = null;
+    
+    async function predireSaisieManuelle(model) {
+      const variable = document.getElementById('m4-variable-input').value;
+      const monthsStr = document.getElementById('m4-months-input').value;
+      const months = parseInt(monthsStr) || 12;
+      
+      try {
+        const response = await fetch('http://localhost:8000/api/forecast/predict', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ variable: variable, months: months, model: model })
+        });
+        
+        const res = await response.json();
+        if (res.status === 'ok') {
+           const data = res.data;
+           const cats = data.map(d => d.mois);
+           const hist = data.map(d => d.historique);
+           const lstm = data.map(d => d.prevision_lstm);
+           const arima = data.map(d => d.prevision_arima);
+           
+           if (m4Chart) {
+             m4Chart.destroy();
+           }
+           
+           m4Chart = new ApexCharts(document.getElementById('chart-m4-forecast'), {
+              ...chartOpts,
+              chart: { ...chartOpts.chart, type: 'line', height: 380 },
+              series: [
+                { name: 'Historique', data: hist },
+                { name: 'Prévision LSTM', data: lstm },
+                { name: 'Prévision ARIMA', data: arima }
+              ],
+              colors: [NAVY, WARN, SUCCESS],
+              stroke: { width: [2.5, 2.5, 2.5], dashArray: [0, 0, 0], curve: 'straight' },
+              xaxis: { categories: cats, labels: { style: { fontSize: '10px' } } },
+              yaxis: { labels: { style: { fontSize: '10px' } } },
+              legend: { fontSize: '12px', position: 'top' },
+              tooltip: { shared: true, intersect: false },
+              markers: { size: 5, strokeWidth: 0, hover: { size: 7 } }
+           });
+           m4Chart.render();
+           
+           // ── SHAP Explainability Panel
+           const shapPanel = document.getElementById('m4-shap-panel');
+           const shapContainer = document.getElementById('m4-shap-container');
+           const shapImpacts = res.shap_impacts || [];
+           
+           if (shapImpacts.length > 0 && model === 'lstm') {
+             const maxAbs = Math.max(...shapImpacts.map(f => Math.abs(f.importance)));
+             
+             shapContainer.innerHTML = shapImpacts.map((f, idx) => {
+               const w = maxAbs > 0 ? Math.round((Math.abs(f.importance) / maxAbs) * 100) : 0;
+               const isPositive = f.importance >= 0;
+               const col = isPositive ? '#dc2626' : '#16a34a';
+               const bgLight = isPositive ? '#fff5f5' : '#f0fdf4';
+               const borderTop = isPositive ? '#dc2626' : '#16a34a';
+               const arrowIcon = isPositive ? '📈' : '📉';
+               const direction = isPositive ? 'Hausse' : 'Baisse';
+               const rank = ['🥇','🥈','🥉','4️⃣','5️⃣'][idx] || `${idx+1}.`;
+               const valeur = f.valeur_historique ? f.valeur_historique.toLocaleString('fr-TN') : '—';
+               const subtitle = f.subtitle || '';
+               const impactPct = (Math.abs(f.importance) / maxAbs * 100).toFixed(0);
+               const explication = isPositive
+                 ? `Ce mois a <strong>aggravé</strong> la sinistralité — l'IA le retient comme un <strong style="color:#dc2626;">signal de risque</strong>.`
+                 : `Ce mois a <strong>atténué</strong> la sinistralité — l'IA l'interprète comme un <strong style="color:#16a34a;">signal favorable</strong>.`;
+               const borderRight = idx < shapImpacts.length - 1 ? '1px solid #e2e8f0' : 'none';
+               
+               return `<div style="background:${bgLight}; border-top:4px solid ${borderTop}; border-right:${borderRight}; padding:28px 22px; display:flex; flex-direction:column; gap:14px;">
+                 
+                 <!-- Rang + Mois -->
+                 <div>
+                   <div style="font-size:20px; margin-bottom:6px;">${rank}</div>
+                   <div style="font-size:16px; font-weight:800; color:var(--text); line-height:1.2;">${f.feature}</div>
+                   <div style="font-size:11px; color:var(--muted); margin-top:4px;">${subtitle}</div>
+                 </div>
+                 
+                 <!-- Badge direction -->
+                 <div style="display:flex; align-items:center; gap:8px;">
+                   <span style="font-size:13px; font-weight:700; color:white; background:${col}; border-radius:8px; padding:5px 12px;">${arrowIcon} ${direction}</span>
+                 </div>
+                 
+                 <!-- Valeur historique -->
+                 <div style="background:white; border:1px solid #e2e8f0; border-radius:10px; padding:10px 14px;">
+                   <div style="font-size:10px; text-transform:uppercase; letter-spacing:0.5px; color:var(--muted); margin-bottom:4px;">Sinistres ce mois</div>
+                   <div style="font-size:20px; font-weight:800; color:var(--text);">${valeur}</div>
+                 </div>
+                 
+                 <!-- Barre d'influence -->
+                 <div>
+                   <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                     <span style="font-size:11px; color:var(--muted);">Force d'influence</span>
+                     <span style="font-size:12px; font-weight:700; color:${col};">${impactPct}%</span>
+                   </div>
+                   <div style="background:#e2e8f0; border-radius:999px; height:8px; overflow:hidden;">
+                     <div style="height:100%; width:${w}%; background:${col}; border-radius:999px; transition:width 0.7s ease;"></div>
+                   </div>
+                 </div>
+                 
+                 <!-- Explication métier -->
+                 <div style="font-size:12px; color:#64748b; line-height:1.6; border-top:1px solid #e2e8f0; padding-top:12px;">${explication}</div>
+                 
+               </div>`;
+             }).join('');
+             
+             shapPanel.style.display = 'block';
+             
+             // --- Paragraphe d'interprétation actuarielle ---
+             const interpPanel = document.getElementById('m4-shap-interpretation');
+             const interpText = document.getElementById('m4-shap-text');
+             if (interpPanel && interpText && shapImpacts.length > 0) {
+               const top = shapImpacts[0];
+               const hausse = shapImpacts.filter(f => f.importance > 0);
+               const baisse = shapImpacts.filter(f => f.importance < 0);
+               const topDir = top.importance >= 0 ? 'à la hausse' : 'à la baisse';
+               const topCol = top.importance >= 0 ? '#dc2626' : '#16a34a';
+               const varLabel = document.getElementById('m4-variable-input').options[document.getElementById('m4-variable-input').selectedIndex].text;
+               const horizonLabel = document.getElementById('m4-months-input').value;
+               const impactAbs = Math.abs(top.importance).toLocaleString('fr-TN', {maximumFractionDigits: 0});
+               
+               let phrases = [];
+               
+               // Phrase 1 : mois le plus influent
+               phrases.push(`Le modèle LSTM a analysé <strong>${shapImpacts.length > 1 ? "l'ensemble de votre historique" : "votre historique"}</strong> pour établir une prévision sur <strong>${horizonLabel} mois</strong> de la variable <strong>${varLabel}</strong>.`);
+               
+               // Phrase 2 : mois dominant
+               phrases.push(`Le mois de <strong style="color:${topCol};">${top.feature}</strong> (${top.subtitle}) est le plus déterminant dans cette prévision : il tire la sinistralité <strong>${topDir}</strong> d'environ <strong style="color:${topCol};">${impactAbs} TND</strong>.`);
+               
+               // Phrase 3 : profil global
+               if (hausse.length > 0 && baisse.length > 0) {
+                 phrases.push(`Sur les 5 mois clés retenus, <strong style="color:#dc2626;">${hausse.length} mois ont un effet aggravant</strong> et <strong style="color:#16a34a;">${baisse.length} mois ont un effet atténuant</strong> sur la prévision.`);
+               } else if (hausse.length === shapImpacts.length) {
+                 phrases.push(`Tous les mois clés retenus ont un <strong style="color:#dc2626;">effet haussier</strong> : le modèle anticipe une tendance à la hausse marquée.`);
+               } else {
+                 phrases.push(`Tous les mois clés retenus ont un <strong style="color:#16a34a;">effet atténuant</strong> : le modèle anticipe une tendance à la baisse.`);
+               }
+               
+               // Phrase 4 : conseil actuariel
+               if (hausse.length >= baisse.length) {
+                 phrases.push(`<span style="background:#fff7ed; border:1px solid #fed7aa; border-radius:8px; padding:6px 12px; display:inline-block; margin-top:4px;">⚠️ <strong>Recommandation actuarielle :</strong> Une attention particulière aux mois à fort impact haussier est conseillée pour ajuster les réserves techniques ou les primes futures.</span>`);
+               } else {
+                 phrases.push(`<span style="background:#f0fdf4; border:1px solid #86efac; border-radius:8px; padding:6px 12px; display:inline-block; margin-top:4px;">✅ <strong>Recommandation actuarielle :</strong> Le profil historique récent est favorable. Le modèle ne détecte pas de signal de risque majeur sur l'horizon analysé.</span>`);
+               }
+               
+               interpText.innerHTML = phrases.join('<br><br>');
+               interpPanel.style.display = 'block';
+             }
+           } else {
+             shapPanel.style.display = 'none';
+             const interpPanel2 = document.getElementById('m4-shap-interpretation');
+             if (interpPanel2) interpPanel2.style.display = 'none';
+           }
+           
+        } else {
+           alert("Erreur: " + res.message);
+        }
+      } catch(e) {
+        alert("Erreur de communication avec le serveur: " + e.message);
+      }
+    }
+  // ══════════════════════════════════════════════════
+  // CHATBOT IA ACTUARIEL (M6) - Mock de démonstration
+  // ══════════════════════════════════════════════════
+  function fillChat(text) {
+    document.getElementById('chat-input').value = text;
+    document.getElementById('chat-input').focus();
+  }
+
+  function appendMessage(sender, text) {
+    const chat = document.getElementById('chat-messages');
+    const msgDiv = document.createElement('div');
+    msgDiv.style.marginBottom = '16px';
+    msgDiv.style.maxWidth = '85%';
+    msgDiv.style.padding = '14px 18px';
+    msgDiv.style.borderRadius = '12px';
+    msgDiv.style.fontSize = '14px';
+    msgDiv.style.lineHeight = '1.6';
+    msgDiv.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)';
+
+    // Parse Markdown (bold)
+    let parsedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+    if (sender === 'user') {
+      msgDiv.style.alignSelf = 'flex-end';
+      msgDiv.style.background = 'var(--blue)';
+      msgDiv.style.color = 'white';
+      msgDiv.style.borderBottomRightRadius = '0';
+      msgDiv.innerHTML = parsedText;
+    } else {
+      msgDiv.style.alignSelf = 'flex-start';
+      msgDiv.style.background = 'white';
+      msgDiv.style.color = 'var(--navy)';
+      msgDiv.style.borderBottomLeftRadius = '0';
+      msgDiv.style.border = '1px solid var(--border-light)';
+      msgDiv.innerHTML = parsedText; // Permet le HTML léger du RAG
+    }
+
+    chat.appendChild(msgDiv);
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+
+  async function sendChatMessage() {
+    const input = document.getElementById('chat-input');
+    const msg = input.value.trim();
+    if (!msg) return;
+
+    appendMessage('user', msg);
+    input.value = '';
+
+    // Show a loading indicator
+    const chat = document.getElementById('chat-messages');
+    const loadingDiv = document.createElement('div');
+    loadingDiv.id = 'chat-loading';
+    loadingDiv.style = 'align-self:flex-start; font-size:12px; color:var(--muted); padding:4px 16px; font-style:italic;';
+    loadingDiv.textContent = 'L\'IA réfléchit...';
+    chat.appendChild(loadingDiv);
+    chat.scrollTop = chat.scrollHeight;
+
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/assistant/question', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: msg })
+      });
+      const data = await response.json();
+      document.getElementById('chat-loading').remove();
+      if (data.status === 'ok') {
+        // Afficher la réponse + les sources
+        let html = data.reponse || '';
+        if (data.sources && data.sources.length > 1) {
+          html += '<br><small style="color:#94a3b8; font-size:10px;">📚 Sources : ' + data.sources.join(' · ') + '</small>';
+        }
+        appendMessage('ia', html);
+      } else {
+        appendMessage('ia', '⚠️ ' + (data.reponse || data.message || 'Erreur inconnue'));
+      }
+    } catch(err) {
+      document.getElementById('chat-loading').remove();
+      appendMessage('ia', 'Erreur de connexion avec l\'IA.');
+    }
+  }
+  </script>
+  
+  <script src="/js/dashboard-dynamic.js?v=26"></script>
+</body>
+</html>

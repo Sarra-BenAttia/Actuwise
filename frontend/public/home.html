@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>ACTUWISE — Plateforme Actuarielle Intelligente</title>
+  <meta name="description" content="ACTUWISE — La puissance du Machine Learning pour l'assurance automobile tunisienne. Provisionnement IBNR, modélisation des risques, séries temporelles et assistant IA.">
+  <meta name="keywords" content="actuariat, assurance automobile, Tunisie, IBNR, provisionnement, XGBoost, GLM, CANN, machine learning, chain-ladder">
+
+  <!-- Favicons -->
+  <link href="assets/img/favicon.png" rel="icon">
+  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Jost:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="assets/vendor/aos/aos.css" rel="stylesheet">
+  <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+  <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+  <!-- Main CSS File -->
+  <link href="assets/css/main.css" rel="stylesheet">
+
+</head>
+
+<body class="index-page">
+
+  <header id="header" class="header d-flex align-items-center fixed-top">
+    <div class="container-fluid container-xl position-relative d-flex align-items-center">
+
+      <a href="/home.html" class="logo d-flex align-items-center me-auto">
+        <h1 class="sitename">ACTUWISE</h1>
+      </a>
+
+      <nav id="navmenu" class="navmenu">
+        <ul>
+          <li><a href="#hero" class="active">Accueil</a></li>
+          <li><a href="#about">À Propos</a></li>
+          <li class="dropdown"><a href="#services"><span>Modules</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+            <ul>
+              <li><a href="/login">Connexion au Studio</a></li>
+            </ul>
+          </li>
+          <li><a href="#pipeline">Pipeline IA</a></li>
+          <li><a href="#faq-2">FAQ</a></li>
+        </ul>
+        <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+      </nav>
+
+      <a class="btn-getstarted" href="/dashboard.html">Dashboard</a>
+
+    </div>
+  </header>
+
+  <main class="main">
+
+    <!-- Hero Section -->
+    <section id="hero" class="hero section dark-background">
+
+      <div class="container">
+        <div class="row gy-4">
+          <div class="col-lg-6 order-2 order-lg-1 d-flex flex-column justify-content-center" data-aos="zoom-out">
+            <h1>Plateforme Actuarielle Intelligente</h1>
+            <p>ACTUWISE — La puissance du Machine Learning pour l'assurance automobile tunisienne. Provisionnement, modélisation des risques et prévisions avancées.</p>
+            <div class="d-flex">
+              <a href="/dashboard.html" class="btn-get-started">Accéder au Dashboard</a>
+              <a href="#about" class="btn-watch-video d-flex align-items-center"><i class="bi bi-info-circle"></i><span>Découvrir les Modules</span></a>
+            </div>
+          </div>
+          <div class="col-lg-6 order-1 order-lg-2 hero-img" data-aos="zoom-out" data-aos-delay="200">
+            <img src="assets/img/hero-img.png" class="img-fluid animated" alt="ACTUWISE Plateforme Actuarielle">
+          </div>
+        </div>
+      </div>
+
+    </section><!-- /Hero Section -->
+
+    <!-- Clients Section — Partenaires/Technologies -->
+    <section id="clients" class="clients section light-background">
+
+      <div class="container" data-aos="zoom-in">
+
+        <div class="swiper init-swiper">
+          <script type="application/json" class="swiper-config">
+            {
+              "loop": true,
+              "speed": 600,
+              "autoplay": {
+                "delay": 5000
+              },
+              "slidesPerView": "auto",
+              "pagination": {
+                "el": ".swiper-pagination",
+                "type": "bullets",
+                "clickable": true
+              },
+              "breakpoints": {
+                "320": { "slidesPerView": 2, "spaceBetween": 40 },
+                "480": { "slidesPerView": 3, "spaceBetween": 60 },
+                "640": { "slidesPerView": 4, "spaceBetween": 80 },
+                "992": { "slidesPerView": 5, "spaceBetween": 120 },
+                "1200": { "slidesPerView": 6, "spaceBetween": 120 }
+              }
+            }
+          </script>
+          <div class="swiper-wrapper align-items-center">
+            <div class="swiper-slide"><img src="assets/img/clients/clients-1.webp" class="img-fluid" alt="XGBoost"></div>
+            <div class="swiper-slide"><img src="assets/img/clients/clients-2.webp" class="img-fluid" alt="Python"></div>
+            <div class="swiper-slide"><img src="assets/img/clients/clients-3.webp" class="img-fluid" alt="FastAPI"></div>
+            <div class="swiper-slide"><img src="assets/img/clients/clients-4.webp" class="img-fluid" alt="React"></div>
+            <div class="swiper-slide"><img src="assets/img/clients/clients-5.webp" class="img-fluid" alt="Scikit-learn"></div>
+            <div class="swiper-slide"><img src="assets/img/clients/clients-6.webp" class="img-fluid" alt="Pandas"></div>
+            <div class="swiper-slide"><img src="assets/img/clients/clients-7.webp" class="img-fluid" alt="NumPy"></div>
+            <div class="swiper-slide"><img src="assets/img/clients/clients-8.webp" class="img-fluid" alt="Recharts"></div>
+          </div>
+        </div>
+
+      </div>
+
+    </section><!-- /Clients Section -->
+
+    <!-- About Section -->
+    <section id="about" class="about section">
+
+      <!-- Section Title -->
+      <div class="container section-title" data-aos="fade-up">
+        <h2>À Propos d'ACTUWISE</h2>
+      </div><!-- End Section Title -->
+
+      <div class="container">
+
+        <div class="row gy-4">
+
+          <div class="col-lg-6 content" data-aos="fade-up" data-aos-delay="100">
+            <p>
+              ACTUWISE est une plateforme actuarielle intelligente dédiée à l'assurance automobile tunisienne, combinant les méthodes actuarielles classiques avec les dernières avancées du Machine Learning.
+            </p>
+            <ul>
+              <li><i class="bi bi-check2-circle"></i> <span>93 760 polices d'assurance automobile analysées sur 2018–2023.</span></li>
+              <li><i class="bi bi-check2-circle"></i> <span>64 250 sinistres traités avec segmentation Usage × Énergie × Région.</span></li>
+              <li><i class="bi bi-check2-circle"></i> <span>Modèles ML : XGBoost, GLM Tweedie, CANN (Combiné Actuariel-Neuronal).</span></li>
+              <li><i class="bi bi-check2-circle"></i> <span>Provisionnement IBNR via Chain-Ladder, Bornhuetter-Ferguson, Cape Cod.</span></li>
+            </ul>
+          </div>
+
+          <div class="col-lg-6" data-aos="fade-up" data-aos-delay="200">
+            <p>ACTUWISE intègre 6 modules complémentaires couvrant l'intégralité du cycle actuariel : de l'analyse de la sinistralité au provisionnement IBNR, en passant par la modélisation de la prime pure, les prévisions par séries temporelles, l'analyse du ratio combiné et un assistant IA conversationnel.</p>
+            <p>La plateforme s'appuie sur un backend FastAPI robuste et un frontend React moderne, avec des visualisations interactives (Recharts) et des capacités d'explicabilité des modèles via SHAP.</p>
+            <a href="/dashboard.html" class="read-more"><span>Ouvrir le Dashboard</span><i class="bi bi-arrow-right"></i></a>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section><!-- /About Section -->
+
+    <!-- Why Us Section — Données clés -->
+    <section id="stats" class="section why-us light-background" data-builder="section">
+
+      <div class="container-fluid">
+
+        <div class="row gy-4">
+
+          <div class="col-lg-7 d-flex flex-column justify-content-center order-2 order-lg-1">
+
+            <div class="content px-xl-5" data-aos="fade-up" data-aos-delay="100">
+              <h3><span>Données réelles </span><strong>assurance automobile tunisienne 2018–2023</strong></h3>
+              <p>
+                ACTUWISE s'appuie sur un portefeuille réel de polices d'assurance automobile, segmenté par usage (Privé, Commercial, Administratif), énergie (Essence, Diesel, GPL, Électrique) et région géographique tunisienne.
+              </p>
+            </div>
+
+            <div class="faq-container px-xl-5" data-aos="fade-up" data-aos-delay="200">
+
+              <div class="faq-item faq-active">
+                <h3><span>01</span> Quelle est la sinistralité moyenne du portefeuille ?</h3>
+                <div class="faq-content">
+                  <p>La fréquence sinistre globale est de 68,5% avec un coût moyen sinistre de 4 823 TND. La garantie RC dommages représente 67% des coûts totaux.</p>
+                </div>
+                <i class="faq-toggle bi bi-chevron-right"></i>
+              </div>
+
+              <div class="faq-item">
+                <h3><span>02</span> Quels modèles de provisionnement sont utilisés ?</h3>
+                <div class="faq-content">
+                  <p>ACTUWISE implémente trois méthodes actuarielles : Chain-Ladder (méthode retenue), Bornhuetter-Ferguson avec a priori GLM, et Cape Cod. L'IBNR total estimé est de 12,4 M TND.</p>
+                </div>
+                <i class="faq-toggle bi bi-chevron-right"></i>
+              </div>
+
+              <div class="faq-item">
+                <h3><span>03</span> Quelle est la performance du modèle de tarification ?</h3>
+                <div class="faq-content">
+                  <p>Le modèle XGBoost atteint un Gini de 0,71 et une courbe de Lorenz supérieure au GLM (Gini 0,58) et au modèle aléatoire. Le CANN combine les deux approches pour une précision maximale.</p>
+                </div>
+                <i class="faq-toggle bi bi-chevron-right"></i>
+              </div>
+
+            </div>
+
+          </div>
+
+          <div class="col-lg-5 order-1 order-lg-2 why-us-img">
+            <img src="assets/img/why-us.png" class="img-fluid" alt="Données actuarielles ACTUWISE" data-aos="zoom-in" data-aos-delay="100">
+          </div>
+        </div>
+
+      </div>
+
+    </section><!-- /Why Us Section -->
+
+    <!-- Skills Section — KPIs clés -->
+    <section id="skills" class="skills section">
+
+      <div class="container" data-aos="fade-up" data-aos-delay="100">
+
+        <div class="row">
+
+          <div class="col-lg-6 d-flex align-items-center">
+            <img src="assets/img/illustration/illustration-10.webp" class="img-fluid" alt="ACTUWISE Analytics">
+          </div>
+
+          <div class="col-lg-6 pt-4 pt-lg-0 content">
+
+            <h3>Indicateurs de Performance des Modèles ML</h3>
+            <p class="fst-italic">
+              ACTUWISE évalue rigoureusement ses modèles sur le portefeuille automobile tunisien 2018–2023.
+            </p>
+
+            <div class="skills-content skills-animation">
+
+              <div class="progress">
+                <span class="skill"><span>XGBoost — Gini Index</span> <i class="val">71%</i></span>
+                <div class="progress-bar-wrap">
+                  <div class="progress-bar" role="progressbar" aria-valuenow="71" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+              </div>
+
+              <div class="progress">
+                <span class="skill"><span>GLM Tweedie — Gini Index</span> <i class="val">58%</i></span>
+                <div class="progress-bar-wrap">
+                  <div class="progress-bar" role="progressbar" aria-valuenow="58" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+              </div>
+
+              <div class="progress">
+                <span class="skill"><span>Ratio Combiné Portefeuille</span> <i class="val">97%</i></span>
+                <div class="progress-bar-wrap">
+                  <div class="progress-bar" role="progressbar" aria-valuenow="97" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+              </div>
+
+              <div class="progress">
+                <span class="skill"><span>Chain-Ladder — Complétude Triangle</span> <i class="val">100%</i></span>
+                <div class="progress-bar-wrap">
+                  <div class="progress-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </section><!-- /Skills Section -->
+
+    <!-- Services Section — Les 6 Modules -->
+    <section id="services" class="services section light-background">
+
+      <!-- Section Title -->
+      <div class="container section-title" data-aos="fade-up">
+        <h2>Les 6 Modules ACTUWISE</h2>
+        <p>Une couverture complète du cycle actuariel pour l'assurance automobile tunisienne</p>
+      </div><!-- End Section Title -->
+
+      <div class="container">
+
+        <div class="row gy-4">
+
+          <div class="col-xl-4 col-md-6 d-flex" data-aos="fade-up" data-aos-delay="100">
+            <div class="service-item position-relative">
+              <div class="icon"><i class="bi bi-bar-chart-line icon"></i></div>
+              <h4><a href="/dashboard.html" class="stretched-link">Module 1 — Sinistralité</a></h4>
+              <p>Analyse complète de la sinistralité : fréquence, sévérité et coût total par garantie (RC Corporel, RC Dommages, Vol, Incendie, Bris de Glace) et par segment géographique.</p>
+            </div>
+          </div>
+
+          <div class="col-xl-4 col-md-6 d-flex" data-aos="fade-up" data-aos-delay="200">
+            <div class="service-item position-relative">
+              <div class="icon"><i class="bi bi-shield-check icon"></i></div>
+              <h4><a href="/dashboard.html" class="stretched-link">Module 2 — Provisionnement</a></h4>
+              <p>Estimation des réserves IBNR par trois méthodes : Chain-Ladder, Bornhuetter-Ferguson et Cape Cod. Triangle de développement 2018–2023. IBNR total : 12,4 M TND.</p>
+            </div>
+          </div>
+
+          <div class="col-xl-4 col-md-6 d-flex" data-aos="fade-up" data-aos-delay="300">
+            <div class="service-item position-relative">
+              <div class="icon"><i class="bi bi-cpu icon"></i></div>
+              <h4><a href="/dashboard.html" class="stretched-link">Module 3 — Modélisation</a></h4>
+              <p>Prédiction de la prime pure via XGBoost, GLM Tweedie et CANN (réseau neuronal combiné). Explicabilité SHAP, courbe de Lorenz et benchmark des modèles (Gini XGB : 0.71).</p>
+            </div>
+          </div>
+
+          <div class="col-xl-4 col-md-6 d-flex" data-aos="fade-up" data-aos-delay="400">
+            <div class="service-item position-relative">
+              <div class="icon"><i class="bi bi-graph-up-arrow icon"></i></div>
+              <h4><a href="/dashboard.html" class="stretched-link">Module 4 — Séries Temporelles <span class="badge bg-warning text-dark ms-1" style="font-size:0.6rem;">Prochainement</span></a></h4>
+              <p>Prévisions de sinistralité par LSTM et Prophet. Intervalles de confiance à 80% et 95%. Identification des ruptures de tendance et des saisonnalités sur le portefeuille automobile.</p>
+            </div>
+          </div>
+
+          <div class="col-xl-4 col-md-6 d-flex" data-aos="fade-up" data-aos-delay="500">
+            <div class="service-item position-relative">
+              <div class="icon"><i class="bi bi-percent icon"></i></div>
+              <h4><a href="/dashboard.html" class="stretched-link">Module 5 — Ratio Combiné</a></h4>
+              <p>Calcul et visualisation du ratio combiné (sinistres + frais) par segment Usage × Énergie. Identification des segments déficitaires (RC > 100%) et pilotage de la rentabilité technique.</p>
+            </div>
+          </div>
+
+          <div class="col-xl-4 col-md-6 d-flex" data-aos="fade-up" data-aos-delay="600">
+            <div class="service-item position-relative">
+              <div class="icon"><i class="bi bi-robot icon"></i></div>
+              <h4><a href="/dashboard.html" class="stretched-link">Module 6 — Assistant IA <span class="badge bg-warning text-dark ms-1" style="font-size:0.6rem;">Prochainement</span></a></h4>
+              <p>Chatbot RAG (Retrieval-Augmented Generation) entraîné sur les données ACTUWISE. Répondez à des questions complexes sur la sinistralité, les réserves et les prévisions en langage naturel.</p>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section><!-- /Services Section -->
+
+    <!-- Work Process Section — Pipeline IA -->
+    <section id="pipeline" class="work-process section">
+
+      <!-- Section Title -->
+      <div class="container section-title" data-aos="fade-up">
+        <h2>Pipeline IA</h2>
+        <p>De la donnée brute à la décision actuarielle — en 3 étapes</p>
+      </div><!-- End Section Title -->
+
+      <div class="container" data-aos="fade-up" data-aos-delay="100">
+
+        <div class="row gy-5">
+
+          <div class="col-lg-4" data-aos="fade-up" data-aos-delay="200">
+            <div class="steps-item">
+              <div class="steps-image">
+                <img src="assets/img/steps/steps-1.webp" alt="Ingestion Données" class="img-fluid" loading="lazy">
+              </div>
+              <div class="steps-content">
+                <div class="steps-number">01</div>
+                <h3>Ingestion & Préparation</h3>
+                <p>Chargement des données brutes (polices, sinistres, triangles) depuis les fichiers CSV. Nettoyage, encoding des variables catégorielles, feature engineering (classe BM, puissance fiscale, ancienneté).</p>
+                <div class="steps-features">
+                  <div class="feature-item">
+                    <i class="bi bi-check-circle"></i>
+                    <span>93 760 polices 2018–2023</span>
+                  </div>
+                  <div class="feature-item">
+                    <i class="bi bi-check-circle"></i>
+                    <span>14 variables explicatives</span>
+                  </div>
+                  <div class="feature-item">
+                    <i class="bi bi-check-circle"></i>
+                    <span>5 garanties automobiles</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4" data-aos="fade-up" data-aos-delay="300">
+            <div class="steps-item">
+              <div class="steps-image">
+                <img src="assets/img/steps/steps-2.webp" alt="Modélisation ML" class="img-fluid" loading="lazy">
+              </div>
+              <div class="steps-content">
+                <div class="steps-number">02</div>
+                <h3>Modélisation & Entraînement</h3>
+                <p>Entraînement des modèles ML sur les données historiques. Optimisation des hyperparamètres par validation croisée. Benchmarking XGBoost vs GLM vs CANN.</p>
+                <div class="steps-features">
+                  <div class="feature-item">
+                    <i class="bi bi-check-circle"></i>
+                    <span>XGBoost Gini 0.71</span>
+                  </div>
+                  <div class="feature-item">
+                    <i class="bi bi-check-circle"></i>
+                    <span>GLM Tweedie fréquence/sévérité</span>
+                  </div>
+                  <div class="feature-item">
+                    <i class="bi bi-check-circle"></i>
+                    <span>CANN réseau neuronal combiné</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4" data-aos="fade-up" data-aos-delay="400">
+            <div class="steps-item">
+              <div class="steps-image">
+                <img src="assets/img/steps/steps-3.webp" alt="Décision Actuarielle" class="img-fluid" loading="lazy">
+              </div>
+              <div class="steps-content">
+                <div class="steps-number">03</div>
+                <h3>Décision & Restitution</h3>
+                <p>Exposition des résultats via API FastAPI + dashboard interactif React. Prédiction de prime pure pour un assuré, estimation IBNR, analyse du ratio combiné et explicabilité SHAP.</p>
+                <div class="steps-features">
+                  <div class="feature-item">
+                    <i class="bi bi-check-circle"></i>
+                    <span>API REST temps réel</span>
+                  </div>
+                  <div class="feature-item">
+                    <i class="bi bi-check-circle"></i>
+                    <span>Explicabilité SHAP top-3</span>
+                  </div>
+                  <div class="feature-item">
+                    <i class="bi bi-check-circle"></i>
+                    <span>Dashboard actuariel interactif</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section><!-- /Work Process Section -->
+
+    <!-- Call To Action Section -->
+    <section id="call-to-action" class="call-to-action section dark-background">
+
+      <img src="assets/img/bg/bg-8.webp" alt="">
+
+      <div class="container">
+
+        <div class="row" data-aos="zoom-in" data-aos-delay="100">
+          <div class="col-xl-9 text-center text-xl-start">
+            <h3>Accéder au Dashboard ACTUWISE</h3>
+            <p>Explorez les 6 modules actuariels : sinistralité, provisionnement IBNR, modélisation de la prime pure, séries temporelles, ratio combiné et assistant IA. Données réelles 2018–2023.</p>
+          </div>
+          <div class="col-xl-3 cta-btn-container text-center">
+            <a class="cta-btn align-middle" href="/dashboard.html">Ouvrir le Dashboard</a>
+          </div>
+        </div>
+
+      </div>
+
+    </section><!-- /Call To Action Section -->
+
+    <!-- Portfolio Section — Résultats Clés -->
+    <section id="resultats" class="portfolio section">
+
+      <!-- Section Title -->
+      <div class="container section-title" data-aos="fade-up">
+        <h2>Résultats Clés</h2>
+        <p>Les principaux indicateurs actuariels du portefeuille automobile tunisien</p>
+      </div><!-- End Section Title -->
+
+      <div class="container">
+
+        <div class="isotope-layout" data-default-filter="*" data-layout="masonry" data-sort="original-order">
+
+          <ul class="portfolio-filters isotope-filters" data-aos="fade-up" data-aos-delay="100">
+            <li data-filter="*" class="filter-active">Tous</li>
+            <li data-filter=".filter-app">Sinistralité</li>
+            <li data-filter=".filter-product">Provisionnement</li>
+            <li data-filter=".filter-branding">Modélisation</li>
+          </ul><!-- End Portfolio Filters -->
+
+          <div class="row gy-4 isotope-container" data-aos="fade-up" data-aos-delay="200">
+
+            <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-app">
+              <img src="assets/img/portfolio/portfolio-portrait-1.webp" class="img-fluid" alt="Sinistralité par Garantie">
+              <div class="portfolio-info">
+                <h4>Coût par Garantie</h4>
+                <p>RC Dommages : 67% du coût total</p>
+                <a href="assets/img/portfolio/portfolio-portrait-1.webp" title="Sinistralité par Garantie" data-gallery="portfolio-gallery-app" class="glightbox preview-link"><i class="bi bi-zoom-in"></i></a>
+                <a href="/dashboard.html" title="Voir dans le Dashboard" class="details-link"><i class="bi bi-link-45deg"></i></a>
+              </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-product">
+              <img src="assets/img/portfolio/portfolio-1.webp" class="img-fluid" alt="Triangle IBNR">
+              <div class="portfolio-info">
+                <h4>IBNR Total</h4>
+                <p>12,4 M TND — Chain-Ladder</p>
+                <a href="assets/img/portfolio/portfolio-1.webp" title="Triangle IBNR" data-gallery="portfolio-gallery-product" class="glightbox preview-link"><i class="bi bi-zoom-in"></i></a>
+                <a href="/dashboard.html" title="Voir dans le Dashboard" class="details-link"><i class="bi bi-link-45deg"></i></a>
+              </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-branding">
+              <img src="assets/img/portfolio/portfolio-3.webp" class="img-fluid" alt="Courbe de Lorenz">
+              <div class="portfolio-info">
+                <h4>Courbe de Lorenz</h4>
+                <p>XGBoost Gini : 0.71 vs GLM : 0.58</p>
+                <a href="assets/img/portfolio/portfolio-3.webp" title="Courbe de Lorenz" data-gallery="portfolio-gallery-branding" class="glightbox preview-link"><i class="bi bi-zoom-in"></i></a>
+                <a href="/dashboard.html" title="Voir dans le Dashboard" class="details-link"><i class="bi bi-link-45deg"></i></a>
+              </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-app">
+              <img src="assets/img/portfolio/portfolio-4.webp" class="img-fluid" alt="Sinistralité mensuelle">
+              <div class="portfolio-info">
+                <h4>Sinistralité Mensuelle</h4>
+                <p>Tendance 2018–2023 par mois</p>
+                <a href="assets/img/portfolio/portfolio-4.webp" title="Sinistralité Mensuelle" data-gallery="portfolio-gallery-app" class="glightbox preview-link"><i class="bi bi-zoom-in"></i></a>
+                <a href="/dashboard.html" title="Voir dans le Dashboard" class="details-link"><i class="bi bi-link-45deg"></i></a>
+              </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-product">
+              <img src="assets/img/portfolio/portfolio-portrait-2.webp" class="img-fluid" alt="Réserves par Année">
+              <div class="portfolio-info">
+                <h4>Réserves par Année</h4>
+                <p>BF, Cape Cod et Chain-Ladder comparés</p>
+                <a href="assets/img/portfolio/portfolio-portrait-2.webp" title="Réserves par Année" data-gallery="portfolio-gallery-product" class="glightbox preview-link"><i class="bi bi-zoom-in"></i></a>
+                <a href="/dashboard.html" title="Voir dans le Dashboard" class="details-link"><i class="bi bi-link-45deg"></i></a>
+              </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-branding">
+              <img src="assets/img/portfolio/portfolio-portrait-3.webp" class="img-fluid" alt="Ratio Combiné">
+              <div class="portfolio-info">
+                <h4>Ratio Combiné</h4>
+                <p>Par segment : Usage × Énergie</p>
+                <a href="assets/img/portfolio/portfolio-portrait-3.webp" title="Ratio Combiné" data-gallery="portfolio-gallery-branding" class="glightbox preview-link"><i class="bi bi-zoom-in"></i></a>
+                <a href="/dashboard.html" title="Voir dans le Dashboard" class="details-link"><i class="bi bi-link-45deg"></i></a>
+              </div>
+            </div>
+
+          </div><!-- End Portfolio Container -->
+
+        </div>
+
+      </div>
+
+    </section><!-- /Portfolio Section -->
+
+    <!-- Team Section -->
+    <section id="team" class="team section">
+
+      <!-- Section Title -->
+      <div class="container section-title" data-aos="fade-up">
+        <h2>Technologie</h2>
+        <p>La stack technique qui propulse ACTUWISE</p>
+      </div><!-- End Section Title -->
+
+      <div class="container">
+
+        <div class="row gy-4">
+
+          <div class="col-lg-6" data-aos="fade-up" data-aos-delay="100">
+            <div class="team-member d-flex align-items-start">
+              <div class="pic"><img src="assets/img/person/person-m-7.webp" class="img-fluid" alt="Backend"></div>
+              <div class="member-info">
+                <h4>FastAPI + Python</h4>
+                <span>Backend & Modèles ML</span>
+                <p>API REST haute performance avec uvicorn. Chargement automatique des modèles XGBoost et GLM au démarrage. Endpoints pour chaque module actuariel.</p>
+                <div class="social">
+                  <a href="#"><i class="bi bi-code-slash"></i></a>
+                  <a href="#"><i class="bi bi-bar-chart"></i></a>
+                  <a href="#"><i class="bi bi-cpu"></i></a>
+                  <a href="#"><i class="bi bi-database"></i></a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-6" data-aos="fade-up" data-aos-delay="200">
+            <div class="team-member d-flex align-items-start">
+              <div class="pic"><img src="assets/img/person/person-f-8.webp" class="img-fluid" alt="Frontend"></div>
+              <div class="member-info">
+                <h4>React + Vite</h4>
+                <span>Frontend & Visualisations</span>
+                <p>Interface moderne avec Recharts pour les graphiques interactifs. Connexion temps réel à l'API FastAPI. Dashboard actuariel complet avec 6 modules.</p>
+                <div class="social">
+                  <a href="#"><i class="bi bi-browser-chrome"></i></a>
+                  <a href="#"><i class="bi bi-graph-up"></i></a>
+                  <a href="#"><i class="bi bi-palette"></i></a>
+                  <a href="#"><i class="bi bi-lightning"></i></a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-6" data-aos="fade-up" data-aos-delay="300">
+            <div class="team-member d-flex align-items-start">
+              <div class="pic"><img src="assets/img/person/person-m-6.webp" class="img-fluid" alt="ML Models"></div>
+              <div class="member-info">
+                <h4>XGBoost + GLM + CANN</h4>
+                <span>Modèles de Tarification</span>
+                <p>XGBoost pour la prédiction non-linéaire (Gini 0.71). GLM Tweedie pour la prime pure actuarielle. CANN pour combiner les approches statistiques et neuronales.</p>
+                <div class="social">
+                  <a href="#"><i class="bi bi-robot"></i></a>
+                  <a href="#"><i class="bi bi-diagram-3"></i></a>
+                  <a href="#"><i class="bi bi-activity"></i></a>
+                  <a href="#"><i class="bi bi-bullseye"></i></a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-6" data-aos="fade-up" data-aos-delay="400">
+            <div class="team-member d-flex align-items-start">
+              <div class="pic"><img src="assets/img/person/person-f-4.webp" class="img-fluid" alt="Actuarial Methods"></div>
+              <div class="member-info">
+                <h4>Chain-Ladder + BF + Cape Cod</h4>
+                <span>Méthodes Actuarielles</span>
+                <p>Trois méthodes de provisionnement IBNR implémentées. Triangles de développement 2018–2023. Sélection automatique de la méthode retenue selon les données.</p>
+                <div class="social">
+                  <a href="#"><i class="bi bi-table"></i></a>
+                  <a href="#"><i class="bi bi-grid-3x3"></i></a>
+                  <a href="#"><i class="bi bi-calculator"></i></a>
+                  <a href="#"><i class="bi bi-pie-chart"></i></a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section><!-- /Team Section -->
+
+    <!-- Testimonials Section — Indicateurs -->
+    <section id="testimonials" class="testimonials section">
+
+      <!-- Section Title -->
+      <div class="container section-title" data-aos="fade-up">
+        <h2>Chiffres Clés</h2>
+        <p>Les KPIs du portefeuille automobile tunisien analysé par ACTUWISE</p>
+      </div><!-- End Section Title -->
+
+      <div class="container" data-aos="fade-up" data-aos-delay="100">
+
+        <div class="swiper init-swiper">
+          <script type="application/json" class="swiper-config">
+            {
+              "loop": true,
+              "speed": 600,
+              "autoplay": { "delay": 4000 },
+              "slidesPerView": "auto",
+              "pagination": {
+                "el": ".swiper-pagination",
+                "type": "bullets",
+                "clickable": true
+              }
+            }
+          </script>
+          <div class="swiper-wrapper">
+
+            <div class="swiper-slide">
+              <div class="testimonial-item">
+                <img src="assets/img/person/person-m-9.webp" class="testimonial-img" alt="">
+                <h3>93 760</h3>
+                <h4>Polices analysées (2018–2023)</h4>
+                <div class="stars">
+                  <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                </div>
+                <p>
+                  <i class="bi bi-quote quote-icon-left"></i>
+                  <span>Portefeuille de polices d'assurance automobile tunisienne couvrant 6 années (2018–2023), segmenté par usage, énergie, région et classe Bonus-Malus (1–22).</span>
+                  <i class="bi bi-quote quote-icon-right"></i>
+                </p>
+              </div>
+            </div>
+
+            <div class="swiper-slide">
+              <div class="testimonial-item">
+                <img src="assets/img/person/person-f-5.webp" class="testimonial-img" alt="">
+                <h3>64 250</h3>
+                <h4>Sinistres traités</h4>
+                <div class="stars">
+                  <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                </div>
+                <p>
+                  <i class="bi bi-quote quote-icon-left"></i>
+                  <span>64 250 sinistres répartis sur 5 garanties (RC Corporel, RC Dommages, Vol, Incendie, Bris de Glace). Fréquence sinistre globale : 68,5%. Coût moyen : 4 823 TND.</span>
+                  <i class="bi bi-quote quote-icon-right"></i>
+                </p>
+              </div>
+            </div>
+
+            <div class="swiper-slide">
+              <div class="testimonial-item">
+                <img src="assets/img/person/person-f-12.webp" class="testimonial-img" alt="">
+                <h3>12,4 M TND</h3>
+                <h4>IBNR total estimé</h4>
+                <div class="stars">
+                  <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                </div>
+                <p>
+                  <i class="bi bi-quote quote-icon-left"></i>
+                  <span>Réserves IBNR estimées à 12,4 millions TND par la méthode Chain-Ladder. La méthode Bornhuetter-Ferguson confirme avec 11,8 M TND. Cape Cod : 12,1 M TND.</span>
+                  <i class="bi bi-quote quote-icon-right"></i>
+                </p>
+              </div>
+            </div>
+
+            <div class="swiper-slide">
+              <div class="testimonial-item">
+                <img src="assets/img/person/person-m-12.webp" class="testimonial-img" alt="">
+                <h3>0,71</h3>
+                <h4>Gini XGBoost (vs 0,58 GLM)</h4>
+                <div class="stars">
+                  <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                </div>
+                <p>
+                  <i class="bi bi-quote quote-icon-left"></i>
+                  <span>Le modèle XGBoost surpasse significativement le GLM Tweedie avec un indice de Gini de 0,71. La courbe de Lorenz démontre une meilleure discrimination du risque automobile.</span>
+                  <i class="bi bi-quote quote-icon-right"></i>
+                </p>
+              </div>
+            </div>
+
+            <div class="swiper-slide">
+              <div class="testimonial-item">
+                <img src="assets/img/person/person-m-13.webp" class="testimonial-img" alt="">
+                <h3>97%</h3>
+                <h4>Ratio Combiné Portefeuille</h4>
+                <div class="stars">
+                  <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                </div>
+                <p>
+                  <i class="bi bi-quote quote-icon-left"></i>
+                  <span>Le ratio combiné global du portefeuille est de 97%, légèrement sous le seuil de 100%. Certains segments (GPL Commercial) dépassent 108% — signalés en rouge dans le dashboard.</span>
+                  <i class="bi bi-quote quote-icon-right"></i>
+                </p>
+              </div>
+            </div>
+
+          </div>
+          <div class="swiper-pagination"></div>
+        </div>
+
+      </div>
+
+    </section><!-- /Testimonials Section -->
+
+    <!-- Faq 2 Section -->
+    <section id="faq-2" class="faq-2 section light-background">
+
+      <!-- Section Title -->
+      <div class="container section-title" data-aos="fade-up">
+        <h2>Questions Fréquentes</h2>
+        <p>Comprendre ACTUWISE et ses fonctionnalités actuarielles</p>
+      </div><!-- End Section Title -->
+
+      <div class="container">
+
+        <div class="row justify-content-center">
+
+          <div class="col-lg-10">
+
+            <div class="faq-container">
+
+              <div class="faq-item faq-active" data-aos="fade-up" data-aos-delay="200">
+                <i class="faq-icon bi bi-question-circle"></i>
+                <h3>Qu'est-ce qu'ACTUWISE ?</h3>
+                <div class="faq-content">
+                  <p>ACTUWISE est une plateforme actuarielle full-stack dédiée à l'assurance automobile tunisienne. Elle combine les méthodes classiques (Chain-Ladder, GLM) avec le Machine Learning (XGBoost, CANN) pour la tarification, le provisionnement IBNR et l'analyse de la rentabilité.</p>
+                </div>
+                <i class="faq-toggle bi bi-chevron-right"></i>
+              </div>
+
+              <div class="faq-item" data-aos="fade-up" data-aos-delay="300">
+                <i class="faq-icon bi bi-question-circle"></i>
+                <h3>Comment fonctionne la prédiction de prime pure ?</h3>
+                <div class="faq-content">
+                  <p>Saisissez les caractéristiques de l'assuré (âge, classe BM, puissance fiscale, région, usage, énergie, ancienneté) dans le formulaire du Module 3. Le modèle XGBoost prédit la fréquence et la sévérité attendues, avec explication SHAP des 3 facteurs les plus importants.</p>
+                </div>
+                <i class="faq-toggle bi bi-chevron-right"></i>
+              </div>
+
+              <div class="faq-item" data-aos="fade-up" data-aos-delay="400">
+                <i class="faq-icon bi bi-question-circle"></i>
+                <h3>Comment estimer les réserves IBNR ?</h3>
+                <div class="faq-content">
+                  <p>Utilisez le Module 2 du dashboard. Vous pouvez soit charger votre propre triangle de développement (format JSON ou CSV), soit utiliser les données du portefeuille ACTUWISE. Trois méthodes sont calculées automatiquement : Chain-Ladder, Bornhuetter-Ferguson et Cape Cod.</p>
+                </div>
+                <i class="faq-toggle bi bi-chevron-right"></i>
+              </div>
+
+              <div class="faq-item" data-aos="fade-up" data-aos-delay="500">
+                <i class="faq-icon bi bi-question-circle"></i>
+                <h3>Qu'est-ce que le CANN ?</h3>
+                <div class="faq-content">
+                  <p>Le CANN (Combined Actuarial Neural Network) est une architecture hybride qui utilise les prédictions du GLM comme base, puis les ajuste avec un réseau neuronal. Cette approche garantit l'interprétabilité actuarielle tout en capturant les non-linéarités complexes du risque automobile.</p>
+                </div>
+                <i class="faq-toggle bi bi-chevron-right"></i>
+              </div>
+
+              <div class="faq-item" data-aos="fade-up" data-aos-delay="600">
+                <i class="faq-icon bi bi-question-circle"></i>
+                <h3>Quels segments présentent les ratios combinés les plus élevés ?</h3>
+                <div class="faq-content">
+                  <p>Le Module 5 identifie les segments déficitaires. Les véhicules GPL à usage Commercial affichent typiquement des ratios > 108%. Les véhicules Diesel à usage Privé sont les plus rentables avec des ratios autour de 88%. Ces informations guident la politique tarifaire.</p>
+                </div>
+                <i class="faq-toggle bi bi-chevron-right"></i>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section><!-- /Faq 2 Section -->
+
+    <!-- Subscribe Section — CTA Dashboard -->
+    <section id="subscribe" class="subscribe section">
+      <div class="container" data-aos="fade-up" data-aos-delay="100">
+        <div class="row gy-4 justify-content-between align-items-center">
+          <div class="col-lg-6">
+            <div class="cta-content" data-aos="fade-up" data-aos-delay="200">
+              <h2>Accéder au Dashboard Actuariel</h2>
+              <p>Explorez les 6 modules d'ACTUWISE : analysez la sinistralité, estimez les réserves IBNR, modélisez la prime pure, et pilotez la rentabilité par segment avec des données réelles 2018–2023.</p>
+              <div class="mt-3">
+                <a href="/dashboard.html" class="btn btn-primary btn-lg me-3">
+                  <i class="bi bi-speedometer2 me-2"></i>Ouvrir le Dashboard
+                </a>
+                <a href="http://localhost:8000/docs" target="_blank" class="btn btn-outline-primary btn-lg">
+                  <i class="bi bi-code-slash me-2"></i>API Docs
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="cta-image" data-aos="zoom-out" data-aos-delay="200">
+              <img src="assets/img/cta/cta-1.webp" alt="" class="img-fluid">
+            </div>
+          </div>
+        </div>
+      </div>
+    </section><!-- /Subscribe Section -->
+
+    <!-- Recent Blog Posts Section — Méthodes Actuarielles -->
+    <section id="recent-blog-postst" class="recent-blog-postst section light-background">
+
+      <!-- Section Title -->
+      <div class="container section-title" data-aos="fade-up">
+        <h2>Méthodes Actuarielles</h2>
+        <p>Les fondements théoriques qui alimentent ACTUWISE</p>
+      </div><!-- End Section Title -->
+
+      <div class="container">
+
+        <div class="row gy-5">
+
+          <div class="col-xl-4 col-md-6">
+            <div class="post-item position-relative h-100" data-aos="fade-up" data-aos-delay="100">
+
+              <div class="post-img position-relative overflow-hidden">
+                <img src="assets/img/blog/blog-post-1.webp" class="img-fluid" alt="Chain-Ladder">
+                <span class="post-date">Module 2</span>
+              </div>
+
+              <div class="post-content d-flex flex-column">
+                <h3 class="post-title">Méthode Chain-Ladder pour l'IBNR</h3>
+                <div class="meta d-flex align-items-center">
+                  <div class="d-flex align-items-center">
+                    <i class="bi bi-calculator"></i> <span class="ps-2">Provisionnement</span>
+                  </div>
+                  <span class="px-3 text-black-50">/</span>
+                  <div class="d-flex align-items-center">
+                    <i class="bi bi-folder2"></i> <span class="ps-2">Méthode Déterministe</span>
+                  </div>
+                </div>
+                <hr>
+                <a href="/dashboard.html" class="readmore stretched-link"><span>Voir dans le Dashboard</span><i class="bi bi-arrow-right"></i></a>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="col-xl-4 col-md-6">
+            <div class="post-item position-relative h-100" data-aos="fade-up" data-aos-delay="200">
+
+              <div class="post-img position-relative overflow-hidden">
+                <img src="assets/img/blog/blog-post-2.webp" class="img-fluid" alt="XGBoost Tarification">
+                <span class="post-date">Module 3</span>
+              </div>
+
+              <div class="post-content d-flex flex-column">
+                <h3 class="post-title">XGBoost pour la Tarification Automobile</h3>
+                <div class="meta d-flex align-items-center">
+                  <div class="d-flex align-items-center">
+                    <i class="bi bi-cpu"></i> <span class="ps-2">Machine Learning</span>
+                  </div>
+                  <span class="px-3 text-black-50">/</span>
+                  <div class="d-flex align-items-center">
+                    <i class="bi bi-folder2"></i> <span class="ps-2">Gini 0.71</span>
+                  </div>
+                </div>
+                <hr>
+                <a href="/dashboard.html" class="readmore stretched-link"><span>Voir dans le Dashboard</span><i class="bi bi-arrow-right"></i></a>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="col-xl-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
+            <div class="post-item position-relative h-100">
+
+              <div class="post-img position-relative overflow-hidden">
+                <img src="assets/img/blog/blog-post-3.webp" class="img-fluid" alt="Ratio Combiné">
+                <span class="post-date">Module 5</span>
+              </div>
+
+              <div class="post-content d-flex flex-column">
+                <h3 class="post-title">Analyse du Ratio Combiné par Segment</h3>
+                <div class="meta d-flex align-items-center">
+                  <div class="d-flex align-items-center">
+                    <i class="bi bi-percent"></i> <span class="ps-2">Rentabilité</span>
+                  </div>
+                  <span class="px-3 text-black-50">/</span>
+                  <div class="d-flex align-items-center">
+                    <i class="bi bi-folder2"></i> <span class="ps-2">Usage × Énergie</span>
+                  </div>
+                </div>
+                <hr>
+                <a href="/dashboard.html" class="readmore stretched-link"><span>Voir dans le Dashboard</span><i class="bi bi-arrow-right"></i></a>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section><!-- /Recent Blog Posts Section -->
+
+    
+
+  </main>
+
+  <footer id="footer" class="footer dark-background">
+
+    <div class="footer-newsletter">
+      <div class="container">
+        <div class="row justify-content-center text-center">
+          <div class="col-lg-6">
+            <h4>ACTUWISE — Plateforme Actuarielle Intelligente</h4>
+            <p>Assurance automobile tunisienne · Machine Learning · Actuariat · 2024</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container footer-top">
+      <div class="row gy-4">
+        <div class="col-lg-4 col-md-6 footer-about">
+          <a href="/home.html" class="d-flex align-items-center">
+            <span class="sitename">ACTUWISE</span>
+          </a>
+          <div class="footer-contact pt-3">
+            <p>Plateforme Actuarielle Intelligente</p>
+            <p>Assurance Automobile Tunisienne</p>
+            <p class="mt-3"><strong>API Backend :</strong> <a href="http://localhost:8000" target="_blank">localhost:8000</a></p>
+            <p><strong>Frontend :</strong> <a href="/home.html">localhost:3000</a></p>
+          </div>
+        </div>
+
+        <div class="col-lg-2 col-md-3 footer-links">
+          <h4>Modules</h4>
+          <ul>
+            <li><a href="/dashboard.html">Module 1 — Sinistralité</a></li>
+            <li><a href="/dashboard.html">Module 2 — Provisionnement</a></li>
+            <li><a href="/dashboard.html">Module 3 — Modélisation</a></li>
+            <li><a href="/dashboard.html">Module 4 — Séries Temp.</a></li>
+            <li><a href="/dashboard.html">Module 5 — Ratio Combiné</a></li>
+            <li><a href="/dashboard.html">Module 6 — Assistant IA</a></li>
+          </ul>
+        </div>
+
+        <div class="col-lg-2 col-md-3 footer-links">
+          <h4>Méthodes</h4>
+          <ul>
+            <li><a href="/dashboard.html">Chain-Ladder</a></li>
+            <li><a href="/dashboard.html">Bornhuetter-Ferguson</a></li>
+            <li><a href="/dashboard.html">Cape Cod</a></li>
+            <li><a href="/dashboard.html">XGBoost</a></li>
+            <li><a href="/dashboard.html">GLM Tweedie</a></li>
+            <li><a href="/dashboard.html">CANN</a></li>
+          </ul>
+        </div>
+
+        <div class="col-lg-4 col-md-12 footer-links">
+          <h4>Accès Rapide</h4>
+          <div class="d-flex mt-2 gap-2 flex-wrap">
+            <a href="/dashboard.html" class="btn btn-sm btn-primary"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a>
+            <a href="http://localhost:8000/docs" target="_blank" class="btn btn-sm btn-outline-light"><i class="bi bi-code-slash me-1"></i>API Docs</a>
+            <a href="http://localhost:8000" target="_blank" class="btn btn-sm btn-outline-light"><i class="bi bi-server me-1"></i>Backend</a>
+          </div>
+          <p class="mt-3" style="font-size:0.85rem; color: rgba(255,255,255,0.6);">
+            Données : Portefeuille automobile tunisien 2018–2023<br>
+            93 760 polices · 64 250 sinistres · 5 garanties
+          </p>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="container copyright text-center mt-4">
+      <p>© <span>Copyright</span> <strong class="px-1 sitename">ACTUWISE</strong> <span>— Plateforme Actuarielle Intelligente</span></p>
+      <div class="credits">
+        Construit avec <strong>FastAPI</strong> · <strong>React</strong> · <strong>XGBoost</strong> · <strong>Chain-Ladder</strong>
+      </div>
+    </div>
+
+  </footer>
+
+  <!-- Scroll Top -->
+  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Preloader -->
+  <div id="preloader"></div>
+
+  <!-- Vendor JS Files -->
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/vendor/php-email-form/validate.js"></script>
+  <script src="assets/vendor/aos/aos.js"></script>
+  <script src="assets/vendor/glightbox/js/glightbox.min.js"></script>
+  <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
+  <script src="assets/vendor/waypoints/noframework.waypoints.js"></script>
+  <script src="assets/vendor/imagesloaded/imagesloaded.pkgd.min.js"></script>
+  <script src="assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
+
+  <!-- Main JS File -->
+  <script src="assets/js/main.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,68 @@
+--- Code Cell ---
+# ── Chargement Base Sinistres ──────────────────────────────────────────────────
+print("📂 Chargement de la base sinistres...")
+df = pd.read_excel(PATH_SINISTRES, engine='xlrd')
+print(f"   Dimensions brutes : {df.shape[0]:,} lignes × {df.shape[1]} colonnes")
+
+# ── Aperçu ────────────────────────────────────────────────────────────────────
+df.head(3)
+
+--- Code Cell ---
+# ── Chargement Base Production ────────────────────────────────────────────────
+print("📂 Chargement de la base production...")
+try:
+    df_prod = pd.read_excel(PATH_PRODUCTION, engine='openpyxl')
+    print(f"   Dimensions : {df_prod.shape[0]:,} × {df_prod.shape[1]}")
+
+    # Colonnes PA
+    pa_cols = [c for c in df_prod.columns if str(c).startswith('PA ')]
+    print(f"   Colonnes PA trouvées : {pa_cols}")
+
+    # Mise en format long des primes
+    df_prod_long = df_prod.melt(
+        id_vars=['POL_FILLE'],
+        value_vars=pa_cols,
+        var_name='ANNEE_PA',
+        value_name='PRIME_ACQUISE'
+    )
+    df_prod_long['ANNEE_PA'] = df_prod_long['ANNEE_PA'].str.extract(r'(\d{4})').astype(int)
+    df_prod_long['PRIME_ACQUISE'] = pd.to_numeric(df_prod_long['PRIME_ACQUISE'], errors='coerce').fillna(0)
+
+    # Agrégation primes par police
+    primes_par_police = df_prod_long.groupby(['POL_FILLE'])['PRIME_ACQUISE'].sum().reset_index()
+    primes_par_police.columns = ['TMP_POLEXT_CDE', 'PRIME_TOTALE_6ANS']
+
+    # Agrégation primes par année
+    primes_par_annee = df_prod_long.groupby('ANNEE_PA')['PRIME_ACQUISE'].sum().reset_index()
+    primes_par_annee.columns = ['ANNEE', 'PRIMES_TOTALES']
+
+    # ── Ratio sinistres par année (2018-2023) ──────────────────────────────────
+    sin_par_annee = df[df['ANNEE_SURVENANCE'].between(2018, 2023)].groupby('ANNEE_SURVENANCE').agg(
+        sinistres_payes=('REG_TOTAL', 'sum'),
+        charge_ultime=('CHARGE_ULTIME', 'sum')
+    ).reset_index().rename(columns={'ANNEE_SURVENANCE': 'ANNEE'})
+
+    df_ratio = sin_par_annee.merge(primes_par_annee, on='ANNEE', how='left')
+    df_ratio['RATIO_SINISTRES'] = df_ratio['sinistres_payes'] / df_ratio['PRIMES_TOTALES']
+    df_ratio['RATIO_CHARGE']    = df_ratio['charge_ultime'] / df_ratio['PRIMES_TOTALES']
+    # Hypothèse frais = 25% des primes (ratio de frais standard Non-Vie TN)
+    df_ratio['RATIO_FRAIS']     = 0.25
+    df_ratio['RATIO_COMBINE']   = df_ratio['RATIO_SINISTRES'] + df_ratio['RATIO_FRAIS']
+
+    print("\n📊 Ratio sinistres et ratio combiné par année :")
+    print(df_ratio[['ANNEE','PRIMES_TOTALES','sinistres_payes',
+                    'RATIO_SINISTRES','RATIO_FRAIS','RATIO_COMBINE']].to_string(index=False))
+
+    JOINTURE_OK = True
+
+except FileNotFoundError:
+    print("⚠️  Fichier Base_production_sur_6_ans.xlsx non trouvé.")
+    print("   Le ratio combiné sera estimé sur la base des sinistres uniquement.")
+    # Proxy sans primes : ratio de développement
+    df_ratio = by_year_recent[['ANNEE_SURVENANCE','reg_total','charge_ultime']].copy()
+    df_ratio.columns = ['ANNEE','sinistres_payes','charge_ultime']
+    df_ratio['PRIMES_TOTALES'] = np.nan
+    df_ratio['RATIO_SINISTRES'] = np.nan
+    df_ratio['RATIO_COMBINE']   = np.nan
+    JOINTURE_OK = False
+

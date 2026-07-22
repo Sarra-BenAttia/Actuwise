@@ -1,0 +1,136 @@
+Created At: 2026-07-18T21:19:58Z
+Completed At: 2026-07-18T21:19:59Z
+The following changes were made by the replace_file_content tool to: C:\Users\LENOVO\Desktop\ddd\actuwise_app\frontend\public\app.html. If relevant, proactively run terminal commands to execute this code for the USER. Don't ask for permission.
+[diff_block_start]
+@@ -730,6 +730,128 @@
+   }
+ 
+   // ──────────────────────────────────────────────
++  // DÉTECTION DE FRAUDE
++  // ──────────────────────────────────────────────
++  let fraudeChoices = null;
++  async function initFraudeForm() {
++    if (fraudeChoices) return;
++    try {
++      const r = await fetch('http://127.0.0.1:8000/api/fraude/choix-formulaire', {
++        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('actuwise_token') }
++      });
++      if (!r.ok) return;
++      const json = await r.json();
++      fraudeChoices = json.data;
++      renderFraudeForm();
++    } catch(e) { console.error('Erreur initFraudeForm:', e); }
++  }
++
++  function renderFraudeForm() {
++    const container = document.getElementById('fraude-form-container');
++    const makeSelect = (id, label, options) => `
++      <div class="form-group">
++        <label>${label}</label>
++        <select id="${id}" required>
++          <option value="" disabled selected>Choisir...</option>
++          ${options.map(o => `<option value="${o}">${o}</option>`).join('')}
++        </select>
++      </div>`;
++    
++    container.innerHTML = `
++      <!-- Dates -->
++      <div class="form-group"><label>Date de Naissance Assuré</label><input type="date" id="f-date-naiss" required></div>
++      <div class="form-group"><label>Date de Mise en Circ. (Véhicule)</label><input type="date" id="f-date-circ" required></div>
++      <div class="form-group"><label>Date de Souscription Police</label><input type="date" id="f-date-sous" required></div>
++      <div class="form-group"><label>Date de Survenance Sinistre</label><input type="date" id="f-date-surv" required></div>
++      <div class="form-group"><label>Date de Déclaration Sinistre</label><input type="date" id="f-date-decl" required></div>
++      
++      <!-- Listes de choix -->
++      ${makeSelect('f-tmp-type', 'Type de Dommage (TMP_TYPE)', fraudeChoices['TMP_TYPE'] || ['C','M','D'])}
++      ${makeSelect('f-trans-desc', 'Garantie (TRANS_TYPE_DESC)', fraudeChoices['TRANS_TYPE_DESC'] || [])}
++      
++      <!-- Montants & Comptages -->
++      <div class="form-group"><label>Montant Réglé Estimé (TND)</label><input type="number" id="f-reg-amount" step="0.01" required></div>
++      <div class="form-group"><label>Provision SAP Estimée (TND)</label><input type="number" id="f-sap-amount" step="0.01" value="0"></div>
++      <div class="form-group"><label>Nb Total Sinistres Police</label><input type="number" id="f-nb-sinistres" value="0"></div>
++      <div class="form-group"><label>Nb Petits Sinistres (<=500 TND)</label><input type="number" id="f-nb-petits" value="0"></div>
++    `;
++  }
++
++  async function scoreFraude(e) {
++    e.preventDefault();
++    const btn = document.getElementById('f-btn');
++    const err = document.getElementById('f-error');
++    const res = document.getElementById('f-result');
++    btn.disabled = true; btn.textContent = 'Calcul en cours...';
++    err.style.display = 'none'; res.classList.remove('visible');
++    
++    const payload = {
++      date_naissance: document.getElementById('f-date-naiss').value,
++      mtr_use_start_date: document.getElementById('f-date-circ').value,
++      pol_start_date: document.getElementById('f-date-sous').value,
++      clmloss_date: document.getElementById('f-date-surv').value,
++      clm_reported_date: document.getElementById('f-date-decl').value,
++      tmp_type: document.getElementById('f-tmp-type').value,
++      trans_type_desc: document.getElementById('f-trans-desc').value,
++      reg_amount: document.getElementById('f-reg-amount').value,
++      sap_amount: document.getElementById('f-sap-amount').value,
++      nb_sinistres_police: document.getElementById('f-nb-sinistres').value,
++      nb_petits_sinistres_police: document.getElementById('f-nb-petits').value
++    };
++
++    try {
++      const r = await fetch('http://127.0.0.1:8000/api/fraude/score', {
++        method: 'POST',
++        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + localStorage.getItem('actuwise_token') },
++        body: JSON.stringify(payload)
++      });
++      const json = await r.json();
++      if (!r.ok) {
++        if (json.erreurs) throw new Error(json.erreurs.join(' | '));
++        throw new Error(json.message || 'Erreur lors du scoring');
++      }
++      
++      const d = json.data;
++      const score = d.score_suspicion;
++      document.getElementById('f-score').textContent = (score * 100).toFixed(1) + '%';
++      
++      // Determine badge
++      let badgeClass = 'badge-excellent';
++      let badgeText = 'SAIN';
++      if (score >= 0.7) { badgeClass = 'badge-danger'; badgeText = 'HAUTE PRIORITÉ'; }
++      else if (score >= 0.4) { badgeClass = 'badge-warning'; badgeText = 'SUSPECT'; }
++      
++      document.getElementById('f-badge').className = 'result-badge ' + badgeClass;
++      document.getElementById('f-badge').textContent = badgeText;
++      
++      // Render details
++      const rules = d.regles_declenchees;
++      const detailsHtml = buildDetailRows([
++        ['Anomalie détectée (DBSCAN)', d.dbscan_anomalie ? '<span class="pill pill-red">OUI</span>' : '<span class="pill pill-green">NON</span>'],
++        ['Score règles métier', d.score_regles_metier + ' / 4'],
++        ['R1: Sinistre Grave & Précoce', rules.R1_sinistre_grave_precoce ? 'Oui' : 'Non'],
++        ['R3: Véhicule Ancien + Tierce', rules.R3_vehicule_ancien_tierce ? 'Oui' : 'Non'],
++        ['R4: Ecart SAP/Réglé élevé', rules.R4_ecart_sap_eleve ? 'Oui' : 'Non'],
++        ['R7: Fréq. petits sinistres', rules.R7_frequence_petits_sinistres ? 'Oui' : 'Non']
++      ]);
++      document.getElementById('f-detail').innerHTML = detailsHtml;
++      res.classList.add('visible');
++    } catch(ex) {
++      err.textContent = 'Erreur : ' + ex.message; 
++      err.style.display = 'block';
++    }
++    btn.disabled = false;
++    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg> Calculer le Score de Suspicion';
++  }
++
++  // Hook into navigation to load choices
++  const _originalShowSection = showSection;
++  showSection = function(name) {
++    _originalShowSection(name);
++    if (name === 'fraude') initFraudeForm();
++  };
++
++  // ──────────────────────────────────────────────
+   // HELPERS
+   // ──────────────────────────────────────────────
+   function buildDetailRows(rows) {
+[diff_block_end]
+
+Please note that the above snippet only shows the MODIFIED lines from the last change. It shows up to 3 lines of unchanged lines before and after the modified lines. The actual file contents may have many more lines not shown.

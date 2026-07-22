@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assistant IA - ACTUWISE</title>
+    <link rel="stylesheet" href="app-pages.css">
+    <style>
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 140px);
+            background: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin: 20px;
+        }
+        .chat-messages {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 8px;
+            line-height: 1.5;
+        }
+        .message.user {
+            align-self: flex-end;
+            background: var(--blue);
+            color: var(--white);
+        }
+        .message.ai {
+            align-self: flex-start;
+            background: var(--bg);
+            color: var(--navy);
+            border: 1px solid var(--border);
+        }
+        .chat-input-container {
+            padding: 15px 20px;
+            background: var(--white);
+            border-top: 1px solid var(--border);
+        }
+        .chat-input-form {
+            display: flex;
+            gap: 10px;
+        }
+        .chat-input-form input {
+            flex-grow: 1;
+            padding: 10px 15px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            outline: none;
+            font-size: 1rem;
+        }
+        .chat-input-form input:focus {
+            border-color: var(--blue);
+        }
+        .chat-input-form button {
+            padding: 10px 20px;
+            background: var(--blue);
+            color: var(--white);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 1rem;
+        }
+        .chat-input-form button:hover {
+            opacity: 0.9;
+        }
+        .loading {
+            align-self: flex-start;
+            color: #6b7280;
+            font-style: italic;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app-navbar"></div>
+    
+    <div class="app-content">
+        <div class="topbar">
+            <h1>Assistant IA</h1>
+        </div>
+        <div class="page-body">
+            <div class="chat-container">
+                <div class="chat-messages" id="chat-messages">
+                    <div class="message ai">Bonjour ! Je suis l'Assistant IA d'ACTUWISE. Comment puis-je vous aider aujourd'hui ?</div>
+                </div>
+                <div class="chat-input-container">
+                    <form class="chat-input-form" id="chat-input-form">
+                        <input type="text" id="chat-input" placeholder="Posez votre question ici..." required autocomplete="off">
+                        <button type="submit">Envoyer</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/auth-guard.js"></script>
+    <script src="js/nav-config.js"></script>
+    <script src="js/app-navbar.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const chatMessages = document.getElementById('chat-messages');
+            const chatForm = document.getElementById('chat-input-form');
+            const chatInput = document.getElementById('chat-input');
+
+            function appendMessage(text, sender) {
+                const msgDiv = document.createElement('div');
+                msgDiv.className = `message ${sender}`;
+                msgDiv.textContent = text;
+                chatMessages.appendChild(msgDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                return msgDiv;
+            }
+
+            async function sendMessage(text) {
+                if (!text.trim()) return;
+
+                // Append user message
+                appendMessage(text, 'user');
+                
+                // Add loading indicator
+                const loadingDiv = document.createElement('div');
+                loadingDiv.className = 'loading';
+                loadingDiv.textContent = 'L\'assistant réfléchit...';
+                chatMessages.appendChild(loadingDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+
+                try {
+                    const response = await window.apiFetch('/assistant/question', {
+                        method: 'POST',
+                        body: JSON.stringify({ question: text })
+                    });
+                    
+                    // Remove loading
+                    loadingDiv.remove();
+
+                    if (response && response.answer) {
+                        appendMessage(response.answer, 'ai');
+                    } else if (response && response.reply) {
+                        appendMessage(response.reply, 'ai');
+                    } else if (response && response.message) {
+                        appendMessage(response.message, 'ai');
+                    } else {
+                        appendMessage("Réponse inattendue du serveur.", 'ai');
+                    }
+                } catch (error) {
+                    loadingDiv.remove();
+                    console.error('Erreur lors de la requête IA:', error);
+                    appendMessage("Désolé, une erreur s'est produite lors de la communication avec l'assistant.", 'ai');
+                }
+            }
+
+            chatForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const text = chatInput.value;
+                chatInput.value = '';
+                sendMessage(text);
+            });
+
+            // Check for initial query parameter ?q=
+            const urlParams = new URLSearchParams(window.location.search);
+            const initialQuery = urlParams.get('q');
+            if (initialQuery) {
+                sendMessage(initialQuery);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+' in output:\n            diff_text = output.split('

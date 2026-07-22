@@ -1,0 +1,380 @@
+Created At: 2026-07-21T23:51:23Z
+Completed At: 2026-07-21T23:51:23Z
+File Path: `file:///C:/Users/LENOVO/Desktop/ddd/actuwise_app/frontend/public/app.html`
+Total Lines: 931
+Total Bytes: 55699
+Showing lines 560 to 931
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+560:       
+561:       // Render details
+562:       const rules = d.regles_declenchees;
+563:       const detailsHtml = buildDetailRows([
+564:         ['Anomalie détectée (DBSCAN)', d.dbscan_anomalie ? '<span class="pill pill-red">OUI</span>' : '<span class="pill pill-green">NON</span>'],
+565:         ['Score règles métier', d.score_regles_metier + ' / 4'],
+566:         ['R1: Sinistre Grave & Précoce', rules.R1_sinistre_grave_precoce ? '<span class="pill pill-red">OUI</span>' : '<span class="pill">NON</span>'],
+567:         ['R3: Véhicule Ancien + Tierce', rules.R3_vehicule_ancien_tierce ? '<span class="pill pill-red">OUI</span>' : '<span class="pill">NON</span>'],
+568:         ['R4: Ecart SAP/Réglé élevé', rules.R4_ecart_sap_eleve ? '<span class="pill pill-red">OUI</span>' : '<span class="pill">NON</span>'],
+569:         ['R7: Fréq. petits sinistres', rules.R7_frequence_petits_sinistres ? '<span class="pill pill-red">OUI</span>' : '<span class="pill">NON</span>']
+570:       ]);
+571:       
+572:       let extraHtml = '';
+573:       if (d.champs_imputes_par_mediane && d.champs_imputes_par_mediane.length > 0) {
+574:         extraHtml += `<div style="font-size:11px; color:#fca5a5; margin-top:10px; text-align:left;">Champs imputés (manquants) : ${d.champs_imputes_par_mediane.join(', ')}</div>`;
+575:       }
+576:       if (d.features_calculees) {
+577:         extraHtml += `<details style="font-size:11px; margin-top:10px; text-align:left; color:rgba(255,255,255,0.7); cursor:pointer;"><summary>Détail Features Calculées</summary><div style="padding-top:6px;">`;
+578:         for (const [k, v] of Object.entries(d.features_calculees)) {
+579:           extraHtml += `<div>${k} = ${v}</div>`;
+580:         }
+581:         extraHtml += `</div></details>`;
+582:       }
+583: 
+584:       document.getElementById('f-detail').innerHTML = detailsHtml + extraHtml;
+585:       res.classList.add('visible');
+586:     } catch(ex) {
+587:       err.textContent = 'Erreur : ' + ex.message; 
+588:       err.style.display = 'block';
+589:     }
+590:     btn.disabled = false;
+591:     btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg> Calculer le Score de Suspicion';
+592:   }
+593: 
+594:   // Hook into navigation to load choices
+595:   const _originalShowSection = showSection;
+596:   showSection = function(name) {
+597:     _originalShowSection(name);
+598:     if (name === 'fraude') initFraudeForm();
+599:   };
+600: 
+601:   // ──────────────────────────────────────────────
+602:   // HELPERS
+603:   // ──────────────────────────────────────────────
+604:   function buildDetailRows(rows) {
+605:     return rows.map(([k,v]) => `<div class="result-detail-row"><span class="key">${k}</span><span class="val">${v}</span></div>`).join('');
+606:   }
+607: 
+608:   function renderTable(containerId, records) {
+609:     if (!records || records.length === 0) return;
+610:     const keys = Object.keys(records[0]);
+611:     let html = '<table class="data-table"><thead><tr>';
+612:     keys.forEach(k => html += `<th>${k}</th>`);
+613:     html += '</tr></thead><tbody>';
+614:     records.forEach(row => {
+615:       html += '<tr>';
+616:       keys.forEach(k => {
+617:         const v = row[k];
+618:         const isNum = typeof v === 'number';
+619:         html += `<td>${isNum ? v.toLocaleString('fr-FR', {maximumFractionDigits:2}) : (v ?? '—')}</td>`;
+620:       });
+621:       html += '</tr>';
+622:     });
+623:     html += '</tbody></table>';
+624:     document.getElementById(containerId).innerHTML = html;
+625:   }
+626: 
+627:     // ──────────────────────────────────────────────
+628:     // MODULE PHOTOCAR
+629:     // ──────────────────────────────────────────────
+630:     async function handlePhotoUpload(event) {
+631:       const file = event.target.files[0];
+632:       if (!file) return;
+633: 
+634:       const imgElem = document.getElementById('pc-image');
+635:       const boxesContainer = document.getElementById('pc-boxes');
+636:       const resultArea = document.getElementById('pc-result-area');
+637:       const loading = document.getElementById('pc-loading');
+638:       const uploadLabel = document.getElementById('pc-upload-label');
+639:       
+640:       // Reset
+641:       boxesContainer.innerHTML = '';
+642:       resultArea.style.display = 'none';
+643:       uploadLabel.style.display = 'none';
+644:       
+645:       // Show local image preview
+646:       const reader = new FileReader();
+647:       reader.onload = (e) => {
+648:         imgElem.src = e.target.result;
+649:         previewContainer.style.display = 'block';
+650:       };
+651:       reader.readAsDataURL(file);
+652: 
+653:       // Upload and Analyze
+654:       loading.style.display = 'flex';
+655:       
+656:       const formData = new FormData();
+657:       formData.append('file', file);
+658: 
+659:       try {
+660:         const res = await fetch('/api/photocar/analyze', {
+661:           method: 'POST',
+662:           headers: {
+663:             'Authorization': 'Bearer ' + localStorage.getItem('actuwise_token')
+664:           },
+665:           body: formData
+666:         });
+667: 
+668:         loading.style.display = 'none';
+669: 
+670:         if (!res.ok) {
+671:           alert("Erreur lors de l'analyse de l'image.");
+672:           return;
+673:         }
+674: 
+675:         const json = await res.json();
+676:         if (json.status !== 'success') {
+677:           alert("Erreur: " + json.message);
+678:           return;
+679:         }
+680: 
+681:         const data = json.data;
+682:         // Attendre que l'image soit complètement chargée avant de dessiner les boîtes
+683:         if (imgElem.complete) {
+684:           displayPhotoCarResults(data, imgElem);
+685:         } else {
+686:           imgElem.onload = () => displayPhotoCarResults(data, imgElem);
+687:         }
+688:         
+689:       } catch (err) {
+690:         loading.style.display = 'none';
+691:         alert("Erreur de connexion au serveur. Vérifiez que le backend est démarré sur le port 8000.");
+692:         console.error(err);
+693:       }
+694:     }
+695: 
+696:     function displayPhotoCarResults(data, imgElem) {
+697:       const boxesContainer = document.getElementById('pc-boxes');
+698:       const resultArea = document.getElementById('pc-result-area');
+699:       const costElem = document.getElementById('pc-cost');
+700:       const statCount = document.getElementById('pc-stat-count');
+701:       const statTypes = document.getElementById('pc-stat-types');
+702:       const damageList = document.getElementById('pc-damage-list');
+703:       
+704:       const COLORS = ['#e74c3c','#3498db','#2ecc71','#f39c12','#9b59b6','#1abc9c'];
+705:       let types_map = {};
+706: 
+707:       // Draw Bounding Boxes
+708:       const imgWidth = imgElem.clientWidth || imgElem.offsetWidth;
+709:       const imgHeight = imgElem.clientHeight || imgElem.offsetHeight;
+710:       const naturalWidth = imgElem.naturalWidth;
+711:       const naturalHeight = imgElem.naturalHeight;
+712:       const scaleX = naturalWidth > 0 ? (imgWidth / naturalWidth) : 1;
+713:       const scaleY = naturalHeight > 0 ? (imgHeight / naturalHeight) : 1;
+714: 
+715:       data.boxes.forEach((box, index) => {
+716:         const [x1, y1, x2, y2] = box.bbox;
+717:         const color = COLORS[index % COLORS.length];
+718:         
+719:         const div = document.createElement('div');
+720:         div.style.position = 'absolute';
+721:         div.style.left = (x1 * scaleX) + 'px';
+722:         div.style.top = (y1 * scaleY) + 'px';
+723:         div.style.width = ((x2 - x1) * scaleX) + 'px';
+724:         div.style.height = ((y2 - y1) * scaleY) + 'px';
+725:         div.style.border = '2.5px solid ' + color;
+726:         div.style.borderRadius = '4px';
+727:         div.style.pointerEvents = 'none';
+728:         
+729:         const label = document.createElement('div');
+730:         label.innerText = `${box.label} ${Math.round(box.confidence * 100)}%`;
+731:         label.style.cssText = `position: absolute; top: -22px; left: -2px; background: ${color}; color: #fff; font-size: 11px; padding: 2px 7px; font-weight: 700; border-radius: 4px 4px 0 0; white-space: nowrap;`;
+732:         
+733:         div.appendChild(label);
+734:         boxesContainer.appendChild(div);
+735:         
+736:         // Comptage par type
+737:         if (!types_map[box.label]) types_map[box.label] = { count: 0, color };
+738:         types_map[box.label].count++;
+739:       });
+740: 
+741:       // Remplir les stats
+742:       costElem.innerText = Number(data.cost).toLocaleString('fr-FR', { style: 'currency', currency: 'TND' }).replace('TND', '').trim();
+743:       statCount.innerText = data.features.num_damages;
+744:       statTypes.innerText = data.features.num_damage_types;
+745: 
+746:       // Liste des dommages
+747:       damageList.innerHTML = '';
+748:       const typeEntries = Object.entries(types_map);
+749:       if (typeEntries.length === 0) {
+750:         damageList.innerHTML = '<div style="color: #6b7280; font-size: 13px;">Aucun dommage détecté</div>';
+751:       } else {
+752:         typeEntries.forEach(([name, info]) => {
+753:           const row = document.createElement('div');
+754:           row.style.cssText = 'display: flex; align-items: center; gap: 8px; font-size: 13px;';
+755:           row.innerHTML = `
+756:             <div style="width: 10px; height: 10px; border-radius: 50%; background: ${info.color}; flex-shrink: 0;"></div>
+757:             <span style="font-weight: 600; color: #111827; text-transform: capitalize;">${name}</span>
+758:             <span style="margin-left: auto; background: #e5e7eb; border-radius: 999px; padding: 1px 8px; font-size: 11px; font-weight: 700;">${info.count}x</span>
+759:           `;
+760:           damageList.appendChild(row);
+761:         });
+762:       }
+763: 
+764:       // Afficher la zone résultat
+765:       resultArea.style.display = 'block';
+766: 
+767:       // Remplir Provisionnement Individuel
+768:       const provContainer = document.getElementById('pc-prov-container');
+769:       const provBase = document.getElementById('pc-prov-base');
+770:       const provMarge = document.getElementById('pc-prov-marge');
+771:       const provTotal = document.getElementById('pc-prov-total');
+772: 
+773:       if (data.cost > 0) {
+774:         const cost = Number(data.cost);
+775:         const marge = cost * 0.15; // 15% de marge de gestion
+776:         const total = cost + marge;
+777: 
+778:         const formatTND = val => val.toLocaleString('fr-FR', { style: 'currency', currency: 'TND' }).replace('TND', '').trim();
+779:         
+780:         provBase.innerText = formatTND(cost) + ' TND';
+781:         provMarge.innerText = formatTND(marge) + ' TND';
+782:         provTotal.innerText = formatTND(total) + ' TND';
+783:         
+784:         provContainer.style.display = 'block';
+785:       } else {
+786:         provContainer.style.display = 'none';
+787:       }
+788: 
+789:       // Afficher l'explicabilité SHAP
+790:       const shapContainer = document.getElementById('pc-shap-container');
+791:       const shapImage = document.getElementById('pc-shap-image');
+792:       if (data.shap_base64) {
+793:         shapImage.src = 'data:image/png;base64,' + data.shap_base64;
+794:         shapContainer.style.display = 'block';
+795:       } else {
+796:         shapContainer.style.display = 'none';
+797:       }
+798: 
+799:       // Configurer le bouton PDF
+800:       const pdfBtn = document.getElementById('pc-pdf-btn');
+801:       if (data.pdf_base64) {
+802:         pdfBtn.href = 'data:application/pdf;base64,' + data.pdf_base64;
+803:         pdfBtn.download = `Rapport_Expertise_PhotoCar_${new Date().getTime()}.pdf`;
+804:         pdfBtn.style.display = 'block';
+805:       } else {
+806:         pdfBtn.style.display = 'none';
+807:       }
+808:     }
+809: 
+810:     // ──────────────────────────────────────────────
+811:     // MODULE SINISTRIA — helpers UI
+812:     // ──────────────────────────────────────────────
+813:     function _sinRow(label, value) {
+814:       const notDetected = !value || value === 'Non détecté' || value === 'non_detecte';
+815:       return `<div style="display:flex; justify-content:space-between; align-items:baseline; border-bottom:1px solid #f1f5f9; padding-bottom:8px;">
+816:         <span style="font-size:12px; font-weight:600; color:#64748b;">${label}</span>
+817:         <span style="font-size:13px; font-weight:700; color:${notDetected ? '#cbd5e1' : '#1e293b'}; font-style:${notDetected ? 'italic' : 'normal'}; text-align:right; max-width:55%;">${value || 'Non détecté'}</span>
+818:       </div>`;
+819:     }
+820: 
+821:     function _fillOCRCards(permisData, cgData) {
+822:       const permisCard = document.getElementById('sin-permis-card');
+823:       permisCard.innerHTML = [
+824:         _sinRow('Nom',          permisData.nom),
+825:         _sinRow('Prénom',       permisData.prenom),
+826:         _sinRow('N° Permis',    permisData.numero_permis),
+827:         _sinRow('Délivrance',   permisData.date_delivrance),
+828:         _sinRow('Expiration',   permisData.date_expiration),
+829:         _sinRow('Catégories',   permisData.categories),
+830:       ].join('');
+831: 
+832:       const cgCard = document.getElementById('sin-cg-card');
+833:       cgCard.innerHTML = [
+834:         _sinRow('Immatriculation',     cgData.immatriculation),
+835:         _sinRow('Marque',              cgData.marque),
+836:         _sinRow('Type véhicule',       cgData.type_vehicule),
+837:         _sinRow('Mise en circulation', cgData.date_mise_circulation),
+838:         _sinRow('Carburant',           cgData.carburant),
+839:         _sinRow('Propriétaire',        cgData.proprietaire),
+840:       ].join('');
+841:     }
+842: 
+843:     // ──────────────────────────────────────────────
+844:     // MODULE SINISTRIA — main analyser
+845:     // ──────────────────────────────────────────────
+846:     async function analyserSinistrIA() {
+847:       const permisInput  = document.getElementById('sin-permis');
+848:       const cgInput      = document.getElementById('sin-cg');
+849:       const constatInput = document.getElementById('sin-constat');
+850:       const croquisInput = document.getElementById('sin-croquis');
+851:       const circInput    = document.getElementById('sin-circonstances');
+852: 
+853:       if (!permisInput.files[0] || !cgInput.files[0] || !constatInput.files[0] || !croquisInput.files[0]) {
+854:         alert("Veuillez uploader les 4 documents requis (Permis, Carte Grise, Constat, Croquis) pour lancer l'analyse.");
+855:         return;
+856:       }
+857: 
+858:       const formData = new FormData();
+859:       formData.append("permis",       permisInput.files[0]);
+860:       formData.append("carte_grise",  cgInput.files[0]);
+861:       formData.append("constat",      constatInput.files[0]);
+862:       formData.append("croquis",      croquisInput.files[0]);
+863:       formData.append("circonstances", circInput.value || "");
+864: 
+865:       const loading    = document.getElementById('sin-loading');
+866:       const resultArea = document.getElementById('sin-result-area');
+867: 
+868:       loading.style.display    = 'block';
+869:       resultArea.style.display = 'none';
+870: 
+871:       try {
+872:         const res = await fetch('/api/sinistria/analyser', { method: 'POST', body: formData });
+873:         if (!res.ok) throw new Error("Erreur serveur: " + await res.text());
+874:         const data = await res.json();
+875: 
+876:         // ── Classification ────────────────────────────────────────────
+877:         const accident = data.accident_analyse;
+878:         document.getElementById('sin-type-acc').innerText = accident.type_accident;
+879:         document.getElementById('sin-resp-a').innerText   = accident.responsabilite_A_pct + "%";
+880:         document.getElementById('sin-resp-b').innerText   = accident.responsabilite_B_pct + "%";
+881:         document.getElementById('sin-justif').innerText   = accident.justification_bareme;
+882:         document.getElementById('sin-conf-cnn').innerText  = (accident.source_cnn.confiance * 100).toFixed(1) + "%";
+883:         document.getElementById('sin-conf-circ').innerText = (accident.source_circonstances.confiance * 100).toFixed(1) + "%";
+884: 
+885:         // ── Cartes OCR (Permis + Carte Grise) ─────────────────────────
+886:         _fillOCRCards(data.permis_affichage, data.cg_affichage);
+887: 
+888:         // ── Provisionnement ───────────────────────────────────────────
+889:         const prov = data.provisionnement;
+890:         const fmt  = n => Number(n).toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' TND';
+891:         document.getElementById('sin-prov-total').innerText = fmt(prov.cout_total_tnd);
+892:         document.getElementById('sin-prov-a').innerText     = fmt(prov.repartition_A_tnd);
+893:         document.getElementById('sin-prov-b').innerText     = fmt(prov.repartition_B_tnd);
+894:         const corporelBanner = document.getElementById('sin-prov-corporel');
+895:         corporelBanner.style.display = prov.sinistre_corporel ? 'block' : 'none';
+896: 
+897:         // ── QR Code + liens dossier ───────────────────────────────────
+898:         const qrImg  = document.getElementById('sin-qr-img');
+899:         const qrDl   = document.getElementById('sin-qr-dl');
+900:         const qrLink = document.getElementById('sin-qr-link');
+901:         const pdfDl  = document.getElementById('sin-pdf-dl');
+902: 
+903:         const qrSrc       = 'data:image/png;base64,' + data.qr_base64;
+904:         const dossierUrl  = data.dossier_url;          // URL page HTML dossier
+905:         const dossierId   = data.dossier_id;
+906:         const constatUrl  = `/api/sinistria/constat/${dossierId}`;
+907: 
+908:         qrImg.src          = qrSrc;
+909:         qrDl.href          = qrSrc;                    // télécharger l'image QR
+910:         qrLink.href        = dossierUrl;               // cliquer sur le QR → page dossier
+911:         pdfDl.href         = constatUrl;               // bouton PDF → téléchargement constat
+912: 
+913:         // ── JSON Brut ─────────────────────────────────────────────────
+914:         document.getElementById('sin-ocr-json').innerText = JSON.stringify(data.dossier_ocr, null, 2);
+915: 
+916:         resultArea.style.display = 'block';
+917:         resultArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+918: 
+919:       } catch (err) {
+920:         console.error(err);
+921:         alert("Une erreur est survenue lors de l'analyse : " + err.message);
+922:       } finally {
+923:         loading.style.display = 'none';
+924:       }
+925:     }
+926: 
+927:   </script>
+928: 
+929: </body>
+930: </html>
+931: 
+The above content does NOT show the entire file contents. If you need to view any lines of the file which were not shown to complete your task, call this tool again to view those lines.

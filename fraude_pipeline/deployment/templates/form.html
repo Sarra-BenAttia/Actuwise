@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Scoring de suspicion — Sinistre auto</title>
+<style>
+  body { font-family: Arial, sans-serif; max-width: 900px; margin: 30px auto; padding: 0 20px; color: #222; }
+  h1 { font-size: 1.4em; }
+  fieldset { margin-bottom: 18px; border: 1px solid #ccc; border-radius: 6px; padding: 12px 16px; }
+  legend { font-weight: bold; padding: 0 6px; }
+  label { display: block; margin-top: 8px; font-size: 0.92em; }
+  input, select { width: 100%; padding: 6px; margin-top: 3px; box-sizing: border-box; }
+  .row { display: flex; gap: 16px; }
+  .row > div { flex: 1; }
+  button { margin-top: 18px; padding: 10px 22px; background: #1a5276; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 1em; }
+  button:hover { background: #154360; }
+  .errors { background: #fdecea; border: 1px solid #f5c6cb; color: #611a15; padding: 12px; border-radius: 6px; margin-bottom: 16px; }
+  .result { background: #eaf4ea; border: 1px solid #b7d9b7; padding: 16px; border-radius: 6px; margin-bottom: 20px; }
+  .result.anomalie { background: #fdf3e3; border-color: #f0c36d; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 0.85em; margin-right: 6px; }
+  .badge.on { background: #c0392b; color: white; }
+  .badge.off { background: #ddd; color: #555; }
+  .note { font-size: 0.85em; color: #666; margin-top: 10px; }
+  table { border-collapse: collapse; margin-top: 8px; }
+  td, th { border: 1px solid #ddd; padding: 4px 8px; font-size: 0.85em; text-align: left; }
+</style>
+</head>
+<body>
+
+<h1>Scoring de suspicion — nouveau dossier sinistre auto</h1>
+<p class="note">Score de règles métier + anomalie DBSCAN. <strong>Ce score est un signal faible d'aide à la priorisation, pas une confirmation de fraude.</strong></p>
+
+{% if result %}
+  {% if result.erreurs %}
+    <div class="errors">
+      <strong>Erreurs de saisie :</strong>
+      <ul>
+        {% for e in result.erreurs %}<li>{{ e }}</li>{% endfor %}
+      </ul>
+    </div>
+  {% else %}
+    <div class="result {{ 'anomalie' if result.dbscan_anomalie else '' }}">
+      <h2>Score de suspicion : {{ result.score_suspicion }} / 1.0</h2>
+      <p>
+        <span class="badge {{ 'on' if result.regles_declenchees.R1_sinistre_grave_precoce else 'off' }}">R1 sinistre grave précoce</span>
+        <span class="badge {{ 'on' if result.regles_declenchees.R3_vehicule_ancien_tierce else 'off' }}">R3 véhicule ancien + tierce</span>
+        <span class="badge {{ 'on' if result.regles_declenchees.R4_ecart_sap_eleve else 'off' }}">R4 écart SAP élevé</span>
+        <span class="badge {{ 'on' if result.regles_declenchees.R7_frequence_petits_sinistres else 'off' }}">R7 fréquence petits sinistres</span>
+        <span class="badge {{ 'on' if result.dbscan_anomalie else 'off' }}">Anomalie DBSCAN</span>
+      </p>
+      <p>score_regles_metier = {{ result.score_regles_metier }} / 4</p>
+      {% if result.champs_imputes_par_mediane %}
+        <p class="note">Champs imputés par la médiane d'entraînement (donnée manquante) : {{ result.champs_imputes_par_mediane|join(', ') }}</p>
+      {% endif %}
+      <details>
+        <summary>Détail des features calculées</summary>
+        <table>
+          {% for k, v in result.features_calculees.items() %}
+          <tr><td>{{ k }}</td><td>{{ v }}</td></tr>
+          {% endfor %}
+        </table>
+      </details>
+    </div>
+  {% endif %}
+{% endif %}
+
+<form method="POST">
+  <fieldset>
+    <legend>Police / assuré</legend>
+    <div class="row">
+      <div>
+        <label>Usage
+          <select name="usage">
+            {% for v in choices.Usage %}<option value="{{ v }}">{{ v }}</option>{% endfor %}
+          </select>
+        </label>
+      </div>
+      <div>
+        <label>Type de police
+          <select name="type_police">
+            {% for v in choices.TYPE_POLICE %}<option value="{{ v }}">{{ v }}</option>{% endfor %}
+          </select>
+        </label>
+      </div>
+      <div>
+        <label>Sexe assuré
+          <select name="cli_sex">
+            {% for v in choices.CLI_SEX %}<option value="{{ v }}">{{ v }}</option>{% endfor %}
+          </select>
+        </label>
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label>Région
+          <select name="region">
+            {% for v in choices.Region %}<option value="{{ v }}">{{ v }}</option>{% endfor %}
+          </select>
+        </label>
+      </div>
+      <div>
+        <label>Date de naissance de l'assuré (AAAA-MM-JJ)
+          <input type="date" name="date_naissance" value="{{ form_values.get('date_naissance','') }}">
+        </label>
+      </div>
+      <div>
+        <label>Date de souscription / début de terme (POL_START_DATE)
+          <input type="date" name="pol_start_date" value="{{ form_values.get('pol_start_date','') }}">
+        </label>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Véhicule</legend>
+    <div class="row">
+      <div>
+        <label>Marque du véhicule
+          <select name="veh_desc">
+            {% for v in choices.VEH_DESC %}<option value="{{ v }}">{{ v }}</option>{% endfor %}
+          </select>
+        </label>
+      </div>
+      <div>
+        <label>Énergie
+          <select name="energie">
+            {% for v in choices.Energie %}<option value="{{ v }}">{{ v }}</option>{% endfor %}
+          </select>
+        </label>
+      </div>
+      <div>
+        <label>Date de mise en circulation (MTR_USE_START_DATE)
+          <input type="date" name="mtr_use_start_date" value="{{ form_values.get('mtr_use_start_date','') }}">
+        </label>
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label>Matricule
+          <input type="text" name="matricule" placeholder="ex: 1234-TU-56" value="{{ form_values.get('matricule','') }}">
+        </label>
+      </div>
+      <div>
+        <label>Puissance fiscale
+          <input type="number" name="puissance_fiscale" value="{{ form_values.get('puissance_fiscale','') }}">
+        </label>
+      </div>
+      <div>
+        <label>Valeur vénale (DT)
+          <input type="number" step="0.01" name="valeur_venale" value="{{ form_values.get('valeur_venale','') }}">
+        </label>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Sinistre</legend>
+    <div class="row">
+      <div>
+        <label>Type de garantie (TRANS_TYPE_DESC)
+          <select name="trans_type_desc">
+            {% for v in choices.TRANS_TYPE_DESC %}<option value="{{ v }}">{{ v }}</option>{% endfor %}
+          </select>
+        </label>
+      </div>
+      <div>
+        <label>Type de sinistre (TMP_TYPE)
+          <select name="tmp_type">
+            {% for v in choices.TMP_TYPE %}<option value="{{ v }}">{{ 'Corporel' if v=='C' else ('Matériel' if v=='M' else v) }}</option>{% endfor %}
+          </select>
+        </label>
+      </div>
+      <div>
+        <label>Date de survenance *
+          <input type="date" name="clmloss_date" required value="{{ form_values.get('clmloss_date','') }}">
+        </label>
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label>Date de déclaration *
+          <input type="date" name="clm_reported_date" required value="{{ form_values.get('clm_reported_date','') }}">
+        </label>
+      </div>
+      <div>
+        <label>Montant réglé estimé (DT) *
+          <input type="number" step="0.01" name="reg_amount" required value="{{ form_values.get('reg_amount','') }}">
+        </label>
+      </div>
+      <div>
+        <label>Provision SAP estimée (DT)
+          <input type="number" step="0.01" name="sap_amount" value="{{ form_values.get('sap_amount','') }}">
+        </label>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Historique de la police (à renseigner si connu)</legend>
+    <div class="row">
+      <div>
+        <label>Nombre de sinistres déjà connus sur cette police
+          <input type="number" name="nb_sinistres_police" value="{{ form_values.get('nb_sinistres_police','0') }}">
+        </label>
+      </div>
+      <div>
+        <label>Nombre de sinistres ≤500 DT déjà connus sur cette police
+          <input type="number" name="nb_petits_sinistres_police" value="{{ form_values.get('nb_petits_sinistres_police','0') }}">
+        </label>
+      </div>
+    </div>
+  </fieldset>
+
+  <button type="submit">Calculer le score de suspicion</button>
+</form>
+
+</body>
+</html>

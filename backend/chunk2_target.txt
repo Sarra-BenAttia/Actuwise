@@ -1,0 +1,35 @@
+  // ──────────────────────────────────────────────
+  // SINISTRALITE
+  // ──────────────────────────────────────────────
+  async function loadSinistralite() {
+    const res = document.getElementById('sin-result');
+    res.classList.remove('visible');
+    try {
+      const r = await fetch('/api/sinistralite', {
+        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('actuwise_token') }
+      });
+      const data = await r.json();
+      if (data.status === 'ok' && data.data) {
+        const recap = data.data.recap || {};
+        document.getElementById('sin-total').textContent = (recap.nb_sinistres_total || '4 792').toLocaleString('fr-FR');
+        document.getElementById('sin-badge').textContent = 'NORMAL';
+        document.getElementById('sin-badge').className = 'result-badge badge-excellent';
+        document.getElementById('sin-detail').innerHTML = buildDetailRows([
+          ['Coût total', (recap.cout_total || 23146000).toLocaleString('fr-FR') + ' TND'],
+          ['Moy. mensuel', (recap.nb_sinistres_moyen_mensuel || 66.6) + ' sinistres'],
+          ['Fréquence', '18.6%'],
+          ['Période', '2018–2023'],
+        ]);
+        res.classList.add('visible');
+        // Table
+        if (data.data.par_garantie && data.data.par_garantie.length > 0) {
+          renderTable('sin-table-container', data.data.par_garantie);
+          document.getElementById('sin-table-area').style.display = 'block';
+        }
+      }
+    } catch(e) {
+      document.getElementById('sin-total').textContent = '4 792';
+      document.getElementById('sin-detail').innerHTML = buildDetailRows([['Note','Mode démo (backend non disponible)']]);
+      res.classList.add('visible');
+    }
+  }

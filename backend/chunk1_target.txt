@@ -1,0 +1,12 @@
+            <div class="form-group">
+              <label>Segment d'analyse</label>
+              <select id="sin-segment">
+                <option value="global">Portefeuille Global</option>
+                <option value="garantie">Par Garantie</option>
+                <option value="annee">Par Année</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Période</label>
+              <select id="sin-annee"><option>2023</option><option>2022</option><option>2021</option><option>2018-2023</option></select>
+            </div>

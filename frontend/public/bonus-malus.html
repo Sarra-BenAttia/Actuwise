@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bonus Malus (Nouveau) - ACTUWISE</title>
+    <link rel="stylesheet" href="app-pages.css">
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <style>
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .kpi-card {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .kpi-card h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 0.875rem;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .kpi-card p {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--navy);
+        }
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .chart-container, .table-container, .form-container {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .chart-container h3, .table-container h3, .form-container h3 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            color: var(--navy);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+        th, td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+        th {
+            background-color: var(--bg);
+            color: var(--navy);
+            font-weight: 600;
+        }
+        form {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+        .form-group {
+            flex: 1;
+            min-width: 150px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--navy);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-family: inherit;
+        }
+        button {
+            background: var(--blue);
+            color: var(--white);
+            padding: 0.5rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            height: 38px;
+            font-weight: 500;
+        }
+        button:hover {
+            background: #1d4ed8;
+        }
+        .result-box {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: var(--bg);
+            border-radius: 4px;
+            border-left: 4px solid var(--blue);
+            font-size: 1.125rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="app-navbar"></div>
+    <div class="app-content">
+        <topbar>
+            <h1>Bonus Malus (Nouveau)</h1>
+        </topbar>
+        <div class="page-body">
+            
+            <!-- KPIs -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <h3>Indice de Gini</h3>
+                    <p id="tarif-gini">--</p>
+                </div>
+                <div class="kpi-card">
+                    <h3>Loss Ratio</h3>
+                    <p id="tarif-lossratio">--</p>
+                </div>
+                <div class="kpi-card">
+                    <h3>Exposition</h3>
+                    <p id="tarif-expo">--</p>
+                </div>
+                <div class="kpi-card">
+                    <h3>Taux de sinistralité</h3>
+                    <p id="tarif-tauxsin">--</p>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="charts-grid">
+                <div class="chart-container">
+                    <h3>Courbe de Lift</h3>
+                    <div id="chart-tarif-lift"></div>
+                </div>
+                <div class="chart-container">
+                    <h3>Importance des variables</h3>
+                    <div id="chart-tarif-importance"></div>
+                </div>
+            </div>
+
+            <!-- Deciles Table -->
+            <div class="table-container" style="margin-bottom: 2rem;">
+                <h3>Tableau des déciles</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Décile</th>
+                            <th>Exposition</th>
+                            <th>Prime Pure Prédite</th>
+                            <th>Sinistralité Observée</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tarif-decile-tbody">
+                        <!-- Rempli par JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Score Simulation -->
+            <div class="form-container">
+                <h3>Simulateur de Prime Pure</h3>
+                <form id="tarif-form">
+                    <div class="form-group">
+                        <label for="input-age">Âge Conducteur</label>
+                        <input type="number" id="input-age" value="30">
+                    </div>
+                    <div class="form-group">
+                        <label for="input-puissance">Puissance Véhicule</label>
+                        <input type="number" id="input-puissance" value="5">
+                    </div>
+                    <div class="form-group">
+                        <label for="input-bm">Bonus/Malus Actuel</label>
+                        <input type="number" step="0.01" id="input-bm" value="0.5">
+                    </div>
+                    <button type="button" id="tarif_btn">Calculer</button>
+                </form>
+                <div class="result-box">
+                    <strong>Prime Pure Estimée: </strong> <span id="tarif_result" style="color: var(--blue); font-weight: bold;">--</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/auth-guard.js"></script>
+    <script src="js/nav-config.js"></script>
+    <script src="js/app-navbar.js"></script>
+    <script>
+        async function renderTarification() {
+            try {
+                // 1. KPIs
+                try {
+                    const kpisResponse = await window.apiFetch('/api/tarification/kpis');
+                    if (kpisResponse && kpisResponse.ok) {
+                        const kpis = await kpisResponse.json();
+                        document.getElementById('tarif-gini').textContent = kpis.gini ? kpis.gini.toFixed(3) : '--';
+                        document.getElementById('tarif-lossratio').textContent = kpis.loss_ratio ? (kpis.loss_ratio * 100).toFixed(1) + '%' : '--';
+                        document.getElementById('tarif-expo').textContent = kpis.exposition ? kpis.exposition.toLocaleString() : '--';
+                        document.getElementById('tarif-tauxsin').textContent = kpis.taux_sinistralite ? (kpis.taux_sinistralite * 100).toFixed(2) + '%' : '--';
+                    }
+                } catch(e) { console.warn("Failed to load KPIs", e); }
+
+                // 2. Deciles (Table + Lift Chart)
+                try {
+                    const decilesResponse = await window.apiFetch('/api/tarification/deciles');
+                    if (decilesResponse && decilesResponse.ok) {
+                        const deciles = await decilesResponse.json();
+                        
+                        const tbody = document.getElementById('tarif-decile-tbody');
+                        tbody.innerHTML = '';
+                        deciles.forEach(d => {
+                            tbody.innerHTML += `
+                                <tr>
+                                    <td>${d.decile}</td>
+                                    <td>${d.exposition.toLocaleString()}</td>
+                                    <td>${d.prime_pure_predite.toFixed(2)}</td>
+                                    <td>${d.sinistralite_observee.toFixed(2)}</td>
+                                </tr>
+                            `;
+                        });
+
+                        new ApexCharts(document.querySelector("#chart-tarif-lift"), {
+                            series: [
+                                { name: 'Prime Pure Prédite', data: deciles.map(d => d.prime_pure_predite) },
+                                { name: 'Sinistralité Observée', data: deciles.map(d => d.sinistralite_observee) }
+                            ],
+                            chart: { type: 'line', height: 320, toolbar: { show: false } },
+                            colors: ['#2563eb', '#111827'],
+                            xaxis: { categories: deciles.map(d => 'D' + d.decile) },
+                            stroke: { curve: 'smooth', width: 2 },
+                            markers: { size: 4 }
+                        }).render();
+                    }
+                } catch(e) { console.warn("Failed to load deciles", e); }
+
+                // 3. Importance
+                try {
+                    const impResponse = await window.apiFetch('/api/tarification/importance');
+                    if (impResponse && impResponse.ok) {
+                        const importance = await impResponse.json();
+                        new ApexCharts(document.querySelector("#chart-tarif-importance"), {
+                            series: [{ name: 'Importance', data: importance.map(i => i.score) }],
+                            chart: { type: 'bar', height: 320, toolbar: { show: false } },
+                            plotOptions: { bar: { horizontal: true, borderRadius: 4 } },
+                            colors: ['#2563eb'],
+                            xaxis: { categories: importance.map(i => i.variable) },
+                            dataLabels: { enabled: false }
+                        }).render();
+                    }
+                } catch(e) { console.warn("Failed to load importance", e); }
+
+                // 4. Score simulation
+                document.getElementById('tarif_btn').addEventListener('click', async () => {
+                    const payload = {
+                        age: parseFloat(document.getElementById('input-age').value) || 0,
+                        puissance: parseFloat(document.getElementById('input-puissance').value) || 0,
+                        bm: parseFloat(document.getElementById('input-bm').value) || 0
+                    };
+                    
+                    try {
+                        const scoreResp = await window.apiFetch('/api/tarification/score', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        
+                        if (scoreResp && scoreResp.ok) {
+                            const result = await scoreResp.json();
+                            document.getElementById('tarif_result').textContent = result.prime_pure ? result.prime_pure.toFixed(2) + ' €' : 'Erreur';
+                        } else {
+                            document.getElementById('tarif_result').textContent = 'Erreur lors du calcul';
+                        }
+                    } catch(e) {
+                        console.error("Score fetch error:", e);
+                        document.getElementById('tarif_result').textContent = 'Erreur réseau';
+                    }
+                });
+
+            } catch (error) {
+                console.error("Critical error in renderTarification:", error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', renderTarification);
+    </script>
+</body>
+</html>

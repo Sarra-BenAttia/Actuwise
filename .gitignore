@@ -1,0 +1,70 @@
+# ============================================================
+# ACTUWISE — .gitignore
+# ============================================================
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.env
+*.egg-info/
+dist/
+build/
+*.pyc
+
+# --- Node.js ---
+node_modules/
+dist/
+.cache/
+*.local
+
+# --- Données sensibles (ne jamais committer) ---
+backend/data/*.csv
+backend/data/*.xlsx
+backend/data/*.xls
+backend/models/*.pkl
+backend/models/*.pt
+backend/faiss_index/index.faiss
+backend/faiss_index/index.pkl
+backend/documents_rag/*.pdf
+
+# --- MAIS conserver les READMEs ---
+!backend/data/README.md
+!backend/models/README.md
+!backend/figures/README.md
+!backend/documents_rag/README.md
+!backend/faiss_index/README.md
+
+# --- Figures (optionnel, peuvent être générées) ---
+# backend/figures/*.png  ← Commenter cette ligne pour versionner les figures
+
+# --- IDE ---
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# --- Logs ---
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- Vite build ---
+frontend/dist/
+
+# --- Jupyter ---
+.ipynb_checkpoints/
+*.ipynb
+
+# --- Tests ---
+.pytest_cache/
+htmlcov/
+.coverage

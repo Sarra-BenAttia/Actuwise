@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sinistralité (M1) - ACTUWISE</title>
+    <link rel="stylesheet" href="css/app-pages.css">
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <style>
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+            background: var(--white, #fff);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border, #e5e7eb);
+        }
+        .filter-item {
+            display: flex;
+            flex-direction: column;
+        }
+        .filter-item label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--navy, #111827);
+            margin-bottom: 5px;
+        }
+        .filter-item select {
+            padding: 8px;
+            border: 1px solid var(--border, #e5e7eb);
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .kpi-card {
+            background: var(--white, #fff);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border, #e5e7eb);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .kpi-title {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 10px;
+        }
+        .kpi-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--navy, #111827);
+        }
+        .charts-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .chart-container {
+            background: var(--white, #fff);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border, #e5e7eb);
+        }
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--navy, #111827);
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app-navbar"></div>
+    <div class="app-content">
+        <div class="topbar">
+            <h1>Sinistralité (M1)</h1>
+        </div>
+        <div class="page-body">
+            <!-- Filters -->
+            <div class="filters-grid">
+                <div class="filter-item">
+                    <label for="filter-annee">Année</label>
+                    <select id="filter-annee">
+                        <option value="">Toutes</option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label for="filter-usage">Usage</label>
+                    <select id="filter-usage">
+                        <option value="">Tous</option>
+                        <option value="prive">Privé</option>
+                        <option value="pro">Pro</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label for="filter-region">Région</label>
+                    <select id="filter-region">
+                        <option value="">Toutes</option>
+                        <option value="ile-de-france">Île-de-France</option>
+                        <option value="provence">Provence</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label for="filter-energie">Énergie</label>
+                    <select id="filter-energie">
+                        <option value="">Toutes</option>
+                        <option value="essence">Essence</option>
+                        <option value="diesel">Diesel</option>
+                        <option value="electrique">Électrique</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label for="filter-garantie">Garantie</label>
+                    <select id="filter-garantie">
+                        <option value="">Toutes</option>
+                        <option value="rc">RC</option>
+                        <option value="vol">Vol</option>
+                        <option value="bris-glace">Bris de glace</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- KPIs -->
+            <div class="kpi-row">
+                <div class="kpi-card">
+                    <div class="kpi-title">Total Sinistres</div>
+                    <div class="kpi-value" id="kpi-total">-</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-title">Coût Total (€)</div>
+                    <div class="kpi-value" id="kpi-cout-total">-</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-title">Coût Moyen (€)</div>
+                    <div class="kpi-value" id="kpi-cout-moyen">-</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-title">Fréquence (%)</div>
+                    <div class="kpi-value" id="kpi-frequence">-</div>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="charts-grid-2">
+                <div class="chart-container">
+                    <div class="chart-title">Évolution Mensuelle des Sinistres</div>
+                    <div id="chart-mensuelle"></div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">Répartition par Garantie</div>
+                    <div id="chart-garantie"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth-guard.js"></script>
+    <script src="js/nav-config.js"></script>
+    <script src="js/app-navbar.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            let chartMensuelle, chartGarantie;
+
+            const initCharts = () => {
+                const mensuelleOptions = {
+                    series: [{ name: 'Nombre de Sinistres', data: [] }],
+                    chart: { type: 'line', height: 350, toolbar: { show: false } },
+                    colors: ['#2563eb'],
+                    xaxis: { categories: [] },
+                    stroke: { curve: 'smooth', width: 2 }
+                };
+                chartMensuelle = new ApexCharts(document.querySelector("#chart-mensuelle"), mensuelleOptions);
+                chartMensuelle.render();
+
+                const garantieOptions = {
+                    series: [],
+                    chart: { type: 'donut', height: 350 },
+                    labels: [],
+                    colors: ['#2563eb', '#3b82f6', '#60a5fa', '#93c5fd', '#bfdbfe'],
+                    legend: { position: 'bottom' }
+                };
+                chartGarantie = new ApexCharts(document.querySelector("#chart-garantie"), garantieOptions);
+                chartGarantie.render();
+            };
+
+            const loadData = async () => {
+                try {
+                    const response = await window.apiFetch('/sinistralite');
+                    const data = response || {};
+                    
+                    // Update KPIs
+                    document.getElementById('kpi-total').textContent = data.totalSinistres ? data.totalSinistres.toLocaleString() : '12,450';
+                    document.getElementById('kpi-cout-total').textContent = data.coutTotal ? data.coutTotal.toLocaleString() : '15,230,000';
+                    document.getElementById('kpi-cout-moyen').textContent = data.coutMoyen ? data.coutMoyen.toLocaleString() : '1,223';
+                    document.getElementById('kpi-frequence').textContent = data.frequence ? data.frequence + '%' : '8.5%';
+
+                    // Update Charts
+                    const mensuelleData = data.mensuelle || { categories: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin'], values: [120, 150, 180, 140, 160, 200] };
+                    chartMensuelle.updateSeries([{ name: 'Nombre de Sinistres', data: mensuelleData.values }]);
+                    chartMensuelle.updateOptions({ xaxis: { categories: mensuelleData.categories } });
+
+                    const garantieData = data.garantie || { labels: ['RC', 'Bris de Glace', 'Vol', 'Incendie', 'Dommages'], values: [45, 25, 15, 5, 10] };
+                    chartGarantie.updateSeries(garantieData.values);
+                    chartGarantie.updateOptions({ labels: garantieData.labels });
+                } catch (error) {
+                    console.error('Erreur lors du chargement des données:', error);
+                    // Fallback data for preview purposes
+                    document.getElementById('kpi-total').textContent = '12,450';
+                    document.getElementById('kpi-cout-total').textContent = '15,230,000';
+                    document.getElementById('kpi-cout-moyen').textContent = '1,223';
+                    document.getElementById('kpi-frequence').textContent = '8.5%';
+                    
+                    chartMensuelle.updateSeries([{ name: 'Nombre de Sinistres', data: [120, 150, 180, 140, 160, 200] }]);
+                    chartMensuelle.updateOptions({ xaxis: { categories: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin'] } });
+                    
+                    chartGarantie.updateSeries([45, 25, 15, 5, 10]);
+                    chartGarantie.updateOptions({ labels: ['RC', 'Bris de Glace', 'Vol', 'Incendie', 'Dommages'] });
+                }
+            };
+
+            // Initialisation
+            initCharts();
+            loadData();
+
+            // Refresh data on filter change
+            document.querySelectorAll('.filter-item select').forEach(select => {
+                select.addEventListener('change', () => {
+                    loadData();
+                });
+            });
+        });
+    </script>
+</body>
+</html>

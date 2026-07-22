@@ -1,0 +1,208 @@
+--- Code Cell ---
+# Chargement
+# Chargement - 3 feuilles concaténées
+xl     = pd.ExcelFile('SAP_AUTO_PAR_GARANTIES_AU_31122023_-_MAJ.xls', engine='xlrd')
+df_sin = pd.concat([xl.parse(sheet) for sheet in xl.sheet_names], ignore_index=True)
+df_prod = pd.read_excel('Base_production_sur_6_ans.xlsx')
+# Colonnes cles
+reg_cols = sorted([c for c in df_sin.columns if c.startswith('REG_AMOUNT_')],
+                   key=lambda x: int(x.split('_')[-1]))
+sap_cols = sorted([c for c in df_sin.columns if c.startswith('SAP_')],
+                   key=lambda x: int(x.split('_')[-1]))
+pa_cols  = sorted([c for c in df_prod.columns if c.startswith('PA ')],
+                   key=lambda x: int(x.split()[-1]))
+
+# Focus 2018-2023
+reg_focus = [c for c in reg_cols if int(c.split('_')[-1]) >= 2018]
+ANNEES    = list(range(2018, 2024))
+
+# Annee de survenance
+df_sin['annee_survenance'] = df_sin['TMP_CLMLOSS_DATE'].dt.year
+
+# REG_AMOUNT en valeur absolue (sorties de tresorerie = negatifs par convention)
+for col in reg_cols:
+    df_sin[col] = df_sin[col].abs()
+
+# Primes acquises par annee
+primes = {int(col.split()[-1]): df_prod[col].sum() for col in pa_cols}
+
+# SAP 2023 par annee de survenance (provisions actuelles de la compagnie)
+sap_par_annee = {
+    annee: df_sin[df_sin['annee_survenance'] == annee]['SAP_2023'].sum()
+    for annee in ANNEES
+}
+
+print("=" * 58)
+print("  DONNEES CHARGEES")
+print("=" * 58)
+print(f"  Sinistres totaux          : {len(df_sin):>8,}")
+print(f"  Sinistres 2018-2023       : {df_sin['annee_survenance'].between(2018,2023).sum():>8,}")
+print(f"  SAP 2023 total (Cie)      : {df_sin['SAP_2023'].sum():>14,.0f} DT")
+print(f"  Primes 2018-2023 total    : {sum(v for k,v in primes.items() if k>=2018):>14,.0f} DT")
+print("=" * 58)
+
+--- Code Cell ---
+# Triangle INCREMENTAL
+triangle_inc = {}
+for annee_surv in ANNEES:
+    df_as = df_sin[df_sin['annee_survenance'] == annee_surv]
+    row = {}
+    for col in reg_focus:
+        annee_cal = int(col.split('_')[-1])
+        dev = annee_cal - annee_surv + 1
+        if annee_cal >= annee_surv:
+            row[dev] = df_as[col].sum()
+    triangle_inc[annee_surv] = row
+
+tri_inc = pd.DataFrame(triangle_inc).T.fillna(0)
+tri_inc.index.name   = 'Survenance'
+tri_inc.columns.name = 'Developpement'
+
+# Triangle CUMULE
+tri_cumul = tri_inc.cumsum(axis=1).astype(float)
+n    = len(ANNEES)
+devs = list(tri_cumul.columns)
+
+# Masquer les cases futures
+for i, annee_surv in enumerate(ANNEES):
+    dev_max = n - i
+    for j, dev in enumerate(devs):
+        if dev > dev_max:
+            tri_cumul.loc[annee_surv, dev] = np.nan
+
+print("Triangle INCREMENTAL (paiements annuels en DT) :")
+display(tri_inc.round(0).astype(int))
+print()
+print("Triangle CUMULE - C(i,j) en DT (NaN = cases a estimer) :")
+display(tri_cumul.round(0))
+
+--- Code Cell ---
+# Heatmap des triangles
+fig, axes = plt.subplots(1, 2, figsize=(18, 6))
+
+mask_inc = tri_inc == 0
+sns.heatmap(tri_inc / 1e6, annot=True, fmt='.2f', cmap='Blues',
+            ax=axes[0], linewidths=0.5, annot_kws={'size': 9},
+            cbar_kws={'label': 'MDT'}, mask=mask_inc)
+axes[0].set_title('Triangle Incremental (MDT)', fontweight='bold')
+axes[0].set_xlabel('Annee de developpement')
+axes[0].set_ylabel('Annee de survenance')
+
+mask_cumul = tri_cumul.isnull()
+sns.heatmap(tri_cumul.fillna(0) / 1e6, annot=True, fmt='.2f', cmap='YlOrRd',
+            ax=axes[1], linewidths=0.5, annot_kws={'size': 9},
+            cbar_kws={'label': 'MDT'}, mask=mask_cumul)
+axes[1].set_title('Triangle Cumule (MDT) - Cases vides = a estimer', fontweight='bold')
+axes[1].set_xlabel('Annee de developpement')
+axes[1].set_ylabel('Annee de survenance')
+
+plt.suptitle('Triangles de Developpement - Portefeuille Auto 2018-2023',
+             fontsize=14, fontweight='bold')
+plt.tight_layout()
+plt.show()
+
+--- Code Cell ---
+# ETAPE 1 : Facteurs de developpement
+facteurs_cl = {}
+for j in range(len(devs) - 1):
+    dev_j  = devs[j]
+    dev_j1 = devs[j + 1]
+    col_j  = tri_cumul[dev_j].dropna()
+    col_j1 = tri_cumul[dev_j1].dropna()
+    idx    = col_j.index.intersection(col_j1.index)
+    if len(idx) > 0 and col_j[idx].sum() > 0:
+        facteurs_cl[(dev_j, dev_j1)] = col_j1[idx].sum() / col_j[idx].sum()
+
+print("Facteurs de developpement Chain-Ladder (volume-weighted) :")
+print("-" * 55)
+for (dj, dj1), f in facteurs_cl.items():
+    print(f"  f({dj} -> {dj1}) = {f:.4f}  | proportion supplementaire: +{(f-1)*100:.1f}%")
+
+# Visualisation facteurs
+fig, ax = plt.subplots(figsize=(10, 5))
+labels = [f"{dj}->{dj1}" for (dj, dj1) in facteurs_cl.keys()]
+vals   = list(facteurs_cl.values())
+bars   = ax.bar(labels, vals, color=C1, alpha=0.8, edgecolor='white')
+ax.axhline(1.0, color=C3, linestyle='--', linewidth=1.5, label='f=1 (pas de developpement)')
+ax.set_title('Facteurs de Developpement Chain-Ladder', fontweight='bold')
+ax.set_xlabel('Transition (annee developpement)')
+ax.set_ylabel('Facteur f_j')
+ax.legend()
+for bar, val in zip(bars, vals):
+    ax.text(bar.get_x() + bar.get_width()/2, val + 0.002,
+            f'{val:.3f}', ha='center', va='bottom', fontsize=9, fontweight='bold')
+plt.tight_layout()
+plt.show()
+
+--- Code Cell ---
+# ETAPE 2 : Projection du triangle
+facteurs_list = list(facteurs_cl.values())
+tri_cl = tri_cumul.copy()
+
+for i, annee_surv in enumerate(ANNEES):
+    for k, dev in enumerate(devs):
+        if pd.isna(tri_cl.loc[annee_surv, dev]):
+            if k > 0 and not pd.isna(tri_cl.loc[annee_surv, devs[k-1]]):
+                tri_cl.loc[annee_surv, dev] = tri_cl.loc[annee_surv, devs[k-1]] * facteurs_list[k-1]
+
+print("Triangle projete par Chain-Ladder (DT) :")
+display(tri_cl.round(0).astype(int))
+
+--- Code Cell ---
+# ETAPE 3 : Reserves IBNR
+resultats_cl = {}
+for i, annee_surv in enumerate(ANNEES):
+    dev_actuel    = n - i
+    charge_obs    = tri_cumul.loc[annee_surv, dev_actuel]
+    charge_ultime = tri_cl.loc[annee_surv, devs[-1]]
+    ibnr          = charge_ultime - charge_obs
+    sap           = sap_par_annee[annee_surv]
+
+    resultats_cl[annee_surv] = {
+        'Charge observee (DT)':    charge_obs,
+        'Charge ultime CL (DT)':   charge_ultime,
+        'IBNR Chain-Ladder (DT)':  ibnr,
+        'SAP 2023 Cie (DT)':       sap,
+        'Ecart IBNR vs SAP (%)':   (ibnr - sap) / sap * 100 if sap > 0 else 0
+    }
+
+df_cl = pd.DataFrame(resultats_cl).T
+df_cl.index.name = 'Annee survenance'
+df_cl.loc['TOTAL'] = df_cl.sum(numeric_only=True)
+ecart_total = (df_cl.loc['TOTAL','IBNR Chain-Ladder (DT)'] - df_cl.loc['TOTAL','SAP 2023 Cie (DT)'])               / df_cl.loc['TOTAL','SAP 2023 Cie (DT)'] * 100
+df_cl.loc['TOTAL', 'Ecart IBNR vs SAP (%)'] = ecart_total
+
+print("Resultats Chain-Ladder :")
+display(df_cl.round(0))
+
+ibnr_total_cl = df_cl.loc['TOTAL', 'IBNR Chain-Ladder (DT)']
+sap_total_cie = df_cl.loc['TOTAL', 'SAP 2023 Cie (DT)']
+print(f"\nReserve totale Chain-Ladder : {ibnr_total_cl:>12,.0f} DT")
+print(f"SAP 2023 compagnie          : {sap_total_cie:>12,.0f} DT")
+print(f"Ecart                       : {ecart_total:>11.1f} %")
+
+--- Code Cell ---
+# ── Export Module 2 Partie 1 ─────────────────────────────
+import os, json
+os.makedirs('data', exist_ok=True)
+
+# Tableau comparatif CL vs BF vs Cape Cod vs SAP
+comp.to_csv('data/resultats_provisionnement.csv', encoding='utf-8-sig')
+
+# Scénarios stress tests
+pd.DataFrame(scenarios.items(), columns=['Scenario','Reserve_DT']).to_csv(
+    'data/stress_tests.csv', index=False, encoding='utf-8-sig')
+
+# Triangle de développement (image)
+os.makedirs('figures', exist_ok=True)
+fig_tri, ax_tri = plt.subplots(figsize=(12, 7))
+sns.heatmap(tri_cumul / 1e6, annot=True, fmt='.1f', ax=ax_tri, cmap='YlOrRd')
+ax_tri.set_title('Triangle de développement cumulé (MDT)')
+plt.tight_layout()
+plt.savefig('figures/triangle_development.png', dpi=120, bbox_inches='tight')
+plt.close()
+
+print('✅ data/resultats_provisionnement.csv')
+print('✅ data/stress_tests.csv')
+print('✅ figures/triangle_development.png')
+

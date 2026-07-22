@@ -1,0 +1,558 @@
+﻿        <p>DonnÃ©es rÃ©elles du portefeuille automobile tunisien 2018-2023.</p>
+      </div>
+      <div class="app-card">
+        <div class="form-section">
+          <h3>Extraction & Analyse</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Segment d'analyse</label>
+              <select id="sin-segment">
+                <option value="global">Portefeuille Global</option>
+                <option value="garantie">Par Garantie</option>
+                <option value="annee">Par AnnÃ©e</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>PÃ©riode</label>
+              <select id="sin-annee"><option>2023</option><option>2022</option><option>2021</option><option>2018-2023</option></select>
+            </div>
+          </div>
+          <button class="btn-primary" onclick="loadSinistralite()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            Charger les donnÃ©es
+          </button>
+          <div id="sin-table-area" style="margin-top:28px; display:none;">
+            <p style="font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:12px;">SinistralitÃ© par garantie</p>
+            <div id="sin-table-container"></div>
+          </div>
+        </div>
+        <div class="result-panel" id="sin-result">
+          <span class="result-label">Sinistres totaux</span>
+          <div class="result-badge badge-excellent" id="sin-badge">NORMAL</div>
+          <div class="result-value" id="sin-total">â€”</div>
+          <span class="result-sub">DÃ©clarÃ©s 2018â€“2023</span>
+          <div class="result-detail" id="sin-detail"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================  PROVISIONNEMENT  ============================ -->
+    <section id="section-provisionnement" class="section-panel">
+      <div class="module-header">
+        <h1>Provisionnement IBNR (M2)</h1>
+        <p>RÃ©serves techniques calculÃ©es via Chain-Ladder + ML.</p>
+      </div>
+      <div class="app-card">
+        <div class="form-section">
+          <h3>ParamÃ¨tres de calcul</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>MÃ©thode de projection</label>
+              <select id="prov-method"><option value="chain_ladder">Chain-Ladder</option><option value="bornhuetter">Bornhuetter-Ferguson</option></select>
+            </div>
+            <div class="form-group">
+              <label>AnnÃ©e de rÃ©fÃ©rence</label>
+              <select id="prov-annee"><option>2023</option><option>2022</option></select>
+            </div>
+          </div>
+          <button class="btn-primary" onclick="loadProvisionnement()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Calculer les provisions
+          </button>
+          <div id="prov-table-area" style="margin-top:28px; display:none;">
+            <p style="font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:12px;">Triangle de dÃ©veloppement</p>
+            <div id="prov-table-container" style="overflow-x:auto;"></div>
+          </div>
+        </div>
+        <div class="result-panel" id="prov-result">
+          <span class="result-label">IBNR ProjetÃ©</span>
+          <div class="result-badge badge-warning" id="prov-badge">ATTENTION</div>
+          <div class="result-value" id="prov-total">â€”</div>
+          <span class="result-sub">TND Â· Chain-Ladder</span>
+          <div class="result-detail" id="prov-detail"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================  MODELISATION  ============================ -->
+    <section id="section-modelisation" class="section-panel">
+      <div class="module-header">
+        <h1>ModÃ©lisation des Risques (M3)</h1>
+        <p>Benchmark GLM vs XGBoost vs CANN. Scoring de profil assurÃ©.</p>
+      </div>
+      <div class="app-card">
+        <div class="form-section">
+          <h3>Ã‰valuation d'un profil</h3>
+          <p style="font-size:13px; color:var(--muted); margin-bottom:20px;">Saisissez les caractÃ©ristiques pour obtenir un score de risque instantanÃ© via le modÃ¨le XGBoost.</p>
+          <div class="form-grid">
+            <div class="form-group"><label>Ã‚ge du conducteur</label><input id="m3-age" type="number" value="35" min="18" max="80"></div>
+            <div class="form-group"><label>Ã‚ge du vÃ©hicule (ans)</label><input id="m3-vage" type="number" value="5" min="0" max="30"></div>
+            <div class="form-group"><label>Puissance fiscale (CV)</label><input id="m3-puissance" type="number" value="7" min="3" max="25"></div>
+            <div class="form-group"><label>AnciennetÃ© BM (ans)</label><input id="m3-bm" type="number" value="1" min="0" max="13"></div>
+            <div class="form-group"><label>Usage</label><select id="m3-usage"><option value="PrivÃ©">PrivÃ©</option><option value="Professionnel">Professionnel</option><option value="Commercial">Commercial</option></select></div>
+            <div class="form-group"><label>Ã‰nergie</label><select id="m3-energie"><option value="Essence">Essence</option><option value="Diesel">Diesel</option><option value="GPL">GPL</option></select></div>
+          </div>
+          <button class="btn-primary" id="m3-btn" onclick="evaluateRisk()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+            Ã‰valuer le profil
+          </button>
+          <div class="error-box" id="m3-error"></div>
+        </div>
+        <div class="result-panel" id="m3-result">
+          <span class="result-label">Score de risque</span>
+          <div class="result-badge badge-excellent" id="m3-badge">EXCELLENT</div>
+          <div class="result-value" id="m3-score">â€”</div>
+          <span class="result-sub">/ 100 Â· ModÃ¨le XGBoost</span>
+          <div class="result-detail" id="m3-detail"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================  RATIO COMBINÃ‰  ============================ -->
+    <section id="section-ratio" class="section-panel">
+      <div class="module-header">
+        <h1>Ratio CombinÃ© (M5)</h1>
+        <p>Indicateur de rentabilitÃ© technique par segment Usage Ã— Ã‰nergie.</p>
+      </div>
+      <div class="app-card">
+        <div class="form-section">
+          <h3>Analyse de rentabilitÃ©</h3>
+          <div class="form-grid">
+            <div class="form-group"><label>AnnÃ©e</label><select id="ratio-annee"><option>2023</option><option>2022</option><option>2021</option></select></div>
+            <div class="form-group"><label>Seuil d'alerte (%)</label><input id="ratio-seuil" type="number" value="100" min="80" max="130"></div>
+          </div>
+          <button class="btn-primary" onclick="loadRatio()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            Charger le ratio
+          </button>
+          <div id="ratio-table-area" style="margin-top:28px; display:none;">
+            <p style="font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:12px;">Segmentation par Usage Ã— Ã‰nergie</p>
+            <div id="ratio-table-container"></div>
+          </div>
+        </div>
+        <div class="result-panel" id="ratio-result">
+          <span class="result-label">Ratio CombinÃ© Global</span>
+          <div class="result-badge badge-excellent" id="ratio-badge">SAIN</div>
+          <div class="result-value" id="ratio-value">â€”</div>
+          <span class="result-sub">% Â· Portefeuille 2023</span>
+          <div class="result-detail" id="ratio-detail"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================  TARIFICATION  ============================ -->
+    <section id="section-tarification" class="section-panel">
+      <div class="module-header">
+        <h1>Tarification Pure â€” Bonus Malus</h1>
+        <p>Calculez la prime pure d'un profil via le modÃ¨le XGBoost calibrÃ©.</p>
+      </div>
+      <div class="app-card">
+        <div class="form-section">
+          <h3>Profil du contrat</h3>
+          <form onsubmit="calcTarification(event)">
+            <div class="form-grid">
+              <div class="form-group"><label>Ã‚ge conducteur</label><input id="t-age" type="number" value="35" required></div>
+              <div class="form-group"><label>Ã‚ge vÃ©hicule (ans)</label><input id="t-vage" type="number" value="5" required></div>
+              <div class="form-group"><label>Puissance fiscale (CV)</label><input id="t-puissance" type="number" value="6" required></div>
+              <div class="form-group"><label>Valeur vÃ©nale (TND)</label><input id="t-valeur" type="number" value="30000" required></div>
+              <div class="form-group"><label>Classe Bonus-Malus</label><input id="t-bm" type="number" value="1" min="0" max="22" required></div>
+              <div class="form-group"><label>Usage</label><select id="t-usage"><option value="PrivÃ©">PrivÃ©</option><option value="Professionnel">Professionnel</option></select></div>
+              <div class="form-group"><label>Sexe conducteur</label><select id="t-sex"><option value="M">Masculin</option><option value="F">FÃ©minin</option></select></div>
+              <div class="form-group"><label>RÃ©gion</label><select id="t-region"><option value="Tunis">Tunis</option><option value="Sfax">Sfax</option><option value="Sousse">Sousse</option><option value="Bizerte">Bizerte</option></select></div>
+              <div class="form-group"><label>Ã‰nergie</label><select id="t-energie"><option value="Essence">Essence</option><option value="Diesel">Diesel</option><option value="GPL">GPL</option></select></div>
+            </div>
+            <button type="submit" id="t-btn" class="btn-primary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              Calculer la Prime Pure
+            </button>
+            <div class="error-box" id="t-error"></div>
+          </form>
+        </div>
+        <div class="result-panel" id="t-result">
+          <span class="result-label">Prime Pure EstimÃ©e</span>
+          <div class="result-badge badge-excellent" id="t-badge">CALCULÃ‰E</div>
+          <div class="result-value" id="t-prime">â€”</div>
+          <span class="result-sub">TND Â· ModÃ¨le XGBoost</span>
+          <div class="result-detail" id="t-detail"></div>
+        </div>
+      </div>
+    </section>
+    <!-- ============================  DÃ‰TECTION DE FRAUDE  ============================ -->
+    <section id="section-fraude" class="section-panel">
+      <div class="module-header">
+        <h1>DÃ©tection de Fraude (Suspicion)</h1>
+        <p>Scoring mÃ©tier et dÃ©tection d'anomalies (DBSCAN) pour prioriser les dossiers douteux.</p>
+      </div>
+      <div class="app-card">
+        <div class="form-section">
+          <h3>Saisie du Dossier</h3>
+          <form onsubmit="scoreFraude(event)">
+            <!-- The form fields will be generated dynamically here -->
+            <div id="fraude-form-container" class="form-grid"></div>
+            
+            <button type="submit" id="f-btn" class="btn-primary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+              Calculer le Score de Suspicion
+            </button>
+            <div class="error-box" id="f-error"></div>
+          </form>
+        </div>
+        <div class="result-panel" id="f-result">
+          <span class="result-label">Score de Suspicion</span>
+          <div class="result-badge badge-excellent" id="f-badge">ANALYSÃ‰</div>
+          <div class="result-value" id="f-score">â€”</div>
+          <span class="result-sub">PrioritÃ© de vÃ©rification</span>
+          <div class="result-detail" id="f-detail"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================  PHOTOCAR  ============================ -->
+    <section id="section-photocar" class="section-panel">
+      <div class="module-header">
+        <h1>PhotoCar â€” DÃ©tection de Dommages</h1>
+        <p>Estimation du coÃ»t de rÃ©paration par Computer Vision (YOLOv8) et Machine Learning (XGBoost).</p>
+      </div>
+      <div class="pc-card" style="background: #fff; border-radius: 24px; padding: 40px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); border: 1px solid #e2e8f0;">
+
+        <!-- Upload Zone -->
+        <label for="pc-upload" id="pc-upload-label" style="display: block; border: 2px dashed #10b981; border-radius: 16px; padding: 36px; text-align: center; cursor: pointer; background: rgba(16, 185, 129, 0.04); transition: all 0.3s; margin-bottom: 24px;">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="1.5" style="margin-bottom: 10px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+          <div style="color: #10b981; font-weight: 700; font-size: 15px; margin-bottom: 4px;">Cliquez pour uploader une photo</div>
+          <div style="font-size: 12px; color: #9ca3af;">Format JPG ou PNG</div>
+        </label>
+        <input type="file" id="pc-upload" accept="image/*" style="display: none;" onchange="handlePhotoUpload(event)">
+
+        <!-- Loading -->
+        <div id="pc-loading" style="display: none; text-align: center; padding: 40px; color: var(--primary);">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite; margin-bottom: 12px; display: block; margin-left: auto; margin-right: auto;"><line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="22"></line><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line><line x1="2" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="22" y2="12"></line><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line></svg>
+          <div style="font-weight: 600;">Analyse en coursâ€¦ YOLOv8 dÃ©tecte les dommages</div>
+        </div>
+
+        <!-- Result Area -->
+        <div id="pc-result-area" style="display: none;">
+          <div style="display: flex; gap: 48px; flex-wrap: wrap; align-items: center; justify-content: center;">
+
+            <!-- Image avec bounding boxes -->
+            <div style="flex: 1.2; min-width: 280px;">
+              <div style="font-weight: 600; font-size: 12px; color: #6b7280; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.05em;">Photo analysÃ©e</div>
+              <div id="pc-preview-container" style="position: relative; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.15);">
+                <img id="pc-image" style="display: block; width: 100%; height: auto;" />
+                <div id="pc-boxes" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></div>
+              </div>
+            </div>
+
+            <!-- Rapport -->
+            <div style="flex: 1.4; min-width: 380px; display: flex; flex-direction: column; gap: 24px;">
+
+              <!-- CoÃ»t principal -->
+              <div style="background: linear-gradient(135deg, #065f46 0%, #10b981 100%); border-radius: 16px; padding: 24px; text-align: center; color: white;">
+                <div style="font-size: 12px; font-weight: 600; letter-spacing: 0.1em; opacity: 0.8; margin-bottom: 8px; text-transform: uppercase;">CoÃ»t de rÃ©paration estimÃ©</div>
+                <div id="pc-cost" style="font-size: 42px; font-weight: 800; margin-bottom: 4px;">â€”</div>
+                <div style="font-size: 13px; opacity: 0.75;">TND Â· ModÃ¨le XGBoost</div>
+              </div>
+
+              <!-- Stats -->
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 18px; text-align: center;">
+                  <div id="pc-stat-count" style="font-size: 32px; font-weight: 800; color: #065f46;">0</div>
+                  <div style="font-size: 13px; color: #6b7280; font-weight: 500;">Dommages</div>
+                </div>
+                <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 18px; text-align: center;">
+                  <div id="pc-stat-types" style="font-size: 32px; font-weight: 800; color: #1d4ed8;">0</div>
+                  <div style="font-size: 13px; color: #6b7280; font-weight: 500;">Types distincts</div>
+                </div>
+              </div>
+
+              <!-- Liste des dommages -->
+              <div style="background: #f9fafb; border-radius: 12px; padding: 20px; border: 1px solid #e5e7eb;">
+                <div style="font-weight: 600; font-size: 15px; color: #374151; margin-bottom: 12px;">Zones touchÃ©es</div>
+                <div id="pc-damage-list" style="display: flex; flex-direction: column; gap: 8px; font-size: 14px;"></div>
+              </div>
+
+              <!-- Encart Provisionnement (Nouveau) -->
+              <div id="pc-prov-container" style="display: none; background: #fffbeb; border-radius: 12px; padding: 24px; border: 1px solid #fde68a;">
+                <div style="font-weight: 800; font-size: 16px; color: #92400e; margin-bottom: 14px;">ðŸ›¡ï¸ Provisionnement Individuel</div>
+                <div style="display: flex; justify-content: space-between; font-size: 14px; color: #92400e; margin-bottom: 8px;">
+                  <span>CoÃ»t des rÃ©parations (ModÃ¨le)</span>
+                  <span id="pc-prov-base" style="font-weight: 700;">â€”</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 14px; color: #92400e; margin-bottom: 14px;">
+                  <span>Frais de gestion / Marge (+15%)</span>
+                  <span id="pc-prov-marge" style="font-weight: 700;">â€”</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 18px; color: #b45309; border-top: 2px solid #fcd34d; padding-top: 14px; font-weight: 900;">
+                  <span>Provision Dossier Totale</span>
+                  <span id="pc-prov-total">â€”</span>
+                </div>
+              </div>
+
+              <!-- Bouton PDF -->
+              <a id="pc-pdf-btn" style="display: none; text-align: center; background: #1f2937; color: white; padding: 12px; border-radius: 12px; font-weight: 600; text-decoration: none; cursor: pointer; transition: 0.2s; font-size: 14px; margin-top: auto;" onmouseover="this.style.background='#111827'" onmouseout="this.style.background='#1f2937'">
+                ðŸ“„ TÃ©lÃ©charger le Rapport d'Expertise
+              </a>
+
+            </div>
+          </div>
+
+          <!-- ExplicabilitÃ© SHAP (Pleine largeur) -->
+          <div id="pc-shap-container" style="display: none; background: #ffffff; border-radius: 12px; padding: 24px; border: 1px solid #e5e7eb; margin-top: 28px;">
+            <div style="font-weight: 700; font-size: 15px; color: #111827; margin-bottom: 8px;">ðŸ” ExplicabilitÃ© du coÃ»t (MÃ©thode SHAP)</div>
+            <div style="font-size: 13px; color: #6b7280; margin-bottom: 20px;">Ce graphique montre l'impact financier exact de chaque variable dÃ©tectÃ©e (les dommages) sur l'estimation finale du modÃ¨le XGBoost.</div>
+            <div style="text-align: center;">
+              <img id="pc-shap-image" style="max-width: 100%; height: auto; border-radius: 8px;" />
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============================  SINISTRIA ============================ -->
+    <section id="section-sinistria" class="section-panel">
+      <div class="module-header">
+        <h1>SinistrIA â€” Analyse ComplÃ¨te (OCR + Vision)</h1>
+        <p>Extraction des documents (Permis, Carte Grise, Constat) et Classification automatique des accidents via Croquis CNN.</p>
+      </div>
+
+      <!-- UPLOAD CARD -->
+      <div class="pc-card" style="background: #fff; border-radius: 24px; padding: 40px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; margin-bottom: 24px;">
+        <h3 style="font-size: 18px; font-weight: 700; color: #1e293b; margin-bottom: 24px;">ðŸ“ Upload des documents du sinistre</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+          <div>
+            <label style="font-size: 13px; font-weight: 700; color: #64748b; margin-bottom: 8px; display: block;">ðŸªª Permis de conduire</label>
+            <input type="file" id="sin-permis" accept="image/*,.pdf" style="width: 100%; padding: 10px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 13px;">
+          </div>
+          <div>
+            <label style="font-size: 13px; font-weight: 700; color: #64748b; margin-bottom: 8px; display: block;">ðŸš— Carte Grise</label>
+            <input type="file" id="sin-cg" accept="image/*,.pdf" style="width: 100%; padding: 10px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 13px;">
+          </div>
+          <div>
+            <label style="font-size: 13px; font-weight: 700; color: #64748b; margin-bottom: 8px; display: block;">ðŸ“‹ Constat Ã  l'amiable</label>
+            <input type="file" id="sin-constat" accept="image/*,.pdf" style="width: 100%; padding: 10px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 13px;">
+          </div>
+          <div>
+            <label style="font-size: 13px; font-weight: 700; color: #64748b; margin-bottom: 8px; display: block;">âœï¸ Croquis de l'accident</label>
+            <input type="file" id="sin-croquis" accept="image/*" style="width: 100%; padding: 10px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 13px;">
+          </div>
+        </div>
+        <h3 style="font-size: 16px; font-weight: 700; color: #1e293b; margin-bottom: 8px; margin-top: 24px;">ðŸ“ Circonstances cochÃ©es (Constat)</h3>
+        <p style="font-size: 13px; color: #64748b; margin-bottom: 12px;">Saisissez les circonstances sÃ©parÃ©es par des virgules (ex: "venait de droite, changeait de file").</p>
+        <input type="text" id="sin-circonstances" placeholder="Ex: venait de droite, changeait de file..." style="width: 100%; padding: 14px; border: 1.5px solid #cbd5e1; border-radius: 12px; font-size: 14px; margin-bottom: 24px; box-sizing: border-box;">
+        <button onclick="analyserSinistrIA()" class="btn-primary" style="width: 100%; justify-content: center; font-size: 16px; padding: 16px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          Lancer l'analyse SinistrIA
+        </button>
+        <div id="sin-loading" style="display: none; text-align: center; padding: 30px; color: var(--green); font-weight: 600;">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite; margin-bottom: 12px; display: block; margin-left: auto; margin-right: auto;"><line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="22"></line><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line><line x1="2" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="22" y2="12"></line><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line></svg>
+          Traitement OCR et classification CNN en coursâ€¦ (peut prendre 30â€“60s)
+        </div>
+      </div>
+
+      <!-- RÃ‰SULTATS -->
+      <div id="sin-result-area" style="display: none;">
+
+        <!-- ROW 1 : Classification + Permis + Carte Grise -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+
+          <!-- Bloc Classification & ResponsabilitÃ© -->
+          <div style="background: #fff; border-radius: 20px; padding: 28px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.08); border: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 14px;">
+            <h3 style="font-size: 15px; font-weight: 700; color: #1e293b; margin: 0;">âš–ï¸ Classification & ResponsabilitÃ©</h3>
+            <div style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); border-radius: 14px; padding: 20px; text-align: center; color: white;">
+              <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.8; margin-bottom: 4px;">Type d'accident</div>
+              <div id="sin-type-acc" style="font-size: 22px; font-weight: 900; margin-bottom: 14px; word-break: break-word;">â€”</div>
+              <div style="display: flex; justify-content: center; gap: 28px;">
+                <div><div style="font-size: 11px; opacity: 0.8;">ResponsabilitÃ© A</div><div id="sin-resp-a" style="font-size: 26px; font-weight: 800;">â€”</div></div>
+                <div style="width: 1px; background: rgba(255,255,255,0.3);"></div>
+                <div><div style="font-size: 11px; opacity: 0.8;">ResponsabilitÃ© B</div><div id="sin-resp-b" style="font-size: 26px; font-weight: 800;">â€”</div></div>
+              </div>
+            </div>
+            <div style="background: #f8fafc; border-radius: 10px; padding: 14px; border: 1px solid #e2e8f0;">
+              <div style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 4px;">Justification CGA</div>
+              <div id="sin-justif" style="font-size: 13px; font-weight: 500; color: #334155; line-height: 1.5;">â€”</div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+              <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 10px; text-align: center;">
+                <div style="font-size: 10px; color: #166534; font-weight: 700;">Confiance CNN</div>
+                <div id="sin-conf-cnn" style="font-size: 18px; font-weight: 800; color: #15803d;">â€”</div>
+              </div>
+              <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 10px; text-align: center;">
+                <div style="font-size: 10px; color: #1e40af; font-weight: 700;">Conf. Circonstances</div>
+                <div id="sin-conf-circ" style="font-size: 18px; font-weight: 800; color: #1d4ed8;">â€”</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Carte Permis de conduire -->
+          <div style="background: #fff; border-radius: 20px; padding: 28px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.08); border: 1px solid #e2e8f0;">
+            <h3 style="font-size: 15px; font-weight: 700; color: #1e293b; margin: 0 0 16px 0;">ðŸªª Permis de conduire</h3>
+            <div id="sin-permis-card" style="display: flex; flex-direction: column; gap: 10px;"></div>
+          </div>
+
+          <!-- Carte Grise -->
+          <div style="background: #fff; border-radius: 20px; padding: 28px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.08); border: 1px solid #e2e8f0;">
+            <h3 style="font-size: 15px; font-weight: 700; color: #1e293b; margin: 0 0 16px 0;">ðŸš— Carte Grise</h3>
+            <div id="sin-cg-card" style="display: flex; flex-direction: column; gap: 10px;"></div>
+          </div>
+        </div>
+
+        <!-- ROW 2 : Provisionnement + QR Code + JSON Brut -->
+        <div style="display: grid; grid-template-columns: 1.4fr 0.7fr 0.9fr; gap: 20px;">
+
+          <!-- Provisionnement estimÃ© -->
+          <div style="background: #fff; border-radius: 20px; padding: 28px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.08); border: 1px solid #fde68a; background: #fffbeb;">
+            <h3 style="font-size: 15px; font-weight: 700; color: #92400e; margin: 0 0 16px 0;">ðŸ’° Provisionnement estimÃ©</h3>
+            <div style="background: linear-gradient(135deg, #b45309 0%, #f59e0b 100%); border-radius: 14px; padding: 20px; text-align: center; color: white; margin-bottom: 14px;">
+              <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.85; margin-bottom: 4px;">CoÃ»t total estimÃ©</div>
+              <div id="sin-prov-total" style="font-size: 32px; font-weight: 900;">â€”</div>
+              <div style="font-size: 12px; opacity: 0.8; margin-top: 4px;">Dinars Tunisiens (TND)</div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;">
+              <div style="background: #fff; border: 1px solid #fde68a; border-radius: 10px; padding: 12px; text-align: center;">
+                <div style="font-size: 10px; color: #92400e; font-weight: 700;">Part VÃ©hicule A</div>
+                <div id="sin-prov-a" style="font-size: 18px; font-weight: 800; color: #b45309;">â€”</div>
+              </div>
+              <div style="background: #fff; border: 1px solid #fde68a; border-radius: 10px; padding: 12px; text-align: center;">
+                <div style="font-size: 10px; color: #92400e; font-weight: 700;">Part VÃ©hicule B</div>
+                <div id="sin-prov-b" style="font-size: 18px; font-weight: 800; color: #b45309;">â€”</div>
+              </div>
+            </div>
+            <div id="sin-prov-corporel" style="display: none; background: #fee2e2; border: 1px solid #fecaca; border-radius: 8px; padding: 10px; font-size: 12px; font-weight: 700; color: #dc2626; text-align: center; margin-bottom: 10px;">
+              âš ï¸ Sinistre corporel dÃ©tectÃ© â€” multiplicateur x3.5 appliquÃ©
+            </div>
+            <div style="background: #fef3c7; border: 1px solid #fde68a; border-radius: 8px; padding: 12px; font-size: 11px; color: #92400e; line-height: 1.5;">
+              âš ï¸ <strong>Estimation indicative uniquement</strong> â€” non calibrÃ©e sur historique rÃ©el de sinistres. Ã€ des fins de provisionnement actuariel, rÃ©fÃ©rez-vous aux modÃ¨les GLM/XGBoost du Module 3.
+            </div>
+          </div>
+
+          <!-- QR Code -->
+          <div style="background: #fff; border-radius: 20px; padding: 28px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.08); border: 1px solid #e2e8f0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center;">
+            <h3 style="font-size: 15px; font-weight: 700; color: #1e293b; margin: 0;">ðŸ“± QR Code Dossier</h3>
+            <!-- Image QR cliquable â†’ page HTML dossier -->
+            <a id="sin-qr-link" href="#" target="_blank" title="Ouvrir le dossier">
+              <img id="sin-qr-img" src="" style="width: 148px; height: 148px; border-radius: 10px; border: 3px solid #d1fae5; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'" />
+            </a>
+            <p style="font-size: 11px; color: #64748b; margin: 0;">Scannez ou cliquez pour ouvrir le dossier en ligne</p>
+            <div style="display:flex; flex-direction:column; gap:8px; width:100%;">
+              <a id="sin-qr-dl" download="SinistrIA_QRCode.png" style="display: block; background: #065f46; color: white; padding: 9px 0; border-radius: 30px; font-size: 12px; font-weight: 700; text-decoration: none;">â¬‡ï¸ TÃ©lÃ©charger QR</a>
+              <a id="sin-pdf-dl" href="#" target="_blank" style="display: block; background: #1e3a8a; color: white; padding: 9px 0; border-radius: 30px; font-size: 12px; font-weight: 700; text-decoration: none;">ðŸ“„ Constat PDF</a>
+            </div>
+          </div>
+
+          <!-- JSON Brut -->
+          <div style="background: #fff; border-radius: 20px; padding: 28px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.08); border: 1px solid #e2e8f0;">
+            <h3 style="font-size: 15px; font-weight: 700; color: #1e293b; margin: 0 0 12px 0;">ðŸ“„ JSON Brut (OCR)</h3>
+            <div style="background: #1e293b; border-radius: 10px; padding: 14px; height: 260px; overflow-y: auto;">
+              <pre id="sin-ocr-json" style="margin: 0; color: #a5b4fc; font-size: 11px; font-family: monospace; white-space: pre-wrap; word-wrap: break-word;"></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /main -->
+  <script>
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // NAVIGATION
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  function showSection(name) {
+    document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+    const panel = document.getElementById('section-' + name);
+    if (panel) panel.classList.add('active');
+    const link = document.querySelector('.nav-link[onclick="showSection(\'' + name + '\')"]');
+    if (link) link.classList.add('active');
+    // Auto-load modules
+    if (name === 'sinistralite') loadSinistralite();
+    if (name === 'ratio') loadRatio();
+  }
+
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // CHATBOT IA
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  function fillChat(text) {
+    document.getElementById('chat-input').value = text;
+    document.getElementById('chat-input').focus();
+  }
+
+  function appendMsg(sender, html) {
+    const chat = document.getElementById('chat-messages');
+    const area = document.getElementById('chat-area');
+    area.style.display = 'block';
+    const div = document.createElement('div');
+    div.className = 'msg ' + (sender === 'user' ? 'msg-user' : sender === 'loading' ? 'msg-loading' : 'msg-ai');
+    div.innerHTML = html;
+    if (sender === 'loading') div.id = 'msg-loading';
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
+    return div;
+  }
+
+  async function sendChatMessage() {
+    const inp = document.getElementById('chat-input');
+    const btn = document.getElementById('search-btn');
+    const q = inp.value.trim();
+    if (!q) return;
+    inp.value = '';
+    btn.classList.add('loading'); btn.disabled = true;
+    appendMsg('user', q);
+    appendMsg('loading', 'âŸ³ L\'IA analyse les donnÃ©es du portefeuille...');
+    try {
+      const res = await fetch('/api/assistant/question', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + localStorage.getItem('actuwise_token') },
+        body: JSON.stringify({ question: q })
+      });
+      const data = await res.json();
+      const loading = document.getElementById('msg-loading');
+      if (loading) loading.remove();
+      if (data.status === 'ok') {
+        let html = data.reponse || '';
+        if (data.sources && data.sources.length > 1) {
+          html += '<br><br><small style="opacity:0.6;font-size:11px;">ðŸ“š Sources: ' + data.sources.join(' Â· ') + '</small>';
+        }
+        appendMsg('ai', html);
+        if (data.web_links && data.web_links.length > 0) {
+          renderWebLinks(data.web_links);
+        }
+      } else {
+        appendMsg('ai', 'âš ï¸ ' + (data.reponse || 'Erreur inconnue'));
+      }
+    } catch(e) {
+      const loading = document.getElementById('msg-loading');
+      if (loading) loading.remove();
+      appendMsg('ai', 'âŒ Impossible de contacter le backend. VÃ©rifiez que FastAPI est dÃ©marrÃ© sur :8000.');
+    }
+    btn.classList.remove('loading'); btn.disabled = false;
+  }
+
+  function renderWebLinks(links) {
+    const area = document.getElementById('web-links-area');
+    area.innerHTML = '<div class="web-links-title">ðŸ”— Ressources suggÃ©rÃ©es</div><div class="web-links-grid">' +
+      links.map(l => `<a href="${l.url}" target="_blank" class="web-link-card">${l.icon || 'ðŸ”—'} ${l.title}</a>`).join('') +
+      '</div>';
+  }
+
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // SINISTRALITE
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  async function loadSinistralite() {
+    const res = document.getElementById('sin-result');
+    res.classList.remove('visible');
+    try {
+      const r = await fetch('/api/sinistralite', {
+        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('actuwise_token') }
+      });
+      const data = await r.json();
+      if (data.status === 'ok' && data.data) {
+        const recap = data.data.recap || {};
+        document.getElementById('sin-total').textContent = (recap.nb_sinistres_total || '4 792').toLocaleString('fr-FR');
+        document.getElementById('sin-badge').textContent = 'NORMAL';
+        document.getElementById('sin-badge').className = 'result-badge badge-excellent';
+        document.getElementById('sin-detail').innerHTML = buildDetailRows([
+          ['CoÃ»t total', (recap.cout_total || 23146000).toLocaleString('fr-FR') + ' TND'],
+          ['Moy. mensuel', (recap.nb_sinistres_moyen_mensuel || 66.6) + ' sinistres'],
+          ['FrÃ©quence', '18.6%'],
+          ['PÃ©riode', '2018â€“2023'],
+        ]);
