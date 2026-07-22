@@ -4,12 +4,15 @@ from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from jose import jwt
 import bcrypt
+import os
 from database import get_db
 from models_db import User
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
-SECRET_KEY = "ACTUWISE_SUPER_SECRET_KEY_JWT"
+SECRET_KEY = os.getenv("JWT_SECRET_KEY") or os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    raise RuntimeError("JWT_SECRET_KEY must be set in the environment.")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 # 24 hours
 
