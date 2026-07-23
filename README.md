@@ -5,79 +5,164 @@
 <h1 align="center">ACTUWISE Studio — Plateforme d'Intelligence Actuarielle 🚀</h1>
 
 <p align="center">
-  <strong>Projet de fin d'études — Actuariat & Data Science</strong><br>
-  <em>Une plateforme unifiée alliant Modélisation Actuarielle classique (Chain-Ladder, GLM), Machine Learning (XGBoost), Computer Vision (YOLOv8, CNN) et IA Générative (LLM RAG) pour l'assurance Non-Vie.</em>
+  <strong>Projet de Stage de 3ème année — Actuariat & Data Science Appliquée</strong><br>
+  <em>Une plateforme unifiée alliant Modélisation Actuarielle classique (Chain-Ladder, GLM), Machine Learning (XGBoost, CANN), Computer Vision (YOLOv8, CNN), Séries Temporelles (ARIMA, LSTM) et IA Générative (RAG + LLM) pour l'assurance Non-Vie.</em>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Python-3.10+-blue?logo=python" alt="Python"/>
-  <img src="https://img.shields.io/badge/FastAPI-0.110-009688?logo=fastapi" alt="FastAPI"/>
-  <img src="https://img.shields.io/badge/XGBoost-ML-orange?logo=xgboost" alt="XGBoost"/>
-  <img src="https://img.shields.io/badge/YOLOv8-Computer%20Vision-purple" alt="YOLOv8"/>
-  <img src="https://img.shields.io/badge/RAG-LLM%20Groq-black" alt="RAG"/>
-  <img src="https://img.shields.io/badge/License-MIT-green" alt="License"/>
+  <img src="https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white" alt="Python"/>
+  <img src="https://img.shields.io/badge/FastAPI-0.110-009688?logo=fastapi&logoColor=white" alt="FastAPI"/>
+  <img src="https://img.shields.io/badge/XGBoost-Gradient%20Boosting-FF6600" alt="XGBoost"/>
+  <img src="https://img.shields.io/badge/PyTorch-Deep%20Learning-EE4C2C?logo=pytorch&logoColor=white" alt="PyTorch"/>
+  <img src="https://img.shields.io/badge/YOLOv8-Computer%20Vision-8A2BE2" alt="YOLOv8"/>
+  <img src="https://img.shields.io/badge/RAG-Llama%203.3%20%7C%20Groq-000000" alt="RAG"/>
+  <img src="https://img.shields.io/badge/PostgreSQL-Database-4169E1?logo=postgresql&logoColor=white" alt="PostgreSQL"/>
+  <img src="https://img.shields.io/badge/License-MIT-22C55E" alt="License"/>
 </p>
 
 ---
 
 ## 📖 Overview
 
-This project was developed as part of the final-year internship program in **Actuarial Science & Applied Data Science**.
+This project was developed as part of a **3rd-year internship** in **Actuarial Science & Applied Data Science**.
 
-**ACTUWISE Studio** is a fully functional, end-to-end actuarial intelligence platform applied to a Tunisian automobile insurance portfolio. It bridges traditional actuarial mathematics with state-of-the-art Artificial Intelligence to automate, accelerate and explain the core tasks of a non-life insurance company: pricing, reserving, claims management, and regulatory reporting.
+**ACTUWISE Studio** is a fully functional, production-ready actuarial intelligence platform applied to a real Tunisian automobile insurance portfolio (6 years of data). It unifies classical actuarial mathematics with modern Artificial Intelligence into a single cohesive web application — covering the entire insurance value chain from strategic portfolio monitoring to individual claims processing.
 
-The platform demonstrates how modern data science and generative AI can be integrated into actuarial workflows — reducing processing time, improving IBNR estimation accuracy, and delivering explainable predictions to technical and management teams.
+The core challenge this project addresses is the growing gap between traditional actuarial methods (which remain the regulatory standard) and the new capabilities offered by machine learning and generative AI. ACTUWISE Studio bridges this gap by providing actuaries, underwriters and management with a single tool that is both mathematically rigorous and intelligently automated.
+
+### What makes this project different
+
+- **End-to-end coverage** — from raw claims data to final pricing recommendations, all in one platform
+- **Benchmark-driven model selection** — models are automatically selected based on measured performance (Gini coefficient, RMSE, log-likelihood)
+- **Explainability first** — every ML prediction is accompanied by SHAP values so actuaries understand what drives the result
+- **Real data** — built on an actual Tunisian automobile portfolio, not synthetic or toy datasets
+- **Regulatory alignment** — IBNR methods follow IFRS 17 and CGA (Comité Général des Assurances) standards
 
 ---
 
 ## ✨ Features
 
-- 📊 **Strategic Dashboard** — KPI monitoring (Loss Ratio, Combined Ratio, Claims Frequency, Average Cost) with dynamic ApexCharts visualizations
-- 🔢 **IBNR Reserving (Module 2)** — Chain-Ladder, Bornhuetter-Ferguson, Cape Cod methods on development triangles
-- 🎯 **Predictive Pricing (Module 3)** — Pure Premium modeling via GLM (Poisson/Gamma) and XGBoost with Bonus-Malus logic and SHAP explainability
-- 📈 **Time Series Forecasting (Module 4)** — ARIMA, SARIMA, LSTM neural network for claims frequency prediction
-- 🕵️ **Fraud Detection** — DBSCAN + KMeans unsupervised anomaly detection on claims data
-- 📷 **PhotoCar (Computer Vision)** — YOLOv8 damage detection on vehicle photos + XGBoost repair cost estimation
-- 📄 **SinistrIA (OCR + CNN)** — Automated extraction from accident reports (plates, VIN, driver ID) + CNN sketch classification for liability determination
-- 🤖 **AI Assistant (RAG)** — Retrieval-Augmented Generation chatbot over internal PDF documents (regulations, tariff schedules, IFRS 17 norms) powered by Llama 3.3 via Groq API
+### 📊 Module 1 — Dashboard Stratégique (Portfolio Monitoring)
+Real-time monitoring of the technical and financial health of the automobile portfolio:
+- **Loss Frequency** — tracking deviations from budget forecasts by year of occurrence
+- **Average Claims Cost** — detecting repair cost inflation and bodily injury impact
+- **Combined Ratio (S/P + Expenses)** — the key non-life insurance profitability indicator
+- **Monthly Trend Analysis** — 72-month time series of claims count and total cost (2018–2023)
+- **Cross-segmentation** — portfolio breakdown by usage (Private/Professional), geography (region), and fuel type (Gasoline/Diesel/GPL)
+- **Interactive charts** built with ApexCharts (bar, line, donut, heatmap)
+
+### 🔢 Module 2 — Provisionnement IBNR (Loss Reserving)
+Implementation of three actuarial reserving methods on development triangles:
+- **Chain-Ladder (CL)** — projection of ultimate loss using development factors
+- **Bornhuetter-Ferguson (BF)** — credibility-weighted blend of CL and a priori loss ratio
+- **Cape Cod (CC)** — iterative a priori estimation from observed data
+- **XGBoost Reserving** — ML-based triangle completion as an alternative benchmark
+- **Stress Testing** — 4 scenarios (Favorable / Base / Adverse / Very Adverse) for sensitivity analysis
+- **IFRS 17 alignment** — reserve methodology consistent with international insurance accounting standards
+
+### 🎯 Module 3 — Tarification Prédictive (Predictive Pricing)
+Full pure premium modeling pipeline with multiple competing approaches:
+- **GLM (Poisson frequency × Gamma severity)** — industry-standard frequency/severity split model
+- **XGBoost (Tweedie)** — gradient boosting with Tweedie distribution for compound claim cost
+- **CANN (Combined Actuarial Neural Network)** — PyTorch neural network combining GLM structure with deep learning
+- **Bonus-Malus System** — integration of the Tunisian CGA bonus-malus scale into pricing
+- **SHAP Explainability** — top 10 feature contributions for every prediction (driver age, vehicle age, power, region, etc.)
+- **Lorenz Curve & Gini Coefficient** — model discrimination power assessment
+- **K-Means Segmentation** — automated policyholder risk profiling (3–5 clusters)
+- **Automatic model selection** — platform auto-selects the best-performing model based on Gini score
+
+### 📈 Module 4 — Séries Temporelles (Claims Forecasting)
+Multi-model forecasting of monthly claims frequency and cost:
+- **ARIMA / SARIMA** — classical statistical time series with seasonality decomposition
+- **LSTM (Long Short-Term Memory)** — PyTorch recurrent neural network for non-linear patterns
+- **Prophet** — trend + seasonality decomposition (Facebook / Meta)
+- **12-month forward forecasts** with confidence intervals
+- **Anomaly alerts** — automatic flagging of months deviating significantly from forecasts
+
+### 🕵️ Module 5 — Détection de Fraude (Fraud Detection)
+Unsupervised anomaly detection on claims characteristics:
+- **DBSCAN** — density-based clustering to isolate outlier claims (potential fraud)
+- **KMeans** — behavioral segmentation of claimants
+- **Real-time scoring** — new claim scored instantly on submission
+- **Risk profiling** — visualization of high-risk claim profiles
+
+### 📄 Module 6 — SinistrIA (Smart Claims Declaration)
+AI-powered accident report processing:
+- **EasyOCR + pytesseract** — automatic text extraction from scanned documents (license plates, VIN, driver name, permit number, registration card)
+- **CNN (Convolutional Neural Network)** — classification of hand-drawn accident sketches from the French/Tunisian "Constat à l'Amiable" form into accident types: rear impact, intersection, parking, lane crossing, etc.
+- **Liability determination** — automatic responsibility assignment per CGA/IDA convention based on sketch classification
+- **Multi-document processing** — handles accident report, driving license and registration card simultaneously
+
+### 📷 Module 7 — PhotoCar (Vehicle Damage Assessment)
+Repair cost estimation from a single vehicle photo:
+- **YOLOv8 (Ultralytics)** — fine-tuned object detection model identifying damaged parts: bumper, fender, hood, door, windshield, headlight, mirror
+- **XGBoost cost estimator** — predicts repair cost in TND (Tunisian Dinar) from detected damage zones
+- **SHAP visualization** — shows exactly which damaged parts drive the cost estimate up or down
+- **Confidence scores** — detection probability per damaged component
+
+### 🤖 Module 8 — Assistant IA (RAG Chatbot)
+Specialized generative AI assistant for actuarial and insurance knowledge:
+- **Architecture** — Retrieval-Augmented Generation (RAG) combining TF-IDF / FAISS vector search with LLM generation
+- **Knowledge base** — indexed PDF documents: CGA circulars, IFRS 17 standard, annual reports, bonus-malus tables, tariff schedules
+- **LLM** — Llama 3.3 70B via Groq API (ultra-low latency inference)
+- **Source citation** — every answer references the exact document and page it was retrieved from
+- **Example queries** — *"How does the IBNR mechanism work?"*, *"What are the exclusion clauses for theft coverage?"*, *"Explain IFRS 17 CSM calculation"*
 
 ---
 
 ## 🏗️ Tech Stack
 
 ### Backend
-| Technology | Role |
-|---|---|
-| **Python 3.10+** | Core language |
-| **FastAPI** | REST API framework, async inference serving |
-| **Uvicorn** | ASGI server |
-| **SQLAlchemy + PostgreSQL** | Database ORM & persistence |
-| **Pydantic** | Data validation & schemas |
+| Technology | Version | Role |
+|---|---|---|
+| **Python** | 3.10+ | Core language |
+| **FastAPI** | 0.110+ | REST API framework, async ML inference serving |
+| **Uvicorn** | latest | ASGI production server |
+| **SQLAlchemy** | 2.x | Database ORM |
+| **PostgreSQL** | 14+ | Relational database (users, claims, audit logs) |
+| **Pydantic** | v2 | Request/response validation & schemas |
+| **python-dotenv** | latest | Environment variable management |
 
-### Machine Learning & Data Science
+### Machine Learning & Actuarial Science
 | Technology | Role |
 |---|---|
-| **XGBoost** | Pricing (frequency & severity), reserving, repair cost |
-| **scikit-learn** | GLM, KMeans, DBSCAN, preprocessing pipelines |
-| **pandas / numpy** | Data manipulation & actuarial calculations |
-| **SHAP** | Model explainability (feature importance) |
-| **statsmodels** | ARIMA / SARIMA time series models |
-| **PyTorch** | CANN (Combined Actuarial Neural Network), LSTM, CNN |
+| **XGBoost** | Pricing (frequency & severity), IBNR reserving, repair cost estimation |
+| **scikit-learn** | GLM, KMeans, DBSCAN, preprocessing pipelines, Lorenz curve |
+| **pandas / numpy** | Data manipulation, triangle calculations, actuarial aggregations |
+| **SHAP** | Model explainability — feature importance for every prediction |
+| **statsmodels** | ARIMA / SARIMA time series modeling |
+| **scipy** | Statistical distributions (Poisson, Gamma, Tweedie) |
 
-### Computer Vision & NLP
+### Deep Learning
 | Technology | Role |
 |---|---|
-| **Ultralytics YOLOv8** | Vehicle damage detection (object detection) |
-| **EasyOCR / pytesseract** | Text extraction from accident report documents |
-| **LangChain + FAISS / TF-IDF** | RAG retrieval pipeline over PDF documents |
-| **Groq API (Llama 3.3)** | Generative AI for the actuarial chatbot |
+| **PyTorch** | CANN (Combined Actuarial Neural Network), LSTM forecasting, CNN sketch classifier |
+| **torchvision** | CNN architecture for accident sketch classification |
+
+### Computer Vision & Document Processing
+| Technology | Role |
+|---|---|
+| **Ultralytics YOLOv8** | Vehicle damage detection — fine-tuned on automotive damage dataset |
+| **EasyOCR** | Deep learning-based OCR for French/Arabic accident report extraction |
+| **pytesseract** | Tesseract OCR wrapper for structured document fields |
+| **Pillow / OpenCV** | Image preprocessing and augmentation |
+
+### Generative AI & NLP
+| Technology | Role |
+|---|---|
+| **LangChain** | RAG orchestration pipeline |
+| **FAISS** | Dense vector similarity search over document embeddings |
+| **TF-IDF (scikit-learn)** | Sparse retrieval fallback for keyword-based search |
+| **Groq API** | Ultra-fast LLM inference (Llama 3.3 70B) |
+| **PyMuPDF / pdfplumber** | PDF text extraction and chunking |
 
 ### Frontend
 | Technology | Role |
 |---|---|
-| **HTML5 / CSS3 / Vanilla JS** | SPA interface with Glassmorphism design system |
-| **ApexCharts** | Interactive data visualizations |
-| **Static file serving via FastAPI** | No separate frontend server needed |
+| **HTML5 / CSS3** | Responsive SPA with Glassmorphism design system |
+| **Vanilla JavaScript (ES6+)** | Dynamic UI, API calls, state management |
+| **ApexCharts** | Interactive charts (bar, line, donut, heatmap, area) |
+| **Static serving via FastAPI** | No separate frontend server — served directly by the backend |
 
 ---
 
@@ -85,25 +170,57 @@ The platform demonstrates how modern data science and generative AI can be integ
 
 ```
 actuwise_app/
+│
 ├── backend/
-│   ├── main.py                  # FastAPI app entry point
-│   ├── routers/                 # API route modules (pricing, reserving, fraud, photocar, rag…)
-│   ├── services/                # Business logic & ML inference
-│   ├── schemas/                 # Pydantic request/response models
-│   ├── models/                  # Trained ML model files (excluded from git)
-│   ├── data/                    # CSV datasets (excluded from git)
-│   ├── documents_rag/           # PDF documents for RAG indexing
-│   ├── faiss_index/             # FAISS vector index (auto-generated)
-│   ├── database.py              # DB connection
+│   ├── main.py                      # FastAPI app — startup, middleware, static files, lifespan
+│   ├── database.py                  # SQLAlchemy engine & session factory
+│   ├── models_db.py                 # ORM models (User, Claim, AuditLog)
+│   │
+│   ├── routers/                     # API route modules
+│   │   ├── auth.py                  # JWT login / logout / token refresh
+│   │   ├── dashboard.py             # Module 1 — KPIs & portfolio analytics
+│   │   ├── provisionnement.py       # Module 2 — IBNR reserving endpoints
+│   │   ├── tarification.py          # Module 3 — Pricing & scoring
+│   │   ├── bonus_malus.py           # Bonus-Malus CGA scale logic
+│   │   ├── series_temporelles.py    # Module 4 — Forecasting
+│   │   ├── fraude.py                # Module 5 — Fraud detection
+│   │   ├── sinistria.py             # Module 6 — OCR + CNN claims
+│   │   ├── photocar.py              # Module 7 — YOLO damage assessment
+│   │   └── chatbot.py               # Module 8 — RAG assistant
+│   │
+│   ├── services/                    # Business logic & ML inference layer
+│   │   ├── data_loader.py           # CSV dataset loading & caching
+│   │   ├── model_loader.py          # ML model loading at startup
+│   │   ├── model_selector.py        # Automatic best-model selection
+│   │   ├── rag_service.py           # RAG pipeline (retrieval + generation)
+│   │   └── ocr_service.py           # OCR extraction logic
+│   │
+│   ├── schemas/                     # Pydantic input/output schemas
+│   ├── models/                      # Trained ML model files (excluded from git — see .gitignore)
+│   ├── data/                        # CSV actuarial datasets (excluded from git)
+│   ├── documents_rag/               # PDF knowledge base for RAG indexing
+│   ├── faiss_index/                 # Auto-generated FAISS vector index
+│   ├── app/models/                  # XGBoost JSON model artifacts
 │   └── requirements.txt
+│
 ├── frontend/
 │   └── public/
-│       ├── login.html
-│       ├── app.html             # Main SPA
-│       ├── dashboard.html       # Strategic dashboard
-│       └── js/                  # Dynamic chart scripts
-├── docs/                        # Architecture diagrams & screenshots
-├── run.bat                      # Windows one-click launcher
+│       ├── login.html               # Authentication page
+│       ├── app.html                 # Main SPA — all 8 modules
+│       ├── dashboard.html           # Strategic dashboard
+│       └── js/
+│           ├── dashboard-dynamic.js # Dashboard charts & KPI logic
+│           └── ...                  # Module-specific JS
+│
+├── docs/                            # Architecture diagrams & UI screenshots
+├── notebooks/                       # Jupyter notebooks for model training & EDA
+├── fraude_pipeline/                 # Standalone fraud detection pipeline scripts
+├── photocnn/                        # YOLO & CNN training scripts
+├── sinistre/                        # SinistrIA training data & model scripts
+│
+├── run.bat                          # Windows one-click launcher (port 8000)
+├── start.bat                        # Full-stack launcher (backend + frontend)
+├── install.bat                      # Automated setup (venv + pip install)
 └── README.md
 ```
 
@@ -112,67 +229,106 @@ actuwise_app/
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Python 3.10+
-- A [Groq API key](https://console.groq.com) (free tier available) for the AI Assistant
+
+- **Python 3.10+** — [Download](https://www.python.org/downloads/)
+- **PostgreSQL 14+** — [Download](https://www.postgresql.org/download/) (or use SQLite for local dev)
+- **Groq API key** — [Get one free](https://console.groq.com) (required for the AI Assistant module)
+- **Git** — to clone the repository
 
 ### Installation
 
 ```bash
 # 1. Clone the repository
 git clone https://github.com/Sarra-BenAttia/Actuwise.git
-cd Actuwise/backend
+cd Actuwise
+```
 
+**Option A — Automated setup (Windows)**
+```bash
+install.bat   # creates venv, installs all dependencies
+run.bat       # starts the server on port 8000
+```
+
+**Option B — Manual setup**
+```bash
 # 2. Create and activate a virtual environment
+cd backend
 python -m venv venv
 venv\Scripts\activate        # Windows
-# source venv/bin/activate   # Linux / macOS
+source venv/bin/activate     # Linux / macOS
 
-# 3. Install dependencies
+# 3. Install all dependencies
 pip install -r requirements.txt
 
 # 4. Configure environment variables
-cp .env.example .env
-# Edit .env and set: GROQ_API_KEY=your_key_here
+copy .env.example .env
+# Open .env and fill in:
+#   GROQ_API_KEY=your_groq_key_here
+#   DATABASE_URL=postgresql://user:password@localhost:5432/actuwise
+#   SECRET_KEY=your_jwt_secret
 
-# 5. Start the backend
+# 5. Start the server
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-**On Windows**, you can also use the one-click launcher:
-```bash
-run.bat
-```
-
 ### Access the Application
-Once the backend is running, open your browser at:
 
-👉 **http://localhost:8000/login.html**
+| URL | Description |
+|---|---|
+| http://localhost:8000/login.html | Application login page |
+| http://localhost:8000/app.html | Main platform (all 8 modules) |
+| http://localhost:8000/dashboard.html | Strategic dashboard |
+| http://localhost:8000/docs | Swagger UI — full API documentation |
+| http://localhost:8000/redoc | ReDoc — alternative API docs |
 
+**Default credentials:**
 ```
 Email    : actuaire@actuwise.com
 Password : admin123
 ```
 
-API documentation (Swagger UI): **http://localhost:8000/docs**
+---
+
+## 📊 Key Results & Model Performance
+
+| Module | Task | Model | Metric | Result |
+|---|---|---|---|---|
+| **M2 — Reserving** | IBNR estimation | Chain-Ladder | — | Selected as primary method |
+| **M3 — Pricing** | Pure premium | XGBoost (Tweedie) | Gini coefficient | **0.329** |
+| **M3 — Pricing** | Pure premium | GLM (Poisson/Gamma) | Gini coefficient | 0.247 |
+| **M3 — Pricing** | Pure premium | CANN (PyTorch) | Gini coefficient | benchmark |
+| **M5 — Fraud** | Anomaly detection | DBSCAN | — | Unsupervised clustering |
+| **M7 — PhotoCar** | Damage detection | YOLOv8 | mAP | Fine-tuned |
+| **M8 — RAG** | Answer retrieval | FAISS + Llama 3.3 | — | Source-cited answers |
+
+> XGBoost was automatically selected over GLM and CANN based on the highest Gini coefficient in the benchmark evaluation.
 
 ---
 
-## 📊 Key Results
+## 🔐 Environment Variables
 
-| Module | Method | Performance |
-|---|---|---|
-| **Reserving (M2)** | Chain-Ladder | Industry-standard IBNR estimation |
-| **Pricing (M3)** | XGBoost vs GLM | Gini = 0.329 (XGBoost selected) |
-| **Fraud Detection** | DBSCAN + KMeans | Unsupervised anomaly scoring |
-| **Forecasting (M4)** | ARIMA + LSTM | Claims frequency prediction |
+Create a `.env` file in the `backend/` folder based on `.env.example`:
+
+```env
+# AI Assistant
+GROQ_API_KEY=your_groq_api_key_here
+
+# Database
+DATABASE_URL=postgresql://postgres:password@localhost:5432/actuwise
+
+# Authentication
+SECRET_KEY=your_secret_key_for_jwt
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=60
+```
 
 ---
 
 ## 🎓 Acknowledgments
 
-This project was developed as a final-year research internship in Actuarial Science & Data Science, Tunis, Tunisia.
+This project was developed as a **3rd-year internship** in Actuarial Science & Data Science, Tunis, Tunisia.
 
-It was designed to demonstrate the convergence of classical actuarial methods and modern Artificial Intelligence in a production-ready platform for non-life insurance companies.
+It was designed to demonstrate how classical actuarial mathematics and modern Artificial Intelligence can converge into a single production-ready platform — reducing claims processing time, improving reserve accuracy, and delivering fully explainable pricing decisions to non-life insurance companies.
 
 ---
 
