@@ -105,12 +105,10 @@ uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 L'API sera disponible sur `http://localhost:8000`.
 
-### 2. Démarrer le Frontend (Dashboard & App)
-```bash
-cd frontend/public
-python -m http.server 3000
-```
-Ouvrez ensuite votre navigateur sur `http://localhost:3000/login.html`.
+### 2. Accès à l'Application (Frontend)
+L'interface utilisateur (HTML/CSS/JS) est servie directement par le backend FastAPI. 
+Une fois le backend lancé (étape 1), ouvrez simplement votre navigateur web et accédez à :
+👉 **http://localhost:8000/login.html** (ou **http://localhost:8000/app.html**)
 
 ---
 

@@ -21,6 +21,7 @@
       }
     });
   </script>
+  <script src="/src/plugins/apexcharts/apexcharts.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -176,6 +177,25 @@
     .dropdown.open .dropdown-menu { display: block; }
     .dropdown-item { color: black; padding: 12px 16px; text-decoration: none; display: block; background: none; border: none; width: 100%; text-align: left; cursor: pointer; font-size: 14px; font-weight: 500;}
     .dropdown-item:hover { background-color: #f1f5f9; border-radius: 8px; }
+    /* Provisioning dropdown and calculators */
+    .provision-dropdown { position:relative; }
+    .provision-toggle .provision-chevron { transition:transform .2s ease; }
+    .provision-dropdown.open .provision-chevron { transform:rotate(180deg); }
+    .provision-menu { display:none; position:absolute; top:calc(100% + 8px); left:0; min-width:260px; padding:8px; border:1px solid #d8e8da; border-radius:14px; background:#fff; box-shadow:0 14px 34px rgba(24,57,39,.14); z-index:300; }
+    .provision-dropdown.open .provision-menu { display:block; }
+    .provision-option { width:100%; display:flex; flex-direction:column; gap:2px; padding:11px 12px; border:0; border-radius:9px; background:transparent; color:#214d30; font:600 13px 'Inter',sans-serif; text-align:left; cursor:pointer; }
+    .provision-option small { color:#6e8774; font-size:11px; font-weight:500; }
+    .provision-option:hover, .provision-option.active { background:#eaf5ec; color:#007a41; }
+    .provision-option:hover small, .provision-option.active small { color:#3d8258; }
+    .provision-card { grid-template-columns:minmax(0,1fr) minmax(310px,.8fr); }
+    .provision-result { min-height:100%; padding:32px; border-radius:18px; background:linear-gradient(145deg,#183927,#007a41); color:#fff; display:flex; flex-direction:column; justify-content:center; }
+    .provision-result .result-label { color:rgba(255,255,255,.66); }
+    .provision-amount { margin:8px 0 4px; font-size:42px; font-weight:900; letter-spacing:-1.5px; }
+    .provision-detail { margin-top:18px; padding:14px; border-radius:10px; background:rgba(255,255,255,.1); color:rgba(255,255,255,.94); font-size:13px; line-height:1.55; }
+    .provision-warning { margin-top:16px; padding:11px 12px; border-radius:9px; background:rgba(255,255,255,.12); color:#e5f3e8; font-size:11px; line-height:1.45; }
+    .provision-error { display:none; margin-top:14px; padding:10px 12px; border-radius:9px; background:#fff0f0; color:#b42318; font-size:12px; font-weight:600; }
+    .provision-error.visible { display:block; }
+    @media (max-width:900px) { .provision-card { grid-template-columns:1fr; } .provision-menu { position:fixed; top:70px; left:20px; right:20px; min-width:0; } }
   </style>
 
 </head>
@@ -193,9 +213,17 @@
       <button class="nav-link" onclick="showSection('sinistralite')">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> Sinistralité
       </button>
-      <button class="nav-link" onclick="showSection('provisionnement')">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Provisionnement
-      </button>
+      <div class="provision-dropdown" id="provision-dropdown">
+        <button class="nav-link provision-toggle" type="button" onclick="toggleProvisionMenu()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Provisionnement
+          <svg class="provision-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="provision-menu" role="menu" aria-label="Types de provisions">
+          <button class="provision-option" type="button" onclick="openProvision('psap')">PSAP <small>Sinistres déclarés non réglés</small></button>
+          <button class="provision-option" type="button" onclick="openProvision('ibnr')">IBNR <small>Sinistres survenus non déclarés</small></button>
+          <button class="provision-option" type="button" onclick="openProvision('ppna')">PPNA <small>Primes non acquises</small></button>
+        </div>
+      </div>
       <button class="nav-link" onclick="showSection('modelisation')">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg> Modélisation
       </button>
@@ -358,6 +386,61 @@
       </div>
     </section>
 
+    <!-- ============================  PSAP  ============================ -->
+    <section id="section-provision-psap" class="section-panel">
+      <div class="module-header"><h1>PSAP — Provision pour Sinistres à Payer</h1><p>Estimation des sinistres déclarés encore non réglés.</p></div>
+      <div class="app-card provision-card">
+        <div class="form-section">
+          <h3>Données de calcul</h3>
+          <div class="form-grid">
+            <div class="form-group"><label>Sinistres en cours</label><input id="psap-count" type="number" min="1" step="1" placeholder="Ex. 125"></div>
+            <div class="form-group"><label>Coût moyen estimé (DT)</label><input id="psap-cost" type="number" min="0.01" step="0.01" placeholder="Ex. 4 500"></div>
+            <div class="form-group"><label>Marge de sécurité (%)</label><input id="psap-margin" type="number" min="0" step="0.1" value="10"></div>
+          </div>
+          <button class="btn-primary" type="button" onclick="calculatePSAP()">Calculer la PSAP</button>
+          <div class="provision-error" id="psap-error"></div>
+        </div>
+        <div class="provision-result" id="psap-result"><span class="result-label">Montant provisionné</span><div class="provision-amount">—</div><span class="result-sub">DT · PSAP estimée</span><div class="provision-detail">Saisissez les informations de sinistres pour obtenir l’estimation.</div><div class="provision-warning">Estimation actuarielle simplifiée, à ajuster avec les méthodes réglementaires complètes (ex. Chain Ladder pour l’IBNR) si besoin de précision réglementaire.</div></div>
+      </div>
+    </section>
+
+    <!-- ============================  IBNR  ============================ -->
+    <section id="section-provision-ibnr" class="section-panel">
+      <div class="module-header"><h1>IBNR — Incurred But Not Reported</h1><p>Estimation des sinistres survenus mais non encore déclarés.</p></div>
+      <div class="app-card provision-card">
+        <div class="form-section">
+          <h3>Données de calcul</h3>
+          <div class="form-grid">
+            <div class="form-group"><label>Polices actives</label><input id="ibnr-policies" type="number" min="1" step="1" placeholder="Ex. 10 000"></div>
+            <div class="form-group"><label>Fréquence historique (%)</label><input id="ibnr-frequency" type="number" min="0.01" max="100" step="0.01" placeholder="Ex. 6,5"></div>
+            <div class="form-group"><label>Coût moyen par sinistre (DT)</label><input id="ibnr-cost" type="number" min="0.01" step="0.01" placeholder="Ex. 3 800"></div>
+            <div class="form-group"><label>Délai de déclaration dépassé (%)</label><input id="ibnr-delay" type="number" min="0.01" max="100" step="0.01" placeholder="Ex. 12"></div>
+          </div>
+          <button class="btn-primary" type="button" onclick="calculateIBNR()">Calculer l’IBNR</button>
+          <div class="provision-error" id="ibnr-error"></div>
+        </div>
+        <div class="provision-result" id="ibnr-result"><span class="result-label">Montant provisionné</span><div class="provision-amount">—</div><span class="result-sub">DT · IBNR estimée</span><div class="provision-detail">Renseignez le portefeuille et les hypothèses de sinistralité.</div><div class="provision-warning">Estimation actuarielle simplifiée, à ajuster avec les méthodes réglementaires complètes (ex. Chain Ladder) si besoin de précision réglementaire.</div></div>
+      </div>
+    </section>
+
+    <!-- ============================  PPNA  ============================ -->
+    <section id="section-provision-ppna" class="section-panel">
+      <div class="module-header"><h1>PPNA — Provision pour Primes Non Acquises</h1><p>Part de prime encaissée couvrant une période future non encore écoulée.</p></div>
+      <div class="app-card provision-card">
+        <div class="form-section">
+          <h3>Données de calcul</h3>
+          <div class="form-grid">
+            <div class="form-group"><label>Prime annuelle (DT)</label><input id="ppna-premium" type="number" min="0.01" step="0.01" placeholder="Ex. 1 200"></div>
+            <div class="form-group"><label>Date de souscription / renouvellement</label><input id="ppna-start" type="date"></div>
+            <div class="form-group"><label>Date de calcul</label><input id="ppna-date" type="date"></div>
+          </div>
+          <button class="btn-primary" type="button" onclick="calculatePPNA()">Calculer la PPNA</button>
+          <div class="provision-error" id="ppna-error"></div>
+        </div>
+        <div class="provision-result" id="ppna-result"><span class="result-label">Montant provisionné</span><div class="provision-amount">—</div><span class="result-sub">DT · PPNA estimée</span><div class="provision-detail">Indiquez la prime et les dates de couverture annuelle.</div><div class="provision-warning">Estimation actuarielle simplifiée, à ajuster avec les méthodes réglementaires complètes (ex. Chain Ladder pour l’IBNR) si besoin de précision réglementaire.</div></div>
+      </div>
+    </section>
+
     <!-- ============================  MODELISATION  ============================ -->
     <section id="section-modelisation" class="section-panel">
       <div class="module-header">
@@ -373,8 +456,8 @@
             <div class="form-group"><label>Âge du véhicule (ans)</label><input id="m3-vage" type="number" value="5" min="0" max="30"></div>
             <div class="form-group"><label>Puissance fiscale (CV)</label><input id="m3-puissance" type="number" value="7" min="3" max="25"></div>
             <div class="form-group"><label>Ancienneté BM (ans)</label><input id="m3-bm" type="number" value="1" min="0" max="13"></div>
-            <div class="form-group"><label>Usage</label><select id="m3-usage"><option value="Privé">Privé</option><option value="Professionnel">Professionnel</option><option value="Commercial">Commercial</option></select></div>
-            <div class="form-group"><label>Énergie</label><select id="m3-energie"><option value="Essence">Essence</option><option value="Diesel">Diesel</option><option value="GPL">GPL</option></select></div>
+            <div class="form-group"><label>Usage</label><select id="m3-usage"><option value="Promenade et affaire">Privé</option><option value="Utilitaire I">Professionnel / commercial</option></select></div>
+            <div class="form-group"><label>Énergie</label><select id="m3-energie"><option value="Essence">Essence</option><option value="Diesel">Diesel</option><option value="Gaz">GPL</option><option value="Electrique">Électrique</option><option value="HYBRIDE">Hybride</option></select></div>
           </div>
           <button class="btn-primary" id="m3-btn" onclick="evaluateRisk()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
@@ -398,28 +481,40 @@
         <h1>Ratio Combiné (M5)</h1>
         <p>Indicateur de rentabilité technique par segment Usage × Énergie.</p>
       </div>
+      <!-- Simulation Card -->
       <div class="app-card">
         <div class="form-section">
-          <h3>Analyse de rentabilité</h3>
+          <h3>Simulation rapide</h3>
+          <p style="font-size:13px; color:var(--muted); margin-bottom:20px;">Estimez instantanément si la société est bénéficiaire ou non sur le plan technique.</p>
           <div class="form-grid">
-            <div class="form-group"><label>Année</label><select id="ratio-annee"><option>2023</option><option>2022</option><option>2021</option></select></div>
-            <div class="form-group"><label>Seuil d'alerte (%)</label><input id="ratio-seuil" type="number" value="100" min="80" max="130"></div>
+            <div class="form-group"><label>Ratio de sinistralité (%)</label><input id="sim-sinistralite" type="number" step="0.1" min="0" placeholder="Ex: 72.5"></div>
+            <div class="form-group"><label>Ratio de frais (%)</label><input id="sim-frais" type="number" step="0.1" min="0" placeholder="Ex: 25.0"></div>
           </div>
-          <button class="btn-primary" onclick="loadRatio()">
+          <button class="btn-primary" onclick="simulateRatio()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-            Charger le ratio
+            Calculer
           </button>
-          <div id="ratio-table-area" style="margin-top:28px; display:none;">
-            <p style="font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:12px;">Segmentation par Usage × Énergie</p>
-            <div id="ratio-table-container"></div>
-          </div>
         </div>
-        <div class="result-panel" id="ratio-result">
-          <span class="result-label">Ratio Combiné Global</span>
-          <div class="result-badge badge-excellent" id="ratio-badge">SAIN</div>
-          <div class="result-value" id="ratio-value">—</div>
-          <span class="result-sub">% · Portefeuille 2023</span>
-          <div class="result-detail" id="ratio-detail"></div>
+        <div class="result-panel" id="sim-ratio-result" style="justify-content: center;">
+          <span class="result-label">Verdict Technique</span>
+          <div class="result-badge" id="sim-ratio-badge">—</div>
+          <div class="result-value" id="sim-ratio-value">—</div>
+          <span class="result-sub">% · Total Combiné</span>
+          
+          <div style="width: 100%; margin-top: 16px;">
+            <div id="sim-ratio-text" style="font-size: 13px; color: rgba(255,255,255,0.9); margin-bottom: 16px; line-height: 1.5;"></div>
+            
+            <div style="width: 100%; height: 10px; background: rgba(255,255,255,0.1); border-radius: 5px; overflow: hidden; position: relative;">
+              <div id="sim-ratio-bar" style="height: 100%; width: 0%; transition: width 0.5s ease, background 0.5s ease;"></div>
+              <!-- Seuil 100% visuel (placé à 75% de la barre pour voir les dépassements) -->
+              <div style="position: absolute; left: 75%; margin-left: -1px; top: 0; bottom: 0; width: 2px; background: rgba(255,255,255,0.5);" title="Seuil de 100%"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 10px; color: rgba(255,255,255,0.5); margin-top: 4px; font-weight: 700;">
+              <span>0%</span>
+              <span style="position: relative; left: 12.5%;">100%</span>
+              <span>>130%</span>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -427,37 +522,117 @@
     <!-- ============================  TARIFICATION  ============================ -->
     <section id="section-tarification" class="section-panel">
       <div class="module-header">
-        <h1>Tarification Pure — Bonus Malus</h1>
-        <p>Calculez la prime pure d'un profil via le modèle XGBoost calibré.</p>
+        <h1>Simulateur Bonus-Malus</h1>
+        <p>Prédiction de trajectoire sur 3 ans basée sur le modèle de fréquence XGBoost (Module 3).</p>
       </div>
+
       <div class="app-card">
         <div class="form-section">
-          <h3>Profil du contrat</h3>
-          <form onsubmit="calcTarification(event)">
-            <div class="form-grid">
-              <div class="form-group"><label>Âge conducteur</label><input id="t-age" type="number" value="35" required></div>
-              <div class="form-group"><label>Âge véhicule (ans)</label><input id="t-vage" type="number" value="5" required></div>
-              <div class="form-group"><label>Puissance fiscale (CV)</label><input id="t-puissance" type="number" value="6" required></div>
-              <div class="form-group"><label>Valeur vénale (TND)</label><input id="t-valeur" type="number" value="30000" required></div>
-              <div class="form-group"><label>Classe Bonus-Malus</label><input id="t-bm" type="number" value="1" min="0" max="22" required></div>
-              <div class="form-group"><label>Usage</label><select id="t-usage"><option value="Privé">Privé</option><option value="Professionnel">Professionnel</option></select></div>
-              <div class="form-group"><label>Sexe conducteur</label><select id="t-sex"><option value="M">Masculin</option><option value="F">Féminin</option></select></div>
-              <div class="form-group"><label>Région</label><select id="t-region"><option value="Tunis">Tunis</option><option value="Sfax">Sfax</option><option value="Sousse">Sousse</option><option value="Bizerte">Bizerte</option></select></div>
-              <div class="form-group"><label>Énergie</label><select id="t-energie"><option value="Essence">Essence</option><option value="Diesel">Diesel</option><option value="GPL">GPL</option></select></div>
+          <h3>Profil de l'assuré</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Classe BM actuelle (0.50 – 3.50)</label>
+              <input id="bm-classe" type="number" step="0.05" min="0.5" max="3.5" value="1.00" required>
             </div>
-            <button type="submit" id="t-btn" class="btn-primary">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-              Calculer la Prime Pure
-            </button>
-            <div class="error-box" id="t-error"></div>
-          </form>
+            <div class="form-group">
+              <label>Ancienneté permis (années)</label>
+              <input id="bm-anciennete" type="number" step="1" min="0" max="60" value="10" required>
+            </div>
+            <div class="form-group">
+              <label>Sinistres responsables (3 ans)</label>
+              <input id="bm-sinistres" type="number" step="1" min="0" max="20" value="0" required>
+            </div>
+            <div class="form-group">
+              <label>Puissance fiscale (CV)</label>
+              <input id="bm-puissance" type="number" step="1" min="1" max="30" value="6" required>
+            </div>
+            <div class="form-group">
+              <label>Région</label>
+              <select id="bm-region">
+                <option value="TUNIS">Tunis</option>
+                <option value="SFAX">Sfax</option>
+                <option value="SOUSSE">Sousse</option>
+                <option value="ARIANA">Ariana</option>
+                <option value="BEN AROUS">Ben Arous</option>
+                <option value="BIZERTE">Bizerte</option>
+                <option value="NABEUL">Nabeul</option>
+                <option value="MONASTIR">Monastir</option>
+                <option value="GABES">Gabès</option>
+                <option value="KAIROUAN">Kairouan</option>
+                <option value="GAFSA">Gafsa</option>
+                <option value="KASSERINE">Kasserine</option>
+                <option value="SIDI BOUZID">Sidi Bouzid</option>
+                <option value="MAHDIA">Mahdia</option>
+                <option value="BEJA">Béja</option>
+                <option value="JENDOUBA">Jendouba</option>
+                <option value="SILIANA">Siliana</option>
+                <option value="KEF">Kef</option>
+                <option value="KEBILI">Kébili</option>
+                <option value="MEDENINE">Médenine</option>
+                <option value="TATAOUINE">Tataouine</option>
+                <option value="TOZEUR">Tozeur</option>
+                <option value="ZAGHOUAN">Zaghouan</option>
+                <option value="MANOUBA">Manouba</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Prime annuelle actuelle (TND)</label>
+              <input id="bm-prime" type="number" step="10" min="0" value="1200" required>
+            </div>
+          </div>
+          <button class="btn-primary" onclick="simulateBonusMalus()" id="bm-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            Simuler la trajectoire
+          </button>
+          <div class="error-box" id="bm-error" style="display:none;"></div>
         </div>
-        <div class="result-panel" id="t-result">
-          <span class="result-label">Prime Pure Estimée</span>
-          <div class="result-badge badge-excellent" id="t-badge">CALCULÉE</div>
-          <div class="result-value" id="t-prime">—</div>
-          <span class="result-sub">TND · Modèle XGBoost</span>
-          <div class="result-detail" id="t-detail"></div>
+      </div>
+
+      <!-- Résultats -->
+      <div id="bm-results" style="display:none; margin-top:28px;">
+
+        <!-- Probabilité IA -->
+        <div class="app-card" style="margin-bottom:20px; border-left: 4px solid #16a34a;">
+          <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+            <div>
+              <p style="font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:4px;">Probabilité de sinistre (Modèle IA)</p>
+              <div style="display:flex; align-items:baseline; gap:8px;">
+                <span id="bm-proba-val" style="font-size:42px; font-weight:800; color:var(--primary);">—</span>
+                <span style="font-size:20px; color:var(--muted);">%</span>
+              </div>
+            </div>
+            <div style="flex:1; min-width:200px; background:rgba(22,163,74,0.08); border-radius:12px; padding:12px 16px;">
+              <p style="font-size:12px; color:var(--muted); margin:0;">
+                ⚠️ <strong>Avertissement actuariel :</strong> Cette probabilité est une estimation statistique basée sur un modèle XGBoost entraîné sur le portefeuille. Elle ne constitue pas une garantie individuelle et ne tient pas compte des facteurs comportementaux non observables.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Graphique des trajectoires -->
+        <div class="app-card" style="margin-bottom:20px;">
+          <h3 style="margin-bottom:16px;">Trajectoires du coefficient BM sur 3 ans</h3>
+          <div id="bm-chart" style="height:280px;"></div>
+        </div>
+
+        <!-- Tableau récapitulatif -->
+        <div class="app-card">
+          <h3 style="margin-bottom:16px;">Récapitulatif par scénario</h3>
+          <div style="overflow-x:auto;">
+            <table style="width:100%; border-collapse:collapse; font-size:13px;">
+              <thead>
+                <tr style="border-bottom:2px solid var(--border);">
+                  <th style="text-align:left; padding:10px 12px; color:var(--muted); font-weight:700; text-transform:uppercase; font-size:11px; letter-spacing:0.5px;">Scénario</th>
+                  <th style="text-align:right; padding:10px 12px; color:var(--muted); font-weight:700; text-transform:uppercase; font-size:11px; letter-spacing:0.5px;">BM An 1</th>
+                  <th style="text-align:right; padding:10px 12px; color:var(--muted); font-weight:700; text-transform:uppercase; font-size:11px; letter-spacing:0.5px;">BM An 2</th>
+                  <th style="text-align:right; padding:10px 12px; color:var(--muted); font-weight:700; text-transform:uppercase; font-size:11px; letter-spacing:0.5px;">BM An 3</th>
+                  <th style="text-align:right; padding:10px 12px; color:var(--muted); font-weight:700; text-transform:uppercase; font-size:11px; letter-spacing:0.5px;">Variation Prime</th>
+                  <th style="text-align:right; padding:10px 12px; color:var(--muted); font-weight:700; text-transform:uppercase; font-size:11px; letter-spacing:0.5px;">Prime Finale (TND)</th>
+                </tr>
+              </thead>
+              <tbody id="bm-table-body"></tbody>
+            </table>
+          </div>
         </div>
       </div>
     </section>
@@ -740,6 +915,111 @@
   //
   // NAVIGATION
   //
+  function toggleProvisionMenu() {
+    document.getElementById('provision-dropdown').classList.toggle('open');
+  }
+
+  function closeProvisionMenu() {
+    document.getElementById('provision-dropdown').classList.remove('open');
+  }
+
+  function openProvision(type) {
+    showSection('provision-' + type);
+    document.querySelectorAll('.provision-option').forEach((item) => item.classList.remove('active'));
+    const selected = document.querySelector(`.provision-option[onclick="openProvision('${type}')"]`);
+    if (selected) selected.classList.add('active');
+    closeProvisionMenu();
+  }
+
+  function amount(value) {
+    return value.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function readPositive(id) {
+    const input = document.getElementById(id);
+    const value = Number(input.value);
+    return Number.isFinite(value) && value > 0 ? value : null;
+  }
+
+  function showProvisionError(id, message) {
+    const error = document.getElementById(id);
+    error.textContent = message;
+    error.classList.add('visible');
+  }
+
+  function clearProvisionError(id) {
+    const error = document.getElementById(id);
+    error.textContent = '';
+    error.classList.remove('visible');
+  }
+
+  function setProvisionResult(id, value, detail) {
+    const result = document.getElementById(id);
+    result.querySelector('.provision-amount').textContent = amount(value);
+    result.querySelector('.provision-detail').innerHTML = detail;
+  }
+
+  function calculatePSAP() {
+    clearProvisionError('psap-error');
+    const count = readPositive('psap-count');
+    const cost = readPositive('psap-cost');
+    const marginInput = document.getElementById('psap-margin');
+    const margin = Number(marginInput.value);
+    if (!count || !cost || !Number.isFinite(margin) || margin < 0) {
+      showProvisionError('psap-error', 'Veuillez saisir des valeurs positives. La marge de sécurité peut être égale à 0%.');
+      return;
+    }
+    const total = count * cost * (1 + margin / 100);
+    setProvisionResult('psap-result', total, `<strong>Calcul :</strong> ${count.toLocaleString('fr-FR')} sinistres × ${amount(cost)} DT × (1 + ${margin.toLocaleString('fr-FR')} / 100)<br><strong>PSAP estimée :</strong> ${amount(total)} DT`);
+  }
+
+  function calculateIBNR() {
+    clearProvisionError('ibnr-error');
+    const policies = readPositive('ibnr-policies');
+    const frequency = readPositive('ibnr-frequency');
+    const cost = readPositive('ibnr-cost');
+    const delay = readPositive('ibnr-delay');
+    if (!policies || !frequency || frequency > 100 || !cost || !delay || delay > 100) {
+      showProvisionError('ibnr-error', 'Veuillez saisir des valeurs positives. Les pourcentages doivent être compris entre 0 et 100.');
+      return;
+    }
+    const total = policies * (frequency / 100) * cost * (delay / 100);
+    setProvisionResult('ibnr-result', total, `<strong>Calcul :</strong> ${policies.toLocaleString('fr-FR')} polices × ${frequency.toLocaleString('fr-FR')}% × ${amount(cost)} DT × ${delay.toLocaleString('fr-FR')}%<br><strong>IBNR estimée :</strong> ${amount(total)} DT`);
+  }
+
+  function calculatePPNA() {
+    clearProvisionError('ppna-error');
+    const premium = readPositive('ppna-premium');
+    const startValue = document.getElementById('ppna-start').value;
+    const calculationValue = document.getElementById('ppna-date').value;
+    if (!premium || !startValue || !calculationValue) {
+      showProvisionError('ppna-error', 'Veuillez saisir une prime positive et les deux dates de couverture.');
+      return;
+    }
+    const start = new Date(`${startValue}T00:00:00`);
+    const calculation = new Date(`${calculationValue}T00:00:00`);
+    if (Number.isNaN(start.getTime()) || Number.isNaN(calculation.getTime())) {
+      showProvisionError('ppna-error', 'Les dates saisies ne sont pas valides.');
+      return;
+    }
+    const expiry = new Date(start);
+    expiry.setFullYear(calculation.getFullYear());
+    if (expiry <= calculation) expiry.setFullYear(expiry.getFullYear() + 1);
+    const daysRemaining = Math.max(0, Math.ceil((expiry - calculation) / 86400000));
+    const total = premium * (daysRemaining / 365);
+    setProvisionResult('ppna-result', total, `<strong>Calcul :</strong> ${amount(premium)} DT × (${daysRemaining} jours restants / 365)<br><strong>Échéance annuelle :</strong> ${expiry.toLocaleDateString('fr-FR')}<br><strong>PPNA estimée :</strong> ${amount(total)} DT`);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const today = new Date().toISOString().slice(0, 10);
+    const dateInput = document.getElementById('ppna-date');
+    if (dateInput) dateInput.value = today;
+    document.addEventListener('click', (event) => {
+      const dropdown = document.getElementById('provision-dropdown');
+      if (dropdown && !dropdown.contains(event.target)) closeProvisionMenu();
+    });
+  });
+
   function showSection(name) {
     document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
@@ -826,41 +1106,57 @@
   async function loadSinistralite() {
     const res = document.getElementById('sin-result');
     res.classList.remove('visible');
-    const garantie = document.getElementById('sin-garantie').value;
+    const segment = document.getElementById('sin-segment').value;
     const annee = document.getElementById('sin-annee').value;
-    const type_sinistre = document.getElementById('sin-type-sin').value;
     try {
-      const r = await fetch('/api/sinistralite/analyser', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + localStorage.getItem('actuwise_token') },
-        body: JSON.stringify({ garantie, annee, type_sinistre })
+      const r = await fetch('/api/sinistralite', {
+        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('actuwise_token') }
       });
+      if (!r.ok) throw new Error('Erreur serveur : ' + r.status);
       const data = await r.json();
-      if (data.status === 'ok') {
-        const kpis = data.kpis || {};
-        document.getElementById('sin-total').textContent = (kpis.nb_sinistres || 0).toLocaleString('fr-FR');
+      if (data.status === 'ok' && data.data) {
+        const source = data.data;
+        const selectedSeries = (source.serie_mensuelle || []).filter(row =>
+          annee === '2018-2023' || Number(row.annee) === Number(annee)
+        );
+        if (!selectedSeries.length) throw new Error('Aucune donnée disponible pour cette période.');
+
+        const nbSinistres = selectedSeries.reduce((total, row) => total + Number(row.nb_sinistres || 0), 0);
+        const coutTotal = selectedSeries.reduce((total, row) => total + Number(row.cout_total || 0), 0);
+        const coutMoyen = nbSinistres ? coutTotal / nbSinistres : 0;
+        const anneeReference = annee === '2018-2023' ? null : (source.ratio_combine_annuel || []).find(row => Number(row.annee) === Number(annee));
+        const ratioSP = anneeReference ? Number(anneeReference.ratio_sinistres || 0) : 0;
+
+        document.getElementById('sin-total').textContent = nbSinistres.toLocaleString('fr-FR');
         let badgeClass = 'badge-excellent', badgeText = 'NORMAL';
-        if (kpis.ratio_sinistres > 0.8) { badgeClass = 'badge-danger'; badgeText = 'CRITIQUE'; }
-        else if (kpis.ratio_sinistres > 0.6) { badgeClass = 'badge-warning'; badgeText = 'ATTENTION'; }
+        if (ratioSP > 80) { badgeClass = 'badge-danger'; badgeText = 'CRITIQUE'; }
+        else if (ratioSP > 60) { badgeClass = 'badge-warning'; badgeText = 'ATTENTION'; }
         document.getElementById('sin-badge').textContent = badgeText;
         document.getElementById('sin-badge').className = 'result-badge ' + badgeClass;
         document.getElementById('sin-detail').innerHTML = buildDetailRows([
-          ['Coût total', (kpis.cout_total || 0).toLocaleString('fr-FR') + ' TND'],
-          ['Coût moyen', (kpis.cout_moyen || 0).toLocaleString('fr-FR') + ' TND'],
-          ['Fréquence', ((kpis.frequence || 0) * 100).toFixed(2) + '%'],
-          ['Ratio S/P', ((kpis.ratio_sinistres || 0) * 100).toFixed(2) + '%'],
-          ['Corporels', (kpis.pct_corporels || 0).toFixed(1) + '%'],
-          ['Délai moy.', (kpis.delai_moyen || 0).toFixed(1) + ' j'],
+          ['Coût total', coutTotal.toLocaleString('fr-FR', { maximumFractionDigits: 0 }) + ' TND'],
+          ['Coût moyen', coutMoyen.toLocaleString('fr-FR', { maximumFractionDigits: 0 }) + ' TND'],
+          ['Moyenne mensuelle', (nbSinistres / selectedSeries.length).toLocaleString('fr-FR', { maximumFractionDigits: 0 }) + ' sinistres'],
+          ['Ratio S/P', ratioSP ? ratioSP.toFixed(1) + '%' : 'Non disponible'],
+          ['Période analysée', annee],
         ]);
         res.classList.add('visible');
-        if (data.par_garantie && data.par_garantie.length > 0) {
-          renderTable('sin-table-container', data.par_garantie);
-          document.getElementById('sin-table-area').style.display = 'block';
-        }
+
+        const tableTitle = document.querySelector('#sin-table-area p');
+        const records = segment === 'garantie' ? source.par_garantie
+          : segment === 'annee' ? source.par_annee
+          : selectedSeries.map(row => ({ mois: row.date, sinistres: row.nb_sinistres, coût_total_TND: row.cout_total, coût_moyen_TND: row.cout_moyen }));
+        tableTitle.textContent = segment === 'garantie' ? 'Sinistralité par garantie'
+          : segment === 'annee' ? 'Sinistralité par année'
+          : 'Évolution mensuelle de la sinistralité';
+        renderTable('sin-table-container', records);
+        document.getElementById('sin-table-area').style.display = 'block';
+      } else {
+        throw new Error(data.message || 'Données indisponibles.');
       }
     } catch(e) {
       document.getElementById('sin-total').textContent = 'Erreur';
-      document.getElementById('sin-detail').innerHTML = buildDetailRows([['Note','Erreur de connexion backend']]);
+      document.getElementById('sin-detail').innerHTML = buildDetailRows([['Note', e.message || 'Erreur de connexion backend']]);
       res.classList.add('visible');
     }
   }
@@ -978,7 +1274,7 @@
 
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + localStorage.getItem('actuwise_token') },
 
-        body: JSON.stringify({ ...payload, 'Valeur venale': 25000, 'CLI_SEX': 'M', Region: 'Tunis' })
+        body: JSON.stringify({ ...payload, 'Valeur venale': 25000, 'CLI_SEX': 'M', Region: 'TUNIS' })
 
       });
 
@@ -1031,6 +1327,234 @@
   // RATIO COMBINÉ
 
   // ──────────────────────────────────────────────
+
+  function simulateRatio() {
+    const sinInput = document.getElementById('sim-sinistralite').value;
+    const fraisInput = document.getElementById('sim-frais').value;
+    
+    if (!sinInput || !fraisInput) {
+      alert("Veuillez remplir les deux champs avec des valeurs numériques positives.");
+      return;
+    }
+    
+    const sin = parseFloat(sinInput);
+    const frais = parseFloat(fraisInput);
+    
+    if (isNaN(sin) || isNaN(frais) || sin < 0 || frais < 0) {
+      alert("Veuillez saisir des valeurs numériques positives.");
+      return;
+    }
+    
+    const total = sin + frais;
+    const resultPanel = document.getElementById('sim-ratio-result');
+    const badge = document.getElementById('sim-ratio-badge');
+    const valObj = document.getElementById('sim-ratio-value');
+    const textObj = document.getElementById('sim-ratio-text');
+    const bar = document.getElementById('sim-ratio-bar');
+    
+    resultPanel.classList.add('visible');
+    
+    valObj.textContent = total.toFixed(1);
+    
+    let verdict = "";
+    let badgeClass = "result-badge ";
+    let explanation = "";
+    let color = "";
+    
+    if (total < 100) {
+      verdict = "BÉNÉFICIAIRE";
+      badgeClass += "badge-excellent";
+      color = "#6ee7c1";
+      const marge = (100 - total).toFixed(1);
+      explanation = `Pour 100 DT de primes encaissées, la société dépense ${total.toFixed(1)} DT en sinistres et frais. Il reste <strong>${marge} DT</strong> de marge technique.`;
+    } else if (total === 100) {
+      verdict = "À L'ÉQUILIBRE";
+      badgeClass += "badge-warning";
+      color = "#fcd34d";
+      explanation = `Pour 100 DT de primes encaissées, la société dépense exactement 100 DT en sinistres et frais. Le résultat technique est nul.`;
+    } else {
+      verdict = "DÉFICITAIRE";
+      badgeClass += "badge-danger";
+      color = "#ef4444";
+      const deficit = (total - 100).toFixed(1);
+      explanation = `Pour 100 DT de primes encaissées, la société dépense ${total.toFixed(1)} DT en sinistres et frais. Il manque <strong>${deficit} DT</strong> (déficit technique).`;
+    }
+    
+    badge.className = badgeClass;
+    badge.textContent = verdict;
+    textObj.innerHTML = explanation;
+    
+    let widthPct = (total / 100) * 75;
+    if (widthPct > 100) widthPct = 100;
+    
+    bar.style.width = widthPct + '%';
+    bar.style.background = color;
+  }
+
+
+  // ──────────────────────────────────────────────
+  // BONUS-MALUS SIMULATOR
+  // ──────────────────────────────────────────────
+  let _bmChart = null;
+
+  async function simulateBonusMalus() {
+    const btn = document.getElementById('bm-btn');
+    const errBox = document.getElementById('bm-error');
+    errBox.style.display = 'none';
+
+    const classeRaw = parseFloat(document.getElementById('bm-classe').value);
+    const anciennete = parseFloat(document.getElementById('bm-anciennete').value);
+    const sinistres = parseInt(document.getElementById('bm-sinistres').value, 10);
+    const puissance = parseFloat(document.getElementById('bm-puissance').value);
+    const region = document.getElementById('bm-region').value;
+    const prime = parseFloat(document.getElementById('bm-prime').value);
+
+    // Validation
+    if (isNaN(classeRaw) || classeRaw < 0.5 || classeRaw > 3.5) {
+      errBox.textContent = 'La classe BM doit être comprise entre 0.50 et 3.50.';
+      errBox.style.display = 'block';
+      return;
+    }
+    if (isNaN(anciennete) || anciennete < 0) {
+      errBox.textContent = "L'ancienneté du permis doit être positive.";
+      errBox.style.display = 'block';
+      return;
+    }
+    if (isNaN(sinistres) || sinistres < 0) {
+      errBox.textContent = 'Le nombre de sinistres doit être positif ou nul.';
+      errBox.style.display = 'block';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Simulation en cours…';
+
+    try {
+      const res = await fetch('/api/bonus-malus/simulate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.getItem('actuwise_token')
+        },
+        body: JSON.stringify({
+          classe_bm: classeRaw,
+          anciennete_permis: anciennete,
+          nb_sinistres_3ans: sinistres,
+          puissance_fiscale: puissance,
+          region: region,
+          prime_actuelle: prime
+        })
+      });
+
+      if (!res.ok) throw new Error('Erreur serveur: ' + res.status);
+      const data = await res.json();
+      _renderBmResults(data);
+
+    } catch (e) {
+      errBox.textContent = 'Impossible de contacter le backend. Vérifiez que FastAPI est démarré sur :8000.';
+      errBox.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Simuler la trajectoire';
+    }
+  }
+
+  function _renderBmResults(data) {
+    const panel = document.getElementById('bm-results');
+    panel.style.display = 'block';
+
+    // Probabilité
+    const proba = data.proba_sinistre;
+    document.getElementById('bm-proba-val').textContent = (proba * 100).toFixed(1);
+
+    const scens = data.scenarios;
+    const years = data.years;
+
+    // ── Graphique ApexCharts ──────────────────────────────────────────────
+    const seriesData = [
+      {
+        name: 'Aucun sinistre',
+        data: scens.no_claim.trajectory,
+        color: '#16a34a'
+      },
+      {
+        name: '1 sinistre responsable',
+        data: scens.one_claim.trajectory,
+        color: '#ef4444'
+      },
+      {
+        name: 'Scénario probable (IA)',
+        data: scens.probable.trajectory,
+        color: '#f59e0b'
+      }
+    ];
+
+    const chartOptions = {
+      series: seriesData,
+      chart: {
+        type: 'line',
+        height: 280,
+        background: 'transparent',
+        toolbar: { show: false },
+        animations: { enabled: true, speed: 600 }
+      },
+      stroke: { curve: 'smooth', width: 3 },
+      markers: { size: 6 },
+      xaxis: {
+        categories: ['Aujourd\'hui', 'An 1', 'An 2', 'An 3'],
+        labels: { style: { colors: '#9ca3af', fontSize: '12px' } }
+      },
+      yaxis: {
+        min: 0.3,
+        max: 3.8,
+        labels: {
+          style: { colors: '#9ca3af', fontSize: '12px' },
+          formatter: (v) => v.toFixed(2)
+        },
+        title: { text: 'Coefficient BM', style: { color: '#9ca3af' } }
+      },
+      grid: { borderColor: '#e6efe9', strokeDashArray: 4 },
+      legend: {
+        labels: { colors: '#365343' },
+        position: 'top'
+      },
+      tooltip: {
+        theme: 'light',
+        y: { formatter: (v) => v.toFixed(2) }
+      }
+    };
+
+    if (_bmChart) { _bmChart.destroy(); _bmChart = null; }
+    const chartEl = document.getElementById('bm-chart');
+    chartEl.innerHTML = '';
+    if (window.ApexCharts) {
+      _bmChart = new ApexCharts(chartEl, chartOptions);
+      _bmChart.render();
+    }
+
+    // ── Tableau récapitulatif ─────────────────────────────────────────────
+    const tbody = document.getElementById('bm-table-body');
+    const rows = [
+      { name: '🟢 Aucun sinistre', color: '#16a34a', s: scens.no_claim },
+      { name: '🔴 1 sinistre responsable', color: '#ef4444', s: scens.one_claim },
+      { name: '🟡 Scénario probable (IA)', color: '#f59e0b', s: scens.probable }
+    ];
+
+    tbody.innerHTML = rows.map(r => {
+      const traj = r.s.trajectory;
+      const pv = r.s.prime_variation;
+      const sign = pv.pct >= 0 ? '+' : '';
+      const pvColor = pv.pct > 0 ? '#ef4444' : pv.pct < 0 ? '#16a34a' : '#9ca3af';
+      return `<tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:12px; font-weight:600;">${r.name}</td>
+        <td style="padding:12px; text-align:right;">${traj[1].toFixed(2)}</td>
+        <td style="padding:12px; text-align:right;">${traj[2].toFixed(2)}</td>
+        <td style="padding:12px; text-align:right; font-weight:700; color:${r.color};">${traj[3].toFixed(2)}</td>
+        <td style="padding:12px; text-align:right; font-weight:700; color:${pvColor};">${sign}${pv.pct}%</td>
+        <td style="padding:12px; text-align:right; font-weight:700;">${pv.prime_finale.toFixed(0)} TND</td>
+      </tr>`;
+    }).join('');
+  }
 
   async function loadRatio() {
 
@@ -1087,7 +1611,7 @@
 
       document.getElementById('ratio-value').textContent = '97%';
 
-      document.getElementById('ratio-detail').innerHTML = buildDetailRows([['Note','Mode démo']]);
+      document.getElementById('ratio-detail').innerHTML = '';
 
       res.classList.add('visible');
 

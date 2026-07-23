@@ -31,6 +31,16 @@ backend/models/*.pt
 backend/faiss_index/index.faiss
 backend/faiss_index/index.pkl
 backend/documents_rag/*.pdf
+fraude_pipeline/data/
+fraude_pipeline/models/
+fraude_pipeline/outputs/
+photocnn/*.pkl
+photocnn/*.pt
+sinistre/data_croquis/
+sinistre/models/*.pth
+backend/resultats/
+backend/faiss_index/*.pkl
+backend/models/*.pth
 
 # --- MAIS conserver les READMEs ---
 !backend/data/README.md
@@ -68,3 +78,16 @@ frontend/dist/
 .pytest_cache/
 htmlcov/
 .coverage
+
+# --- Local data, model artefacts and generated results ---
+backend/data/
+backend/resultats/
+backend/faiss_index/*.pkl
+backend/models/*.pth
+fraude_pipeline/data/
+fraude_pipeline/models/
+fraude_pipeline/outputs/
+photocnn/*.pkl
+photocnn/*.pt
+sinistre/data_croquis/
+sinistre/models/*.pth

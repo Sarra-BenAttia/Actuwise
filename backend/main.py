@@ -33,7 +33,7 @@ from services.data_loader import load_all_data
 from services.model_selector import select_all_models
 
 # Importation des routers
-from routers import stats, sinistralite, provisionnement, modelisation, forecast, ratio_combine, prediction, assistant, auth, tarification, fraude, photocar, sinistria
+from routers import stats, sinistralite, provisionnement, modelisation, forecast, ratio_combine, prediction, assistant, auth, tarification, fraude, photocar, sinistria, bonus_malus
 
 # Importation DB
 from database import engine, Base, SessionLocal
@@ -178,8 +178,11 @@ app.include_router(assistant.router, prefix="/api", tags=["Module 6 — Assistan
 # Router Auth
 app.include_router(auth.router, prefix="/api", tags=["Auth"])
 
-# Router Tarification (Bonus Malus)
+# Router Tarification (Prime Pure)
 app.include_router(tarification.router, prefix="/api", tags=["Tarification"])
+
+# Router Bonus-Malus (Simulateur de trajectoire)
+app.include_router(bonus_malus.router, prefix="/api", tags=["Bonus-Malus"])
 
 # Router Détection de fraude
 app.include_router(fraude.router, prefix="/api/fraude", tags=["Module Fraude"])

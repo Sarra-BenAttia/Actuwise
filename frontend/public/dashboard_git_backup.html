@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BIAT Assurance — Tableau de Bord Actuariel</title>
+  <title>BIAT Assurance ÔÇö Tableau de Bord Actuariel</title>
   
   <!-- Protection de la route (JWT Check) -->
   <script>
@@ -42,7 +42,7 @@
       };
 
       try {
-        const res = await fetch('/api/tarification/score', {
+        const res = await fetch('http://localhost:8000/api/tarification/score', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -71,26 +71,26 @@
   </script>
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="dashboard.css?v=6">
+  <link rel="stylesheet" href="dashboard.css?v=7">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      /* Palette BIAT - thème vert exécutif */
-      --navy:        #183927; /* vert profond */
+      /* Palette BIAT - th├¿me vert ex├®cutif */
+      --navy:        #0d2b1f; /* sidebar dark petrol */
       --navy-dark:   #082117;
       --navy-mid:    #123827;
-      --blue:        #183927; /* vert profond principal */
+      --blue:        #1b5e3a; /* principal vert */
       --blue-light:  #d4ecd9; /* vert clair */
       --pink:        #e91e8c;
       --pink-light:  #fce7f3;
-      --accent:      #2f8a55; /* accent vert secondaire */
+      --accent:      #2e7d4f; /* accent vert secondaire */
       --success:     #16a34a;
       --danger:      #ef4444;
       --warning:     #f59e0b;
-      --bg:          #f5f7f6; /* fond général très clair */
+      --bg:          #f5f7f6; /* fond g├®n├®ral tr├¿s clair */
       --white:       #ffffff;
-      --sidebar-bg:  linear-gradient(180deg,#183927 0%, #0f5b35 100%);
+      --sidebar-bg:  linear-gradient(180deg,#0d2b1f 0%, #0f3a2b 100%);
       --text:        #2d2d2d;
       --text-sec:    #6b6b6b;
       --muted:       #8a8a8a;
@@ -115,12 +115,11 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* ─── SIDEBAR (Aurora Style) ─── */
-    .sidebar { width: var(--sidebar-w); min-height: 100vh; background: linear-gradient(180deg, #183927 0%, #0f5b35 100%); padding-top: 0; color: #eaf6ee; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; overflow-y: auto; overflow-x: hidden; box-shadow: 4px 0 18px rgba(2,18,12,0.12); }
+    /* ÔöÇÔöÇÔöÇ SIDEBAR (Aurora Style) ÔöÇÔöÇÔöÇ */
+    .sidebar { width: var(--sidebar-w); min-height: 100vh; background: var(--sidebar-bg); color: #eaf6ee; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; overflow-y: auto; overflow-x: hidden; box-shadow: 4px 0 18px rgba(2,18,12,0.12); }
     .sidebar-brand {
-      min-height: 90px; padding: 14px 18px;
-      display: flex; align-items: center; justify-content: center; gap: 12px;
-      border-bottom: 1px solid rgba(255,255,255,.12);
+      padding: 24px 20px;
+      display: flex; align-items: center; gap: 12px;
     }
     .brand-logo-box {
       width: 40px; height: 40px;
@@ -130,16 +129,16 @@
       display: none;
     }
     .brand-logo-img {
-      width: 170px !important; height: auto !important;
-      border-radius: 0 !important;
+      width: 40px; height: 40px;
+      border-radius: 10px;
       object-fit: contain;
-      background: transparent !important;
-      padding: 0 !important;
-      box-shadow: none !important;
+      background: #fff;
+      padding: 6px;
+      box-shadow: 0 8px 20px rgba(2,18,12,0.15);
     }
-    .brand-text { display: none !important; }
-    .brand-name { font-weight: 800; font-size: 15px !important; color: #fff !important; letter-spacing: 0.4px; line-height: 1.05; }
-    .brand-sub { font-size: 12px; color: #add3b5 !important; }
+    .brand-text { display: flex; flex-direction: column; }
+    .brand-name { font-weight: 800; font-size: 18px; color: #eaf6ee; letter-spacing: 0.4px; line-height: 1.05; }
+    .brand-sub { font-size: 12px; color: rgba(234,246,238,0.85); }
 
     .sidebar-section { padding: 10px 0; }
     .sidebar-item { display: flex; align-items: center; padding: 14px 18px; cursor: pointer; color: rgba(234,246,238,0.95); font-size: 14px; font-weight: 600; border-left: 4px solid transparent; transition: all 0.15s ease; border-radius: 8px; margin: 6px 8px; }
@@ -150,7 +149,6 @@
     .sidebar-badge { margin-left: auto; font-size: 11px; font-weight: 800; padding: 5px 10px; border-radius: 999px; background: rgba(255,255,255,0.08); color: #eaf6ee; border: 1px solid rgba(255,255,255,0.12); }
     .sidebar-item.active .sidebar-badge { background: #eaf6ee; color: #0d2b1f; border: none; }
     .sidebar-badge.coming { opacity: 0.7; }
-    .sidebar-badge { display: none !important; }
     
     .sidebar-footer {
       margin-top: auto; padding: 20px;
@@ -158,25 +156,25 @@
     .sidebar-footer a { display: block; color: #475569; font-size: 12px; text-decoration: none; margin-bottom: 10px; }
     .sidebar-footer a:hover { color: #0f172a; text-decoration: underline; }
 
-    /* ─── MAIN WRAPPER ─── */
+    /* ÔöÇÔöÇÔöÇ MAIN WRAPPER ÔöÇÔöÇÔöÇ */
     .main-wrapper {
       margin-left: var(--sidebar-w);
       flex: 1; display: flex; flex-direction: column; min-height: 100vh;
     }
 
-    /* ─── TOP BAR ─── */
+    /* ÔöÇÔöÇÔöÇ TOP BAR ÔöÇÔöÇÔöÇ */
     .topbar {
       background: var(--white);
       height: var(--topbar-h);
-      padding: 0 20px;
-      display: flex; align-items: center; justify-content: flex-start; gap: 14px; flex-wrap: nowrap;
+      padding: 0 28px;
+      display: flex; align-items: center; justify-content: space-between;
       position: sticky; top: 0; z-index: 90;
       border-bottom: 1px solid var(--border);
       box-shadow: var(--shadow-sm);
     }
     .topbar-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
     .filter-group { display: flex; flex-direction: column; align-items: flex-start; min-width: 130px; }
-    .topbar-left { display: flex; align-items: center; gap: 14px; min-width: 0; flex: 1 1 auto; }
+    .topbar-left { display: flex; align-items: center; gap: 14px; }
     .topbar-title {
       font-size: 18px; font-weight: 800; color: #08321f;
       letter-spacing: -0.3px;
@@ -186,7 +184,7 @@
       font-size: 11px; color: var(--muted); font-weight: 500;
       padding-left: 14px; border-left: 1.5px solid var(--border); margin-left: 4px;
     }
-    .topbar-filters { display: grid; grid-template-columns: repeat(5, minmax(62px, 1fr)) auto; align-items: center; gap: 8px; flex: 1 1 auto; min-width: 0; padding-left: 14px; border-left: 1px solid var(--border); }
+    .topbar-filters { display: flex; align-items: center; gap: 8px; }
     .filter-group { display: flex; flex-direction: column; align-items: flex-start; }
     .filter-label {
       font-size: 9px; color: var(--muted); text-transform: uppercase;
@@ -207,7 +205,6 @@
       background-position: right 8px center;
       background-color: var(--bg);
       transition: border-color 0.15s;
-      width: 100%; min-width: 0;
     }
     .filter-select:focus { outline: none; border-color: var(--blue); box-shadow: 0 6px 18px rgba(27,94,58,0.08); }
     .filter-select option { background: #fff; color: var(--text); }
@@ -219,16 +216,7 @@
       display: flex; align-items: center; gap: 6px; transition: all 0.15s;
     }
     .topbar-reset:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-light); }
-    .topbar-right { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; white-space: nowrap; padding-left: 12px; border-left: 1px solid var(--border); }
-    .topbar-left { flex: 0 1 350px; min-width: 285px; gap: 10px; }
-    .topbar-title { white-space: nowrap; font-size: 18px; flex: 0 0 auto; }
-    .topbar-breadcrumb { max-width: 155px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-left: 10px; }
-    @media (max-width: 1350px) {
-      .topbar-left { flex-basis: 290px; min-width: 250px; }
-      .topbar-title { font-size: 16px; }
-      .topbar-breadcrumb { display: none; }
-      .topbar-filters { grid-template-columns: repeat(5, minmax(54px, 1fr)) auto; }
-    }
+    .topbar-right { display: flex; align-items: center; gap: 8px; }
     .home-btn {
       display: flex; align-items: center; gap: 6px;
       background: var(--navy); color: #fff;
@@ -239,15 +227,15 @@
     }
     .home-btn:hover { background: var(--blue); }
 
-    /* ─── CONTENT ─── */
+    /* ÔöÇÔöÇÔöÇ CONTENT ÔöÇÔöÇÔöÇ */
     .content { padding: 22px 28px; flex: 1; }
 
-    /* ─── SECTION PANEL ─── */
+    /* ÔöÇÔöÇÔöÇ SECTION PANEL ÔöÇÔöÇÔöÇ */
     .section-panel { display: none; animation: fadeIn 0.2s ease; }
     .section-panel.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* ─── KPI GRID ─── */
+    /* ÔöÇÔöÇÔöÇ KPI GRID ÔöÇÔöÇÔöÇ */
     .kpi-row {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -318,7 +306,7 @@
     .trend.up-bad { color: var(--danger); }
     .trend-vs { font-size: 10px; color: var(--muted); }
 
-    /* ─── SUB-KPI ROW ─── */
+    /* ÔöÇÔöÇÔöÇ SUB-KPI ROW ÔöÇÔöÇÔöÇ */
     .sub-kpi-row {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -350,41 +338,38 @@
     }
     .sk-donut { flex-shrink: 0; }
 
-    /* ─── CHART GRID ─── */
+    /* ÔöÇÔöÇÔöÇ CHART GRID ÔöÇÔöÇÔöÇ */
     .chart-row {
       display: grid; gap: 12px; margin-bottom: 16px;
     }
-    .chart-row.cols-3 { grid-template-columns: 1.05fr 1fr .95fr; }
+    .chart-row.cols-3 { grid-template-columns: 1.8fr 1fr 1fr; }
     .chart-row.cols-2 { grid-template-columns: 1.6fr 1fr; }
     .chart-row.cols-2-equal { grid-template-columns: 1fr 1fr; }
     .chart-row.cols-1 { grid-template-columns: 1fr; }
     .chart-card {
       background: var(--white);
-      border-radius: 8px;
-      padding: 14px 15px 10px;
-      box-shadow: 0 2px 8px rgba(11,45,21,.04);
-      border: 1px solid #e5eee5;
+      border-radius: 12px;
+      padding: 20px 22px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      border: 1px solid var(--border-light);
       transition: box-shadow 0.2s;
     }
     .chart-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
     .chart-card .cc-header {
       display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 8px;
+      margin-bottom: 14px;
     }
     .chart-card .cc-title {
       font-size: 13px; font-weight: 700; color: var(--navy); line-height: 1.3;
     }
-    .chart-card .cc-subtitle { font-size: 9px; color: var(--muted); margin-top: 2px; }
-    .chart-card [id^="chart-"] { min-height: 185px; }
-    .apexcharts-canvas .apexcharts-gridline { stroke: #e8f0e9; }
-    .apexcharts-tooltip { border: 1px solid #dceadd !important; border-radius: 7px !important; box-shadow: 0 8px 22px rgba(11,45,21,.12) !important; }
+    .chart-card .cc-subtitle { font-size: 11px; color: var(--muted); margin-top: 2px; }
     .chart-card .cc-badge {
       font-size: 10px; font-weight: 700;
       background: var(--blue-light); color: var(--blue);
       padding: 3px 9px; border-radius: 20px;
     }
 
-    /* ─── TABLE ─── */
+    /* ÔöÇÔöÇÔöÇ TABLE ÔöÇÔöÇÔöÇ */
     .data-table-card {
       background: var(--white);
       border-radius: 8px;
@@ -430,7 +415,7 @@
     .pill.red    { background: #fee2e2; color: #991b1b; }
     .pill.blue   { background: var(--blue-light); color: var(--blue); }
 
-    /* ─── PROGRESS ─── */
+    /* ÔöÇÔöÇÔöÇ PROGRESS ÔöÇÔöÇÔöÇ */
     .pbar-wrap { display: flex; align-items: center; gap: 8px; }
     .pbar { flex: 1; height: 6px; background: #edf7ee; border-radius: 999px; overflow: hidden; }
     .pbar-fill { height: 100%; border-radius: 999px; }
@@ -440,7 +425,7 @@
     .pbar-fill.yellow { background: var(--accent); }
     .pbar-fill.gray   { background: #94a3b8; }
 
-    /* ─── IBNR TRIANGLE ─── */
+    /* ÔöÇÔöÇÔöÇ IBNR TRIANGLE ÔöÇÔöÇÔöÇ */
     .triangle-table th, .triangle-table td {
       font-size: 11px; padding: 6px 10px; text-align: right;
       border: 1px solid var(--border);
@@ -450,7 +435,7 @@
     .triangle-table .ibnr-total { background: #1e3a5f; color: #fff; font-weight: 800; }
     .triangle-table td:first-child { text-align: left; font-weight: 700; color: var(--navy); }
 
-    /* ─── FORM ─── */
+    /* ÔöÇÔöÇÔöÇ FORM ÔöÇÔöÇÔöÇ */
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .form-group label {
       display: block; font-size: 11px; font-weight: 600; color: var(--muted);
@@ -486,7 +471,7 @@
     }
     .btn-outline:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-light); }
 
-    /* ─── RESULT CARDS ─── */
+    /* ÔöÇÔöÇÔöÇ RESULT CARDS ÔöÇÔöÇÔöÇ */
     .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .result-card {
       background: var(--bg); border-radius: 10px; padding: 14px 16px;
@@ -509,7 +494,7 @@
     }
     .result-card.featured .rc-value { color: #fff; }
 
-    /* ─── PLACEHOLDER ─── */
+    /* ÔöÇÔöÇÔöÇ PLACEHOLDER ÔöÇÔöÇÔöÇ */
     .placeholder-section {
       background: var(--white); border-radius: 12px;
       padding: 70px 40px; text-align: center;
@@ -526,14 +511,14 @@
       border: 1.5px solid #fde68a;
     }
 
-    /* ─── SHAP ─── */
+    /* ÔöÇÔöÇÔöÇ SHAP ÔöÇÔöÇÔöÇ */
     .shap-row { margin-bottom: 10px; }
     .shap-row .shap-label {
       font-size: 11px; color: var(--text-sec); margin-bottom: 4px;
       font-weight: 500; display: flex; justify-content: space-between;
     }
 
-    /* ─── DIVIDER ─── */
+    /* ÔöÇÔöÇÔöÇ DIVIDER ÔöÇÔöÇÔöÇ */
     .section-divider { display: flex; align-items: center; gap: 10px; margin: 20px 0 16px; }
     .section-divider h3 {
       font-size: 11px; font-weight: 800; color: var(--muted);
@@ -544,7 +529,7 @@
       background: linear-gradient(90deg, var(--border) 0%, transparent 100%);
     }
 
-    /* ─── EDITABLE CELLS ─── */
+    /* ÔöÇÔöÇÔöÇ EDITABLE CELLS ÔöÇÔöÇÔöÇ */
     [contenteditable="true"] {
       cursor: text; border-bottom: 1.5px dashed var(--border);
       outline: none; transition: border-color 0.15s, background 0.15s;
@@ -559,15 +544,30 @@
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
   </style>
+  <style>
+    /* Overrides: compact sidebar + larger logo */
+    :root { --sidebar-w: 96px; }
+    .sidebar { padding-top: 20px; }
+    .brand-logo-img { width:72px !important; height:72px !important; padding:8px !important; border-radius:12px !important; box-shadow:0 12px 28px rgba(2,18,12,0.18) !important; }
+    .brand-text { display:none !important; }
+    .sidebar-section-label { display:none !important; }
+    .sidebar-item { display:flex !important; align-items:center !important; justify-content:center !important; padding:10px !important; margin:10px !important; border-radius:12px !important; }
+    .sidebar-item > :not(.sidebar-badge):not(.si-icon) { display:none !important; }
+    .sidebar-badge { display:inline-flex !important; width:44px !important; height:44px !important; border-radius:999px !important; align-items:center; justify-content:center; background:rgba(255,255,255,0.04) !important; color:#eaf6ee !important; border:1px solid rgba(255,255,255,0.06) !important; font-weight:800 !important; }
+    .sidebar-item.active .sidebar-badge { background: linear-gradient(135deg,var(--blue),var(--accent)) !important; color:#fff !important; box-shadow:0 8px 18px rgba(2,18,12,0.18) !important; }
+    .sidebar-footer { padding:12px !important; }
+    /* Ensure main content shifts correctly */
+    .main-wrapper { margin-left: var(--sidebar-w) !important; }
+  </style>
 </head>
 <body>
 
-  <!-- ════════════════════════════════════════════
+  <!-- ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
        SIDEBAR
-  ════════════════════════════════════════════ -->
+  ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ -->
   <aside class="sidebar">
     <div class="sidebar-brand">
-      <img src="images/logoassurance.png" onerror="this.onerror=null;this.src='images/biat-logo.png'" alt="Assurances BIAT" class="brand-logo-img">
+      <img src="images/biat-logo.png" alt="BIAT" class="brand-logo-img">
       <div class="brand-text">
         <span class="brand-name">BIAT Assurance</span>
         <span class="brand-sub">Plateforme Actuarielle</span>
@@ -577,14 +577,14 @@
     <div class="sidebar-section">
       <div class="sidebar-section-label">Tableau de Bord</div>
       <a class="sidebar-item active" onclick="showSection('overview')" href="#">
-        <span class="si-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg></span> Vue Générale
+        <span class="si-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg></span> Vue G├®n├®rale
       </a>
     </div>
 
     <div class="sidebar-section">
       <div class="sidebar-section-label">Modules Actuariels</div>
       <a class="sidebar-item" onclick="showSection('sinistralite')" href="#">
-        <span class="si-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg></span> Sinistralité
+        <span class="si-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg></span> Sinistralit├®
         <span class="sidebar-badge">M1</span>
       </a>
       <a class="sidebar-item" onclick="showSection('provisionnement')" href="#">
@@ -592,48 +592,45 @@
         <span class="sidebar-badge">M2</span>
       </a>
       <a class="sidebar-item" onclick="showSection('modelisation')" href="#">
-        <span class="si-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg></span> Modélisation
+        <span class="si-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg></span> Mod├®lisation
         <span class="sidebar-badge">M3</span>
       </a>
       <a class="sidebar-item" onclick="showSection('series')" href="#" style="opacity:.65;">
-        <span class="si-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"></path></svg></span> Séries Temporelles
-        <span class="sidebar-badge coming">Bientôt</span>
+        <span class="si-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"></path></svg></span> S├®ries Temporelles
+        <span class="sidebar-badge coming">Bient├┤t</span>
       </a>
       <a class="sidebar-item" onclick="showSection('ratio')" href="#">
-        <span class="si-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg></span> Ratio Combiné
+        <span class="si-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg></span> Ratio Combin├®
         <span class="sidebar-badge">M5</span>
       </a>
       <a class="sidebar-item" onclick="showSection('tarification')" href="#">
         <span class="si-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="14"></line><line x1="12" y1="14" x2="12" y2="14"></line><line x1="8" y1="14" x2="8" y2="14"></line><line x1="16" y1="18" x2="16" y2="18"></line><line x1="12" y1="18" x2="12" y2="18"></line><line x1="8" y1="18" x2="8" y2="18"></line></svg></span> Bonus Malus
         <span class="sidebar-badge" style="background:#2563eb;color:white;">New</span>
       </a>
-      <a class="sidebar-item" onclick="showSection('assistant')" href="#">
-        <span class="si-icon">🤖</span> Assistant IA
-      </a>
     </div>
 
     <div class="sidebar-footer">
-      <a href="/home">🏠 Page d'accueil</a>
-      <a href="http://localhost:8000/docs" target="_blank">⚡ API FastAPI Docs</a>
-      <a href="http://localhost:8000" target="_blank">🔗 Backend :8000</a>
+      <a href="/home">­ƒÅá Page d'accueil</a>
+      <a href="http://localhost:8000/docs" target="_blank">ÔÜí API FastAPI Docs</a>
+      <a href="http://localhost:8000" target="_blank">­ƒöù Backend :8000</a>
     </div>
   </aside>
 
-  <!-- ════════════════════════════════════════════
+  <!-- ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
        MAIN
-  ════════════════════════════════════════════ -->
+  ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ -->
   <div class="main-wrapper">
 
     <!-- TOP BAR -->
     <header class="topbar">
       <div class="topbar-left">
-        <div class="topbar-title">TABLEAU DE BORD <span>VUE EXÉCUTIVE</span></div>
-        <span class="topbar-breadcrumb" id="topbar-breadcrumb">BIAT Assurance — Plateforme Actuarielle</span>
+        <div class="topbar-title">TABLEAU DE BORD <span>VUE EX├ëCUTIVE</span></div>
+        <span class="topbar-breadcrumb" id="topbar-breadcrumb">BIAT Assurance ÔÇö Plateforme Actuarielle</span>
       </div>
 
       <div class="topbar-filters">
         <div class="filter-group">
-          <span class="filter-label">Année</span>
+          <span class="filter-label">Ann├®e</span>
           <select class="filter-select" id="f-annee" onchange="applyFilters()">
             <option>Toutes</option>
             <option>2023</option><option>2022</option><option>2021</option>
@@ -652,54 +649,54 @@
           <span class="filter-label">Usage</span>
           <select class="filter-select" id="f-usage" onchange="applyFilters()">
             <option>Tout</option>
-            <option>Privé</option><option>Commercial</option><option>Administratif</option>
+            <option>Priv├®</option><option>Commercial</option><option>Administratif</option>
           </select>
         </div>
         <div class="filter-group">
-          <span class="filter-label">Énergie</span>
+          <span class="filter-label">├ënergie</span>
           <select class="filter-select" id="f-energie" onchange="applyFilters()">
             <option>Tout</option>
-            <option>Diesel</option><option>Essence</option><option>GPL</option><option>Électrique</option>
+            <option>Diesel</option><option>Essence</option><option>GPL</option><option>├ëlectrique</option>
           </select>
         </div>
         <div class="filter-group">
-          <span class="filter-label">Région</span>
+          <span class="filter-label">R├®gion</span>
           <select class="filter-select" id="f-region" onchange="applyFilters()">
             <option>Tout</option>
             <option>Tunis</option><option>Sfax</option><option>Sousse</option>
-            <option>Nabeul</option><option>Bizerte</option><option>Gabès</option><option>Kairouan</option>
+            <option>Nabeul</option><option>Bizerte</option><option>Gab├¿s</option><option>Kairouan</option>
           </select>
         </div>
-        <button class="topbar-reset" onclick="resetFilters()">↺ Réinitialiser</button>
+        <button class="topbar-reset" onclick="resetFilters()">Ôå║ R├®initialiser</button>
       </div>
 
       <div class="topbar-right">
-        <a href="/home.html" class="home-btn">🏠 Accueil</a>
-        <a href="http://localhost:8000/docs" target="_blank" class="topbar-icon-btn" title="API Docs" style="text-decoration:none;font-size:15px;">⚡</a>
+        <a href="/home.html" class="home-btn">­ƒÅá Accueil</a>
+        <a href="http://localhost:8000/docs" target="_blank" class="topbar-icon-btn" title="API Docs" style="text-decoration:none;font-size:15px;">ÔÜí</a>
         <button onclick="logout()" class="home-btn" style="background:#ef4444; margin-left:8px;">
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-          Déconnexion
+          D├®connexion
         </button>
       </div>
     </header>
 
     <div class="content">
 
-      <!-- ══════════════════════════════════════
-           VUE GÉNÉRALE
-      ══════════════════════════════════════ -->
+      <!-- ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+           VUE G├ëN├ëRALE
+      ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ -->
       <div class="section-panel active" id="panel-overview">
 
         <!-- KPI row 1 -->
         <div class="kpi-row">
           <div class="kpi-card">
             <div class="kc-head">
-              <div class="kc-label">Polices<br>analysées</div>
+              <div class="kc-label">Polices<br>analys├®es</div>
               <div class="kc-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></div>
             </div>
             <div class="kc-value" id="kpi-primes-value">93 760</div>
             <div class="kc-footer">
-              <span class="trend up" id="kpi-primes-trend">▲ +5,2%</span>
+              <span class="trend up" id="kpi-primes-trend">Ôû▓ +5,2%</span>
               <span class="trend-vs">vs 2022</span>
             </div>
           </div>
@@ -710,29 +707,29 @@
             </div>
             <div class="kc-value" id="kpi-sinistres-value">64 250</div>
             <div class="kc-footer">
-              <span class="trend up" id="kpi-sinistres-trend">▲ +3,1%</span>
+              <span class="trend up" id="kpi-sinistres-trend">Ôû▓ +3,1%</span>
               <span class="trend-vs">vs 2022</span>
             </div>
           </div>
           <div class="kpi-card accent-yellow">
             <div class="kc-head">
-              <div class="kc-label">Fréquence<br>sinistre</div>
+              <div class="kc-label">Fr├®quence<br>sinistre</div>
               <div class="kc-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg></div>
             </div>
             <div class="kc-value" id="kpi-frequence-value">68,5<small>%</small></div>
             <div class="kc-footer">
-              <span class="trend up-bad" id="kpi-frequence-trend">▲ +1,2 pts</span>
+              <span class="trend up-bad" id="kpi-frequence-trend">Ôû▓ +1,2 pts</span>
               <span class="trend-vs">vs 2022</span>
             </div>
           </div>
           <div class="kpi-card">
             <div class="kc-head">
-              <div class="kc-label">Coût moyen<br>sinistre</div>
+              <div class="kc-label">Co├╗t moyen<br>sinistre</div>
               <div class="kc-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg></div>
             </div>
             <div class="kc-value" id="kpi-cout-moyen-value">4 823<small> TND</small></div>
             <div class="kc-footer">
-              <span class="trend up-bad" id="kpi-cout-moyen-trend">▲ +8,4%</span>
+              <span class="trend up-bad" id="kpi-cout-moyen-trend">Ôû▓ +8,4%</span>
               <span class="trend-vs">vs 2022</span>
             </div>
           </div>
@@ -743,18 +740,18 @@
             </div>
             <div class="kc-value" id="kpi-ibnr-value">12,4<small> M TND</small></div>
             <div class="kc-footer">
-              <span class="trend up-bad" id="kpi-ibnr-trend">▲ +6,9%</span>
+              <span class="trend up-bad" id="kpi-ibnr-trend">Ôû▓ +6,9%</span>
               <span class="trend-vs">vs 2022</span>
             </div>
           </div>
           <div class="kpi-card accent-green">
             <div class="kc-head">
-              <div class="kc-label">Ratio<br>combiné</div>
+              <div class="kc-label">Ratio<br>combin├®</div>
               <div class="kc-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg></div>
             </div>
             <div class="kc-value" id="kpi-ratio-value">97<small>%</small></div>
             <div class="kc-footer">
-              <span class="trend down-good" id="kpi-ratio-trend">▼ -1,5 pts</span>
+              <span class="trend down-good" id="kpi-ratio-trend">Ôû╝ -1,5 pts</span>
               <span class="trend-vs">vs 2022</span>
             </div>
           </div>
@@ -780,7 +777,7 @@
           </div>
           <div class="sub-kpi-card">
             <div class="sk-info">
-              <div class="sk-label">Segments déficitaires (M5)</div>
+              <div class="sk-label">Segments d├®ficitaires (M5)</div>
               <div class="sk-value">3<small>/7</small></div>
               <span class="sk-badge pill red">Ratio > 100%</span>
             </div>
@@ -793,18 +790,18 @@
           <div class="chart-card">
             <div class="cc-header">
               <div>
-                <div class="cc-title">Évolution du coût total sinistres (M TND)</div>
-                <div class="cc-subtitle">Portefeuille automobile tunisien 2018–2023</div>
+                <div class="cc-title">├ëvolution du co├╗t total sinistres (M TND)</div>
+                <div class="cc-subtitle">Portefeuille automobile tunisien 2018ÔÇô2023</div>
               </div>
-              <span class="cc-badge">2018–2023</span>
+              <span class="cc-badge">2018ÔÇô2023</span>
             </div>
             <div id="chart-evolution"></div>
           </div>
           <div class="chart-card">
             <div class="cc-header">
               <div>
-                <div class="cc-title">Répartition par Garantie</div>
-                <div class="cc-subtitle">Coût total sinistres</div>
+                <div class="cc-title">R├®partition par Garantie</div>
+                <div class="cc-subtitle">Co├╗t total sinistres</div>
               </div>
             </div>
             <div id="chart-garantie"></div>
@@ -812,8 +809,8 @@
           <div class="chart-card">
             <div class="cc-header">
               <div>
-                <div class="cc-title">Top Régions — Sinistralité</div>
-                <div class="cc-subtitle">Coût total (M TND)</div>
+                <div class="cc-title">Top R├®gions ÔÇö Sinistralit├®</div>
+                <div class="cc-subtitle">Co├╗t total (M TND)</div>
               </div>
             </div>
             <div id="chart-regions"></div>
@@ -826,7 +823,7 @@
             <div class="cc-header">
               <div>
                 <div class="cc-title">Sinistres par mois</div>
-                <div class="cc-subtitle">Nombre de sinistres déclarés — 2023</div>
+                <div class="cc-subtitle">Nombre de sinistres d├®clar├®s ÔÇö 2023</div>
               </div>
             </div>
             <div id="chart-mensuel"></div>
@@ -834,7 +831,7 @@
           <div class="chart-card">
             <div class="cc-header">
               <div>
-                <div class="cc-title">Ratio Combiné par Année</div>
+                <div class="cc-title">Ratio Combin├® par Ann├®e</div>
                 <div class="cc-subtitle">Seuil critique : 100%</div>
               </div>
             </div>
@@ -844,39 +841,39 @@
 
       </div><!-- /panel-overview -->
 
-      <!-- ══════════════════════════════════════
-           MODULE 1 — SINISTRALITÉ
-      ══════════════════════════════════════ -->
+      <!-- ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+           MODULE 1 ÔÇö SINISTRALIT├ë
+      ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ -->
       <div class="section-panel" id="panel-sinistralite">
 
         <div class="kpi-row">
           <div class="kpi-card">
-            <div class="kc-head"><div class="kc-label">Nb Polices</div><div class="kc-icon">📋</div></div>
+            <div class="kc-head"><div class="kc-label">Nb Polices</div><div class="kc-icon">­ƒôï</div></div>
             <div class="kc-value">93 760</div>
-            <div class="kc-footer"><span class="trend up">▲ +5,2%</span><span class="trend-vs">vs 2022</span></div>
+            <div class="kc-footer"><span class="trend up">Ôû▓ +5,2%</span><span class="trend-vs">vs 2022</span></div>
           </div>
           <div class="kpi-card">
-            <div class="kc-head"><div class="kc-label">Nb Sinistres</div><div class="kc-icon">⚠️</div></div>
+            <div class="kc-head"><div class="kc-label">Nb Sinistres</div><div class="kc-icon">ÔÜá´©Å</div></div>
             <div class="kc-value">64 250</div>
-            <div class="kc-footer"><span class="trend up">▲ +3,1%</span><span class="trend-vs">vs 2022</span></div>
+            <div class="kc-footer"><span class="trend up">Ôû▓ +3,1%</span><span class="trend-vs">vs 2022</span></div>
           </div>
           <div class="kpi-card accent-yellow">
-            <div class="kc-head"><div class="kc-label">Fréquence</div><div class="kc-icon" style="background:#fef3c7;">📉</div></div>
+            <div class="kc-head"><div class="kc-label">Fr├®quence</div><div class="kc-icon" style="background:#fef3c7;">­ƒôë</div></div>
             <div class="kc-value">68,5<small>%</small></div>
-            <div class="kc-footer"><span class="trend up-bad">▲ +1,2 pts</span><span class="trend-vs">vs 2022</span></div>
+            <div class="kc-footer"><span class="trend up-bad">Ôû▓ +1,2 pts</span><span class="trend-vs">vs 2022</span></div>
           </div>
           <div class="kpi-card">
-            <div class="kc-head"><div class="kc-label">Sévérité moy.</div><div class="kc-icon">💰</div></div>
+            <div class="kc-head"><div class="kc-label">S├®v├®rit├® moy.</div><div class="kc-icon">­ƒÆ░</div></div>
             <div class="kc-value">4 823<small> TND</small></div>
-            <div class="kc-footer"><span class="trend up-bad">▲ +8,4%</span></div>
+            <div class="kc-footer"><span class="trend up-bad">Ôû▓ +8,4%</span></div>
           </div>
           <div class="kpi-card">
-            <div class="kc-head"><div class="kc-label">Coût total</div><div class="kc-icon">📊</div></div>
+            <div class="kc-head"><div class="kc-label">Co├╗t total</div><div class="kc-icon">­ƒôè</div></div>
             <div class="kc-value">310<small> M TND</small></div>
-            <div class="kc-footer"><span class="trend up-bad">▲ +12,0%</span><span class="trend-vs">vs 2022</span></div>
+            <div class="kc-footer"><span class="trend up-bad">Ôû▓ +12,0%</span><span class="trend-vs">vs 2022</span></div>
           </div>
           <div class="kpi-card">
-            <div class="kc-head"><div class="kc-label">Garanties</div><div class="kc-icon">🔖</div></div>
+            <div class="kc-head"><div class="kc-label">Garanties</div><div class="kc-icon">­ƒöû</div></div>
             <div class="kc-value">5</div>
             <div class="kc-footer"><span class="trend-vs">RC + Vol + Inc. + BdG</span></div>
           </div>
@@ -885,13 +882,13 @@
         <div class="chart-row cols-2">
           <div class="chart-card">
             <div class="cc-header">
-              <div><div class="cc-title">Sinistralité mensuelle — 2018 à 2023</div><div class="cc-subtitle">Nombre de sinistres par mois</div></div>
+              <div><div class="cc-title">Sinistralit├® mensuelle ÔÇö 2018 ├á 2023</div><div class="cc-subtitle">Nombre de sinistres par mois</div></div>
             </div>
             <div id="sin-chart-mensuel"></div>
           </div>
           <div class="chart-card">
             <div class="cc-header">
-              <div><div class="cc-title">Coût total par Garantie</div><div class="cc-subtitle">En millions TND</div></div>
+              <div><div class="cc-title">Co├╗t total par Garantie</div><div class="cc-subtitle">En millions TND</div></div>
             </div>
             <div id="sin-chart-garantie"></div>
           </div>
@@ -899,84 +896,84 @@
 
         <div class="data-table-card">
           <div class="dtc-header">
-            <div class="dtc-title">Sinistralité détaillée par Segment (Usage × Énergie)</div>
+            <div class="dtc-title">Sinistralit├® d├®taill├®e par Segment (Usage ├ù ├ënergie)</div>
           </div>
           <table class="dt" id="table-m1">
             <thead>
               <tr>
-                <th>Segment</th><th>Usage</th><th>Énergie</th>
-                <th>Nb Polices (Éditable)</th><th>Nb Sinistres (Éditable)</th>
-                <th>Fréquence</th><th>Sévérité (TND)</th><th>Coût total (M TND) (Éditable)</th>
+                <th>Segment</th><th>Usage</th><th>├ënergie</th>
+                <th>Nb Polices (├ëditable)</th><th>Nb Sinistres (├ëditable)</th>
+                <th>Fr├®quence</th><th>S├®v├®rit├® (TND)</th><th>Co├╗t total (M TND) (├ëditable)</th>
                 <th>Tendance</th>
               </tr>
             </thead>
             <tbody>
               <tr class="row-m1">
-                <td><strong>Privé · Diesel</strong></td><td>Privé</td><td><span class="pill blue">Diesel</span></td>
+                <td><strong>Priv├® ┬À Diesel</strong></td><td>Priv├®</td><td><span class="pill blue">Diesel</span></td>
                 <td contenteditable="true" class="val-polices" onblur="recalculerM1()">38 450</td>
                 <td contenteditable="true" class="val-sinistres" onblur="recalculerM1()">24 890</td>
                 <td class="val-freq">64,7%</td>
                 <td class="val-sev">4 420</td>
                 <td contenteditable="true" class="val-cout" onblur="recalculerM1()">110,0</td>
-                <td><span class="pill green">▲ Stable</span></td>
+                <td><span class="pill green">Ôû▓ Stable</span></td>
               </tr>
               <tr class="row-m1">
-                <td><strong>Privé · Essence</strong></td><td>Privé</td><td><span class="pill green">Essence</span></td>
+                <td><strong>Priv├® ┬À Essence</strong></td><td>Priv├®</td><td><span class="pill green">Essence</span></td>
                 <td contenteditable="true" class="val-polices" onblur="recalculerM1()">28 300</td>
                 <td contenteditable="true" class="val-sinistres" onblur="recalculerM1()">18 950</td>
                 <td class="val-freq">66,9%</td>
                 <td class="val-sev">4 180</td>
                 <td contenteditable="true" class="val-cout" onblur="recalculerM1()">79,2</td>
-                <td><span class="pill green">▲ Stable</span></td>
+                <td><span class="pill green">Ôû▓ Stable</span></td>
               </tr>
               <tr class="row-m1">
-                <td><strong>Commercial · Diesel</strong></td><td>Commercial</td><td><span class="pill blue">Diesel</span></td>
+                <td><strong>Commercial ┬À Diesel</strong></td><td>Commercial</td><td><span class="pill blue">Diesel</span></td>
                 <td contenteditable="true" class="val-polices" onblur="recalculerM1()">14 200</td>
                 <td contenteditable="true" class="val-sinistres" onblur="recalculerM1()">11 350</td>
                 <td class="val-freq">79,9%</td>
                 <td class="val-sev">5 680</td>
                 <td contenteditable="true" class="val-cout" onblur="recalculerM1()">64,5</td>
-                <td><span class="pill yellow">⚠ Hausse</span></td>
+                <td><span class="pill yellow">ÔÜá Hausse</span></td>
               </tr>
               <tr class="row-m1">
-                <td><strong>Commercial · GPL</strong></td><td>Commercial</td><td><span class="pill red">GPL</span></td>
+                <td><strong>Commercial ┬À GPL</strong></td><td>Commercial</td><td><span class="pill red">GPL</span></td>
                 <td contenteditable="true" class="val-polices" onblur="recalculerM1()">5 430</td>
                 <td contenteditable="true" class="val-sinistres" onblur="recalculerM1()">4 850</td>
                 <td class="val-freq">89,3%</td>
                 <td class="val-sev">6 920</td>
                 <td contenteditable="true" class="val-cout" onblur="recalculerM1()">33,6</td>
-                <td><span class="pill red">▲ Forte hausse</span></td>
+                <td><span class="pill red">Ôû▓ Forte hausse</span></td>
               </tr>
               <tr class="row-m1">
-                <td><strong>Administratif · Diesel</strong></td><td>Administratif</td><td><span class="pill blue">Diesel</span></td>
+                <td><strong>Administratif ┬À Diesel</strong></td><td>Administratif</td><td><span class="pill blue">Diesel</span></td>
                 <td contenteditable="true" class="val-polices" onblur="recalculerM1()">4 890</td>
                 <td contenteditable="true" class="val-sinistres" onblur="recalculerM1()">3 150</td>
                 <td class="val-freq">64,4%</td>
                 <td class="val-sev">4 950</td>
                 <td contenteditable="true" class="val-cout" onblur="recalculerM1()">15,6</td>
-                <td><span class="pill green">▼ Baisse</span></td>
+                <td><span class="pill green">Ôû╝ Baisse</span></td>
               </tr>
               <tr class="row-m1">
-                <td><strong>Privé · Électrique</strong></td><td>Privé</td><td><span class="pill blue">Électrique</span></td>
+                <td><strong>Priv├® ┬À ├ëlectrique</strong></td><td>Priv├®</td><td><span class="pill blue">├ëlectrique</span></td>
                 <td contenteditable="true" class="val-polices" onblur="recalculerM1()">2 490</td>
                 <td contenteditable="true" class="val-sinistres" onblur="recalculerM1()">1 060</td>
                 <td class="val-freq">42,6%</td>
                 <td class="val-sev">3 150</td>
                 <td contenteditable="true" class="val-cout" onblur="recalculerM1()">3,3</td>
-                <td><span class="pill green">▼ Faible risque</span></td>
+                <td><span class="pill green">Ôû╝ Faible risque</span></td>
               </tr>
             </tbody>
           </table>
         </div>
 
 
-        <!-- IA PREDICTION SINISTRALITÉ -->
-        <div style="margin-top:28px; background:linear-gradient(135deg,#183927 0%,#0f7041 100%); border-radius:20px; padding:32px; color:white;">
+        <!-- IA PREDICTION SINISTRALIT├ë -->
+        <div style="margin-top:28px; background:linear-gradient(135deg,#1e1b4b 0%,#312e81 100%); border-radius:20px; padding:32px; color:white;">
           <div style="display:flex; align-items:center; gap:16px; margin-bottom:24px;">
-            <div style="font-size:40px; line-height:1;">🤖</div>
+            <div style="font-size:40px; line-height:1;">­ƒñû</div>
             <div>
-              <div style="font-size:20px; font-weight:800; letter-spacing:-0.3px;">Prédiction IA — Sinistralité par Segment</div>
-              <div style="font-size:13px; color:rgba(255,255,255,0.65); margin-top:4px;">Modèle XGBoost · Fréquence &amp; Sévérité en temps réel</div>
+              <div style="font-size:20px; font-weight:800; letter-spacing:-0.3px;">Pr├®diction IA ÔÇö Sinistralit├® par Segment</div>
+              <div style="font-size:13px; color:rgba(255,255,255,0.65); margin-top:4px;">Mod├¿le XGBoost ┬À Fr├®quence &amp; S├®v├®rit├® en temps r├®el</div>
             </div>
           </div>
 
@@ -984,64 +981,64 @@
           <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:20px;">
             <div>
               <label style="font-size:11px; font-weight:700; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.8px; display:block; margin-bottom:6px;">Usage</label>
-              <select id="m1-usage" style="--md-sys-color-surface-container-lowest:white; --md-sys-color-on-surface:#183927; --md-sys-color-outline-variant:#2f8a55; width:100%; padding:10px 14px; border-radius:10px; font-size:14px; font-weight:600;">
-                <option value="Privé">Privé</option>
+              <select id="m1-usage" style="--md-sys-color-surface-container-lowest:white; --md-sys-color-on-surface:#1e1b4b; --md-sys-color-outline-variant:#6366f1; width:100%; padding:10px 14px; border-radius:10px; font-size:14px; font-weight:600;">
+                <option value="Priv├®">Priv├®</option>
                 <option value="Commercial">Commercial</option>
                 <option value="Administratif">Administratif</option>
               </select>
             </div>
             <div>
-              <label style="font-size:11px; font-weight:700; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.8px; display:block; margin-bottom:6px;">Énergie</label>
-              <select id="m1-energie" style="--md-sys-color-surface-container-lowest:white; --md-sys-color-on-surface:#183927; --md-sys-color-outline-variant:#2f8a55; width:100%; padding:10px 14px; border-radius:10px; font-size:14px; font-weight:600;">
+              <label style="font-size:11px; font-weight:700; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.8px; display:block; margin-bottom:6px;">├ënergie</label>
+              <select id="m1-energie" style="--md-sys-color-surface-container-lowest:white; --md-sys-color-on-surface:#1e1b4b; --md-sys-color-outline-variant:#6366f1; width:100%; padding:10px 14px; border-radius:10px; font-size:14px; font-weight:600;">
                 <option value="Essence">Essence</option>
                 <option value="Diesel">Diesel</option>
                 <option value="GPL">GPL</option>
-                <option value="Électrique">Électrique</option>
+                <option value="├ëlectrique">├ëlectrique</option>
               </select>
             </div>
             <div>
-              <label style="font-size:11px; font-weight:700; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.8px; display:block; margin-bottom:6px;">Région</label>
-              <select id="m1-region" style="--md-sys-color-surface-container-lowest:white; --md-sys-color-on-surface:#183927; --md-sys-color-outline-variant:#2f8a55; width:100%; padding:10px 14px; border-radius:10px; font-size:14px; font-weight:600;">
+              <label style="font-size:11px; font-weight:700; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.8px; display:block; margin-bottom:6px;">R├®gion</label>
+              <select id="m1-region" style="--md-sys-color-surface-container-lowest:white; --md-sys-color-on-surface:#1e1b4b; --md-sys-color-outline-variant:#6366f1; width:100%; padding:10px 14px; border-radius:10px; font-size:14px; font-weight:600;">
                 <option value="Tunis">Tunis</option>
                 <option value="Sfax">Sfax</option>
                 <option value="Sousse">Sousse</option>
                 <option value="Bizerte">Bizerte</option>
-                <option value="Gabès">Gabès</option>
+                <option value="Gab├¿s">Gab├¿s</option>
               </select>
             </div>
             <div>
               <label style="font-size:11px; font-weight:700; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.8px; display:block; margin-bottom:6px;">Puissance Fiscale</label>
-              <input type="number" id="m1-puissance" value="8" min="4" max="20" style="--md-sys-color-surface-container-lowest:white; --md-sys-color-on-surface:#183927; --md-sys-color-outline-variant:#2f8a55; width:100%; padding:10px 14px; border-radius:10px; font-size:14px; font-weight:600;">
+              <input type="number" id="m1-puissance" value="8" min="4" max="20" style="--md-sys-color-surface-container-lowest:white; --md-sys-color-on-surface:#1e1b4b; --md-sys-color-outline-variant:#6366f1; width:100%; padding:10px 14px; border-radius:10px; font-size:14px; font-weight:600;">
             </div>
           </div>
           <div style="display:flex; justify-content:center;">
-            <button id="m1-predict-btn" onclick="predireSinistralite()" style="padding:14px 40px; border-radius:12px; background:linear-gradient(135deg,#2f8a55,#007a41); border:none; color:white; font-size:15px; font-weight:700; cursor:pointer; letter-spacing:0.3px; box-shadow:0 4px 20px rgba(24,57,39,0.35); transition:transform 0.2s;">
-              ⚡ Calculer la Prédiction IA
+            <button id="m1-predict-btn" onclick="predireSinistralite()" style="padding:14px 40px; border-radius:12px; background:linear-gradient(135deg,#6366f1,#8b5cf6); border:none; color:white; font-size:15px; font-weight:700; cursor:pointer; letter-spacing:0.3px; box-shadow:0 4px 20px rgba(99,102,241,0.4); transition:transform 0.2s;">
+              ÔÜí Calculer la Pr├®diction IA
             </button>
           </div>
 
-          <!-- Résultats -->
+          <!-- R├®sultats -->
           <div id="m1-results" style="display:none; margin-top:28px;">
             <div style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12); border-radius:16px; padding:24px;">
-              <div style="font-size:13px; font-weight:700; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:1px; margin-bottom:20px;">Résultats du Modèle XGBoost</div>
+              <div style="font-size:13px; font-weight:700; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:1px; margin-bottom:20px;">R├®sultats du Mod├¿le XGBoost</div>
               <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:16px;">
                 <div style="background:rgba(255,255,255,0.08); border-radius:12px; padding:18px; text-align:center;">
-                  <div style="font-size:11px; color:rgba(255,255,255,0.5); margin-bottom:8px; text-transform:uppercase;">Fréquence</div>
-                  <div id="m1-out-freq" style="font-size:28px; font-weight:900; color:#fbbf24;">—</div>
+                  <div style="font-size:11px; color:rgba(255,255,255,0.5); margin-bottom:8px; text-transform:uppercase;">Fr├®quence</div>
+                  <div id="m1-out-freq" style="font-size:28px; font-weight:900; color:#fbbf24;">ÔÇö</div>
                 </div>
                 <div style="background:rgba(255,255,255,0.08); border-radius:12px; padding:18px; text-align:center;">
-                  <div style="font-size:11px; color:rgba(255,255,255,0.5); margin-bottom:8px; text-transform:uppercase;">Sévérité moy.</div>
-                  <div id="m1-out-sev" style="font-size:28px; font-weight:900; color:#34d399;">—</div>
+                  <div style="font-size:11px; color:rgba(255,255,255,0.5); margin-bottom:8px; text-transform:uppercase;">S├®v├®rit├® moy.</div>
+                  <div id="m1-out-sev" style="font-size:28px; font-weight:900; color:#34d399;">ÔÇö</div>
                   <div style="font-size:11px; color:rgba(255,255,255,0.4);">TND</div>
                 </div>
                 <div style="background:rgba(255,255,255,0.08); border-radius:12px; padding:18px; text-align:center;">
                   <div style="font-size:11px; color:rgba(255,255,255,0.5); margin-bottom:8px; text-transform:uppercase;">Prime Pure</div>
-                  <div id="m1-out-prime" style="font-size:28px; font-weight:900; color:#60a5fa;">—</div>
+                  <div id="m1-out-prime" style="font-size:28px; font-weight:900; color:#60a5fa;">ÔÇö</div>
                   <div style="font-size:11px; color:rgba(255,255,255,0.4);">TND</div>
                 </div>
                 <div style="background:rgba(255,255,255,0.08); border-radius:12px; padding:18px; text-align:center;">
                   <div style="font-size:11px; color:rgba(255,255,255,0.5); margin-bottom:8px; text-transform:uppercase;">Niveau de Risque</div>
-                  <div id="m1-out-risque" style="font-size:22px; font-weight:900;">—</div>
+                  <div id="m1-out-risque" style="font-size:22px; font-weight:900;">ÔÇö</div>
                 </div>
               </div>
               <div id="m1-out-interpretation" style="margin-top:16px; padding:14px 18px; background:rgba(255,255,255,0.06); border-radius:10px; font-size:13px; color:rgba(255,255,255,0.75); line-height:1.7;"></div>
@@ -1052,88 +1049,88 @@
       </div><!-- /panel-sinistralite -->
 
 
-      <!-- ══════════════════════════════════════
-           MODULE 2 — PROVISIONNEMENT
-      ══════════════════════════════════════ -->
+      <!-- ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+           MODULE 2 ÔÇö PROVISIONNEMENT
+      ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ -->
       <div class="section-panel" id="panel-provisionnement">
 
         <div class="kpi-row" style="grid-template-columns:repeat(4,1fr);">
           <div class="kpi-card accent-green">
-            <div class="kc-head"><div class="kc-label">IBNR Chain-Ladder<br><small style="text-transform:none;font-size:9px;">(Méthode retenue)</small></div><div class="kc-icon" style="background:#dcfce7;">⭐</div></div>
+            <div class="kc-head"><div class="kc-label">IBNR Chain-Ladder<br><small style="text-transform:none;font-size:9px;">(M├®thode retenue)</small></div><div class="kc-icon" style="background:#dcfce7;">Ô¡É</div></div>
             <div class="kc-value">12,40<small> M TND</small></div>
-            <div class="kc-footer"><span class="pill green">Méthode principale</span></div>
+            <div class="kc-footer"><span class="pill green">M├®thode principale</span></div>
           </div>
           <div class="kpi-card">
-            <div class="kc-head"><div class="kc-label">IBNR Bornhuetter-Ferguson</div><div class="kc-icon">🛡️</div></div>
+            <div class="kc-head"><div class="kc-label">IBNR Bornhuetter-Ferguson</div><div class="kc-icon">­ƒøí´©Å</div></div>
             <div class="kc-value">11,80<small> M TND</small></div>
             <div class="kc-footer"><span class="trend-vs">A priori GLM</span></div>
           </div>
           <div class="kpi-card">
-            <div class="kc-head"><div class="kc-label">IBNR Cape Cod</div><div class="kc-icon">🧮</div></div>
+            <div class="kc-head"><div class="kc-label">IBNR Cape Cod</div><div class="kc-icon">­ƒº«</div></div>
             <div class="kc-value">12,10<small> M TND</small></div>
             <div class="kc-footer"><span class="trend-vs">Ratio sinistres/primes</span></div>
           </div>
           <div class="kpi-card accent-yellow">
-            <div class="kc-head"><div class="kc-label">Écart CL vs BF</div><div class="kc-icon" style="background:#fef3c7;">📐</div></div>
+            <div class="kc-head"><div class="kc-label">├ëcart CL vs BF</div><div class="kc-icon" style="background:#fef3c7;">­ƒôÉ</div></div>
             <div class="kc-value">+600<small> K TND</small></div>
             <div class="kc-footer"><span class="trend-vs">Convergence satisfaisante</span></div>
           </div>
         </div>
 
         <!-- IA PREDICTION PROVISIONNEMENT -->
-        <div style="margin-top:28px; background:linear-gradient(135deg,#183927 0%,#0f7041 100%); border-radius:20px; padding:32px; color:white;">
+        <div style="margin-top:28px; background:linear-gradient(135deg,#1e1b4b 0%,#312e81 100%); border-radius:20px; padding:32px; color:white;">
           <div style="display:flex; align-items:center; gap:16px; margin-bottom:24px;">
-            <div style="font-size:40px; line-height:1;">🧠</div>
+            <div style="font-size:40px; line-height:1;">­ƒºá</div>
             <div>
-              <div style="font-size:20px; font-weight:800; letter-spacing:-0.3px;">Prédiction IA — Réserves et Triangle</div>
-              <div style="font-size:13px; color:rgba(255,255,255,0.65); margin-top:4px;">Modèles XGBoost et Chain-Ladder · Complétion dynamique du Triangle</div>
+              <div style="font-size:20px; font-weight:800; letter-spacing:-0.3px;">Pr├®diction IA ÔÇö R├®serves et Triangle</div>
+              <div style="font-size:13px; color:rgba(255,255,255,0.65); margin-top:4px;">Mod├¿les XGBoost et Chain-Ladder ┬À Compl├®tion dynamique du Triangle</div>
             </div>
           </div>
 
           <!-- Formulaire -->
           <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:20px;">
             <div>
-              <label style="font-size:11px; font-weight:700; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.8px; display:block; margin-bottom:6px;">Ligne d'Activité (Triangle de Base)</label>
-              <select id="m2-segment" style="--md-sys-color-surface-container-lowest:white; --md-sys-color-on-surface:#183927; --md-sys-color-outline-variant:#2f8a55; width:100%; padding:10px 14px; border-radius:10px; font-size:14px; font-weight:600;">
+              <label style="font-size:11px; font-weight:700; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.8px; display:block; margin-bottom:6px;">Ligne d'Activit├® (Triangle de Base)</label>
+              <select id="m2-segment" style="--md-sys-color-surface-container-lowest:white; --md-sys-color-on-surface:#1e1b4b; --md-sys-color-outline-variant:#6366f1; width:100%; padding:10px 14px; border-radius:10px; font-size:14px; font-weight:600;">
                 <option value="Auto">Branche Auto</option>
                 <option value="Incendie">Branche Incendie</option>
-                <option value="RC">Responsabilité Civile</option>
+                <option value="RC">Responsabilit├® Civile</option>
               </select>
             </div>
             <div>
               <label style="font-size:11px; font-weight:700; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.8px; display:block; margin-bottom:6px;">Choc Inflation (%)</label>
-              <input type="number" id="m2-inflation" value="0" min="0" max="20" style="--md-sys-color-surface-container-lowest:white; --md-sys-color-on-surface:#183927; --md-sys-color-outline-variant:#2f8a55; width:100%; padding:10px 14px; border-radius:10px; font-size:14px; font-weight:600;">
+              <input type="number" id="m2-inflation" value="0" min="0" max="20" style="--md-sys-color-surface-container-lowest:white; --md-sys-color-on-surface:#1e1b4b; --md-sys-color-outline-variant:#6366f1; width:100%; padding:10px 14px; border-radius:10px; font-size:14px; font-weight:600;">
             </div>
             <div>
-              <label style="font-size:11px; font-weight:700; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.8px; display:block; margin-bottom:6px;">Accélération Paiement (%)</label>
-              <input type="number" id="m2-acceleration" value="0" min="-20" max="20" style="--md-sys-color-surface-container-lowest:white; --md-sys-color-on-surface:#183927; --md-sys-color-outline-variant:#2f8a55; width:100%; padding:10px 14px; border-radius:10px; font-size:14px; font-weight:600;">
+              <label style="font-size:11px; font-weight:700; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.8px; display:block; margin-bottom:6px;">Acc├®l├®ration Paiement (%)</label>
+              <input type="number" id="m2-acceleration" value="0" min="-20" max="20" style="--md-sys-color-surface-container-lowest:white; --md-sys-color-on-surface:#1e1b4b; --md-sys-color-outline-variant:#6366f1; width:100%; padding:10px 14px; border-radius:10px; font-size:14px; font-weight:600;">
             </div>
           </div>
           <div style="display:flex; justify-content:center;">
-            <button id="m2-predict-btn" onclick="predireReserves()" style="padding:14px 40px; border-radius:12px; background:linear-gradient(135deg,#2f8a55,#007a41); border:none; color:white; font-size:15px; font-weight:700; cursor:pointer; letter-spacing:0.3px; box-shadow:0 4px 20px rgba(24,57,39,0.35); transition:transform 0.2s;">
-              🚀 Calculer le Triangle IA
+            <button id="m2-predict-btn" onclick="predireReserves()" style="padding:14px 40px; border-radius:12px; background:linear-gradient(135deg,#6366f1,#8b5cf6); border:none; color:white; font-size:15px; font-weight:700; cursor:pointer; letter-spacing:0.3px; box-shadow:0 4px 20px rgba(99,102,241,0.4); transition:transform 0.2s;">
+              ­ƒÜÇ Calculer le Triangle IA
             </button>
           </div>
 
-          <!-- Résultats -->
+          <!-- R├®sultats -->
           <div id="m2-results" style="display:none; margin-top:28px;">
             <div style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12); border-radius:16px; padding:24px;">
               <div style="font-size:13px; font-weight:700; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:1px; margin-bottom:20px;">Comparaison des IBNR</div>
               <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:16px;">
                 <div style="background:rgba(255,255,255,0.08); border-radius:12px; padding:18px; text-align:center;">
                   <div style="font-size:11px; color:rgba(255,255,255,0.5); margin-bottom:8px; text-transform:uppercase;">IBNR Chain-Ladder (Classique)</div>
-                  <div id="m2-out-ibnr-cl" style="font-size:28px; font-weight:900; color:#fbbf24;">—</div>
+                  <div id="m2-out-ibnr-cl" style="font-size:28px; font-weight:900; color:#fbbf24;">ÔÇö</div>
                   <div style="font-size:11px; color:rgba(255,255,255,0.4);">TND</div>
                 </div>
                 <div style="background:rgba(255,255,255,0.08); border-radius:12px; padding:18px; text-align:center; position:relative; overflow:hidden;">
                   <div style="position:absolute; top:0; left:0; right:0; height:4px; background:linear-gradient(90deg,#10b981,#3b82f6);"></div>
                   <div style="font-size:11px; color:rgba(255,255,255,0.5); margin-bottom:8px; text-transform:uppercase;">IBNR XGBoost (IA)</div>
-                  <div id="m2-out-ibnr-xgb" style="font-size:28px; font-weight:900; color:#34d399;">—</div>
+                  <div id="m2-out-ibnr-xgb" style="font-size:28px; font-weight:900; color:#34d399;">ÔÇö</div>
                   <div style="font-size:11px; color:rgba(255,255,255,0.4);">TND</div>
                 </div>
               </div>
               
-              <div style="margin-top:24px; font-size:13px; font-weight:700; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:1px; margin-bottom:12px;">Triangle Complété par l'IA</div>
+              <div style="margin-top:24px; font-size:13px; font-weight:700; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:1px; margin-bottom:12px;">Triangle Compl├®t├® par l'IA</div>
               <div style="overflow-x:auto;">
                 <table class="triangle-table" style="width:100%; min-width:700px; background:white; border-radius:8px; overflow:hidden;">
                   <thead id="m2-tri-head"></thead>
@@ -1141,11 +1138,11 @@
                 </table>
               </div>
 
-              <!-- Recommandation Financière -->
+              <!-- Recommandation Financi├¿re -->
               <div style="margin-top:24px; padding:20px; background:linear-gradient(135deg, rgba(16,185,129,0.1), rgba(59,130,246,0.1)); border:2px solid rgba(16,185,129,0.4); border-radius:12px; text-align:center;">
-                <div style="font-size:14px; font-weight:800; color:#34d399; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">💰 Recommandation Financière (Fonds à bloquer)</div>
-                <div style="font-size:36px; font-weight:900; color:white; margin-bottom:8px;"><span id="m2-out-provision">—</span> <span style="font-size:16px; color:rgba(255,255,255,0.6);">TND</span></div>
-                <div style="font-size:13px; color:rgba(255,255,255,0.7);">C'est le montant total estimé par l'IA que vous devez mettre de côté (réserve) pour faire face aux sinistres survenus mais non encore payés ou déclarés.</div>
+                <div style="font-size:14px; font-weight:800; color:#34d399; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">­ƒÆ░ Recommandation Financi├¿re (Fonds ├á bloquer)</div>
+                <div style="font-size:36px; font-weight:900; color:white; margin-bottom:8px;"><span id="m2-out-provision">ÔÇö</span> <span style="font-size:16px; color:rgba(255,255,255,0.6);">TND</span></div>
+                <div style="font-size:13px; color:rgba(255,255,255,0.7);">C'est le montant total estim├® par l'IA que vous devez mettre de c├┤t├® (r├®serve) pour faire face aux sinistres survenus mais non encore pay├®s ou d├®clar├®s.</div>
               </div>
 
               <div id="m2-out-interpretation" style="margin-top:16px; padding:14px 18px; background:rgba(255,255,255,0.06); border-radius:10px; font-size:13px; color:rgba(255,255,255,0.75); line-height:1.7;"></div>
@@ -1156,13 +1153,13 @@
         <div class="chart-row cols-2">
           <div class="chart-card">
             <div class="cc-header">
-              <div><div class="cc-title">IBNR par Année de Survenance — Comparaison des 3 méthodes</div></div>
+              <div><div class="cc-title">IBNR par Ann├®e de Survenance ÔÇö Comparaison des 3 m├®thodes</div></div>
             </div>
             <div id="prov-chart-ibnr"></div>
           </div>
           <div class="chart-card">
             <div class="cc-header">
-              <div><div class="cc-title">Cadences de Développement Chain-Ladder</div><div class="cc-subtitle">Facteurs d'âge à âge</div></div>
+              <div><div class="cc-title">Cadences de D├®veloppement Chain-Ladder</div><div class="cc-subtitle">Facteurs d'├óge ├á ├óge</div></div>
             </div>
             <div id="prov-chart-cadences"></div>
           </div>
@@ -1171,12 +1168,12 @@
         <!-- Formulaire IBNR -->
         <div class="chart-card">
           <div class="cc-header">
-            <div><div class="cc-title">Calculateur Actuariel IBNR Interactif</div><div class="cc-subtitle">Entrez vos données de triangle de développement, primes et a priori</div></div>
+            <div><div class="cc-title">Calculateur Actuariel IBNR Interactif</div><div class="cc-subtitle">Entrez vos donn├®es de triangle de d├®veloppement, primes et a priori</div></div>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1.2fr;gap:20px;align-items:start;">
             <div>
               <div class="form-group mb-12">
-                <label>Triangle de sinistres cumulés (JSON)</label>
+                <label>Triangle de sinistres cumul├®s (JSON)</label>
                 <textarea id="triangle-input" style="width:100%;height:110px;font-family:monospace;font-size:11px;padding:10px;border:1.5px solid var(--border);border-radius:6px;resize:vertical;" placeholder='{"triangle": [[8420000,10650000,11890000],[9150000,11820000,null],[7680000,null,null]]}'></textarea>
               </div>
               <div class="row">
@@ -1185,13 +1182,13 @@
                   <input type="number" id="ibnr-prior-lr" value="75" min="20" max="150" style="padding:6px 10px;">
                 </div>
                 <div class="col-md-6 form-group">
-                  <label>Primes par année (2018-2023)</label>
+                  <label>Primes par ann├®e (2018-2023)</label>
                   <input type="text" id="ibnr-primes-input" value="15M, 16.5M, 14M, 18.5M, 20M, 22.5M" style="padding:6px 10px;" placeholder="ex: 15M, 16.5M...">
                 </div>
               </div>
               <div style="margin-top:12px;display:flex;gap:8px;">
-                <button class="btn-primary" onclick="estimerIBNR()">🧮 Calculer les provisions IBNR</button>
-                <button class="btn-outline" onclick="chargerExemple()">📂 Charger données BIAT</button>
+                <button class="btn-primary" onclick="estimerIBNR()">­ƒº« Calculer les provisions IBNR</button>
+                <button class="btn-outline" onclick="chargerExemple()">­ƒôé Charger donn├®es BIAT</button>
               </div>
             </div>
             
@@ -1220,62 +1217,62 @@
 
       </div><!-- /panel-provisionnement -->
 
-      <!-- ══════════════════════════════════════
-           MODULE 3 — MODÉLISATION
-      ══════════════════════════════════════ -->
+      <!-- ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+           MODULE 3 ÔÇö MOD├ëLISATION
+      ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ -->
       <div class="section-panel" id="panel-modelisation">
 
         <div class="kpi-row" style="grid-template-columns:repeat(3,1fr);">
           <div class="kpi-card accent-green">
-            <div class="kc-head"><div class="kc-label">Gini — XGBoost</div><div class="kc-icon" style="background:#dcfce7;">🏆</div></div>
+            <div class="kc-head"><div class="kc-label">Gini ÔÇö XGBoost</div><div class="kc-icon" style="background:#dcfce7;">­ƒÅå</div></div>
             <div class="kc-value">0,71</div>
-            <div class="kc-footer"><span class="pill green">Meilleur modèle</span></div>
+            <div class="kc-footer"><span class="pill green">Meilleur mod├¿le</span></div>
           </div>
           <div class="kpi-card">
-            <div class="kc-head"><div class="kc-label">Gini — GLM Tweedie</div><div class="kc-icon">📐</div></div>
+            <div class="kc-head"><div class="kc-label">Gini ÔÇö GLM Tweedie</div><div class="kc-icon">­ƒôÉ</div></div>
             <div class="kc-value">0,58</div>
-            <div class="kc-footer"><span class="trend-vs">Référence actuarielle</span></div>
+            <div class="kc-footer"><span class="trend-vs">R├®f├®rence actuarielle</span></div>
           </div>
           <div class="kpi-card" style="border-top-color:#22c55e;">
-            <div class="kc-head"><div class="kc-label">Gini — CANN</div><div class="kc-icon" style="background:#dcfce7;">🧠</div></div>
+            <div class="kc-head"><div class="kc-label">Gini ÔÇö CANN</div><div class="kc-icon" style="background:#dcfce7;">­ƒºá</div></div>
             <div class="kc-value">0,74</div>
-            <div class="kc-footer"><span class="pill green">Combiné Actuariel-Neuronal</span></div>
+            <div class="kc-footer"><span class="pill green">Combin├® Actuariel-Neuronal</span></div>
           </div>
         </div>
 
         <div class="chart-row cols-2">
           <div class="chart-card">
             <div class="cc-header">
-              <div><div class="cc-title">Courbe de Lorenz — Comparaison des modèles</div><div class="cc-subtitle">Discrimination du risque automobile</div></div>
+              <div><div class="cc-title">Courbe de Lorenz ÔÇö Comparaison des mod├¿les</div><div class="cc-subtitle">Discrimination du risque automobile</div></div>
             </div>
             <div id="mod-lorenz"></div>
           </div>
           <div class="chart-card">
             <div class="cc-header">
-              <div><div class="cc-title">Benchmark Modèles</div><div class="cc-subtitle">Indice de Gini par modèle</div></div>
+              <div><div class="cc-title">Benchmark Mod├¿les</div><div class="cc-subtitle">Indice de Gini par mod├¿le</div></div>
             </div>
             <div id="mod-benchmark"></div>
           </div>
         </div>
 
-        <!-- Formulaire Prédiction -->
+        <!-- Formulaire Pr├®diction -->
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
           <div class="chart-card">
-            <div class="cc-header"><div><div class="cc-title">Prédire la Prime Pure d'un Assuré</div><div class="cc-subtitle">Modèle XGBoost — 14 variables</div></div></div>
+            <div class="cc-header"><div><div class="cc-title">Pr├®dire la Prime Pure d'un Assur├®</div><div class="cc-subtitle">Mod├¿le XGBoost ÔÇö 14 variables</div></div></div>
             <form id="form-pred" onsubmit="predire(event)" style="margin-top:4px;">
               <div class="form-grid">
                 <div class="form-group">
-                  <label>Âge conducteur</label>
+                  <label>├ége conducteur</label>
                   <input type="number" id="p-age" value="35" min="18" max="80">
                 </div>
                 <div class="form-group">
                   <label>Classe Bonus-Malus</label>
                   <select id="p-bm">
-                    <option value="1">1 — Excellent</option>
+                    <option value="1">1 ÔÇö Excellent</option>
                     <option value="5">5</option>
-                    <option value="10" selected>10 — Moyen</option>
+                    <option value="10" selected>10 ÔÇö Moyen</option>
                     <option value="15">15</option>
-                    <option value="22">22 — Malus max</option>
+                    <option value="22">22 ÔÇö Malus max</option>
                   </select>
                 </div>
                 <div class="form-group">
@@ -1283,59 +1280,59 @@
                   <input type="number" id="p-puissance" value="8" min="3" max="25">
                 </div>
                 <div class="form-group">
-                  <label>Ancienneté véhicule (ans)</label>
+                  <label>Anciennet├® v├®hicule (ans)</label>
                   <input type="number" id="p-anciennete" value="5" min="0" max="30">
                 </div>
                 <div class="form-group">
-                  <label>Région</label>
+                  <label>R├®gion</label>
                   <select id="p-region">
                     <option>Tunis</option><option>Sfax</option><option>Sousse</option>
-                    <option>Nabeul</option><option>Bizerte</option><option>Gabès</option>
+                    <option>Nabeul</option><option>Bizerte</option><option>Gab├¿s</option>
                     <option>Kairouan</option><option>Autre</option>
                   </select>
                 </div>
                 <div class="form-group">
                   <label>Usage</label>
                   <select id="p-usage">
-                    <option>Privé</option><option>Commercial</option><option>Administratif</option>
+                    <option>Priv├®</option><option>Commercial</option><option>Administratif</option>
                   </select>
                 </div>
                 <div class="form-group">
-                  <label>Énergie</label>
+                  <label>├ënergie</label>
                   <select id="p-energie">
-                    <option>Essence</option><option>Diesel</option><option>GPL</option><option>Électrique</option>
+                    <option>Essence</option><option>Diesel</option><option>GPL</option><option>├ëlectrique</option>
                   </select>
                 </div>
               </div>
               <div style="margin-top:12px;">
-                <button type="submit" class="btn-primary">🎯 Calculer la Prime Pure</button>
+                <button type="submit" class="btn-primary">­ƒÄ» Calculer la Prime Pure</button>
               </div>
             </form>
           </div>
 
           <div class="chart-card" id="pred-result-panel" style="display:none;">
-            <div class="cc-header"><div><div class="cc-title">Résultat de Prédiction</div><div class="cc-subtitle">XGBoost · Fréquence × Sévérité</div></div></div>
+            <div class="cc-header"><div><div class="cc-title">R├®sultat de Pr├®diction</div><div class="cc-subtitle">XGBoost ┬À Fr├®quence ├ù S├®v├®rit├®</div></div></div>
             <div class="result-grid" style="margin-bottom:12px;">
               <div class="result-card">
-                <div class="rc-label">Fréquence prédite</div>
-                <div class="rc-value" id="pred-freq">—</div>
+                <div class="rc-label">Fr├®quence pr├®dite</div>
+                <div class="rc-value" id="pred-freq">ÔÇö</div>
               </div>
               <div class="result-card" style="background:#fff3cd; border-color:#ffe69c;">
-                <div class="rc-label" style="color:#664d03;">Probabilité d'Accident</div>
-                <div class="rc-value" id="pred-prob" style="color:#856404;">—</div>
+                <div class="rc-label" style="color:#664d03;">Probabilit├® d'Accident</div>
+                <div class="rc-value" id="pred-prob" style="color:#856404;">ÔÇö</div>
               </div>
               <div class="result-card">
-                <div class="rc-label">Sévérité prédite (TND)</div>
-                <div class="rc-value" id="pred-sev">—</div>
+                <div class="rc-label">S├®v├®rit├® pr├®dite (TND)</div>
+                <div class="rc-value" id="pred-sev">ÔÇö</div>
               </div>
               <div class="result-card featured" style="grid-column:1/-1;">
                 <div class="rc-label">Prime Pure</div>
-                <div class="rc-value" id="pred-prime">—</div>
-                <div style="font-size:11px;color:rgba(255,255,255,.6);">TND / année</div>
+                <div class="rc-value" id="pred-prime">ÔÇö</div>
+                <div style="font-size:11px;color:rgba(255,255,255,.6);">TND / ann├®e</div>
               </div>
             </div>
 
-            <div class="section-divider"><h3>Explicabilité SHAP — Top 3 facteurs</h3></div>
+            <div class="section-divider"><h3>Explicabilit├® SHAP ÔÇö Top 3 facteurs</h3></div>
             <div id="shap-container"></div>
 
             <div class="section-divider" style="margin-top:14px;"><h3>Score de Risque</h3></div>
@@ -1347,30 +1344,30 @@
 
           <div class="chart-card" id="pred-placeholder-panel">
             <div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;text-align:center;">
-              <div style="font-size:2.5rem;margin-bottom:12px;">🎯</div>
-              <div style="font-weight:700;color:var(--navy);margin-bottom:6px;">Prédiction prête</div>
-              <div style="color:var(--muted);font-size:12px;line-height:1.5;">Renseignez les caractéristiques de l'assuré et cliquez sur <strong>"Calculer la Prime Pure"</strong></div>
+              <div style="font-size:2.5rem;margin-bottom:12px;">­ƒÄ»</div>
+              <div style="font-weight:700;color:var(--navy);margin-bottom:6px;">Pr├®diction pr├¬te</div>
+              <div style="color:var(--muted);font-size:12px;line-height:1.5;">Renseignez les caract├®ristiques de l'assur├® et cliquez sur <strong>"Calculer la Prime Pure"</strong></div>
             </div>
           </div>
         </div>
 
       </div><!-- /panel-modelisation -->
 
-      <!-- ══════════════════════════════════════
-           MODULE 4 — SÉRIES TEMP.
-      ══════════════════════════════════════ -->
+      <!-- ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+           MODULE 4 ÔÇö S├ëRIES TEMP.
+      ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ -->
       <div class="section-panel" id="panel-series">
         <div style="display:grid;grid-template-columns:350px 1fr;gap:40px;align-items:start; padding: 20px;">
           
           <!-- Colonne gauche : Formulaire de Saisie --> <div class="chart-card" style="box-shadow: 0 20px 40px -10px rgba(0,0,0,0.15); border-radius: 12px; padding: 24px; transform: translateZ(0); transition: transform 0.3s;">
             <div class="cc-header" style="margin-bottom:16px;">
-              <div class="cc-title">Paramètres LSTM</div>
+              <div class="cc-title">Param├¿tres LSTM</div>
             </div>
             
-            <label style="display:block;margin-bottom:6px;font-size:12px;font-weight:600;">Variable à prédire</label>
+            <label style="display:block;margin-bottom:6px;font-size:12px;font-weight:600;">Variable ├á pr├®dire</label>
             <select id="m4-variable-input" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:6px;font-size:14px;margin-bottom:16px;">
               <option value="nb_sinistres">Nombre de sinistres</option>
-              <option value="cout_total">Coût total des sinistres</option>
+              <option value="cout_total">Co├╗t total des sinistres</option>
             </select>
             
             <label style="display:block;margin-bottom:6px;font-size:12px;font-weight:600;">Horizon (Mois)</label>
@@ -1381,8 +1378,8 @@
             </select>
             
             <div style="display:flex; gap:10px;">
-              <button class="btn-primary" onclick="predireSaisieManuelle('lstm')" style="flex:1; justify-content:center; background:var(--blue);">Prédire (LSTM)</button>
-              <button class="btn-primary" onclick="predireSaisieManuelle('arima')" style="flex:1; justify-content:center; background:var(--success); border-color:var(--success);">Prédire (ARIMA)</button>
+              <button class="btn-primary" onclick="predireSaisieManuelle('lstm')" style="flex:1; justify-content:center; background:var(--blue);">Pr├®dire (LSTM)</button>
+              <button class="btn-primary" onclick="predireSaisieManuelle('arima')" style="flex:1; justify-content:center; background:var(--success); border-color:var(--success);">Pr├®dire (ARIMA)</button>
             </div>
           </div>
 
@@ -1390,8 +1387,8 @@
           <div class="chart-card">
             <div class="cc-header">
               <div>
-                <div class="cc-title">Prévisions Mensuelles de Sinistralité</div>
-                <div class="cc-subtitle">Modèles LSTM & ARIMA · Saisie Manuelle</div>
+                <div class="cc-title">Pr├®visions Mensuelles de Sinistralit├®</div>
+                <div class="cc-subtitle">Mod├¿les LSTM & ARIMA ┬À Saisie Manuelle</div>
               </div>
             </div>
             <div id="chart-m4-forecast" style="height:500px; width:100%;"></div>
@@ -1399,41 +1396,41 @@
 
         </div><!-- /grid 2 cols -->
 
-        <!-- ═══════════════════════════════════════════
-             SHAP EXPLAINABILITY — PLEINE LARGEUR
-        ═══════════════════════════════════════════ -->
+        <!-- ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+             SHAP EXPLAINABILITY ÔÇö PLEINE LARGEUR
+        ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ -->
         <div id="m4-shap-panel" style="display:none; margin-top:28px;">
 
-          <!-- En-tête dégradé -->
-          <div style="background:linear-gradient(135deg,#183927 0%,#007a41 100%); border-radius:16px 16px 0 0; padding:24px 32px; display:flex; align-items:center; gap:20px;">
-            <div style="font-size:36px; line-height:1;">🧠</div>
+          <!-- En-t├¬te d├®grad├® -->
+          <div style="background:linear-gradient(135deg,#4f46e5 0%,#7c3aed 100%); border-radius:16px 16px 0 0; padding:24px 32px; display:flex; align-items:center; gap:20px;">
+            <div style="font-size:36px; line-height:1;">­ƒºá</div>
             <div style="flex:1;">
-              <div style="font-size:18px; font-weight:800; color:white; letter-spacing:-0.3px;">Explication de la prévision — Intelligence Artificielle LSTM</div>
-              <div style="font-size:13px; color:rgba(255,255,255,0.75); margin-top:4px;">Quels mois passés ont le plus pesé sur la décision du modèle ?</div>
+              <div style="font-size:18px; font-weight:800; color:white; letter-spacing:-0.3px;">Explication de la pr├®vision ÔÇö Intelligence Artificielle LSTM</div>
+              <div style="font-size:13px; color:rgba(255,255,255,0.75); margin-top:4px;">Quels mois pass├®s ont le plus pes├® sur la d├®cision du mod├¿le ?</div>
             </div>
             <div style="background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.2); border-radius:12px; padding:12px 20px; font-size:13px; color:white; line-height:1.6; max-width:380px;">
-              💡 Le modèle s'appuie sur votre historique comme un actuaire expérimenté.
-              Voici <strong>les mois clés</strong> qui ont guidé sa prévision.
+              ­ƒÆí Le mod├¿le s'appuie sur votre historique comme un actuaire exp├®riment├®.
+              Voici <strong>les mois cl├®s</strong> qui ont guid├® sa pr├®vision.
             </div>
           </div>
 
           <!-- Cartes en grille pleine largeur -->
           <div id="m4-shap-container" style="display:grid; grid-template-columns:repeat(5,1fr); border:1px solid var(--border); border-top:none; border-radius:0 0 16px 16px; overflow:hidden;"></div>
 
-          <!-- Légende -->
+          <!-- L├®gende -->
           <div style="margin-top:14px; padding:14px 24px; background:white; border:1px solid var(--border); border-radius:12px; display:flex; align-items:center; gap:32px; flex-wrap:wrap;">
-            <span style="font-size:13px; font-weight:700; color:var(--text);">📖 Légende :</span>
-            <span style="font-size:12px; color:#64748b;"><span style="color:#dc2626; font-weight:700;">📈 Rouge · Hausse</span> — Ce mois a aggravé la sinistralité prévisionnelle</span>
-            <span style="font-size:12px; color:#64748b;"><span style="color:#16a34a; font-weight:700;">📉 Vert · Baisse</span> — Ce mois a atténué la sinistralité prévisionnelle</span>
-            <span style="font-size:12px; color:#64748b;"><strong>Force d'influence</strong> = importance relative du mois par rapport au plus décisif</span>
+            <span style="font-size:13px; font-weight:700; color:var(--text);">­ƒôû L├®gende :</span>
+            <span style="font-size:12px; color:#64748b;"><span style="color:#dc2626; font-weight:700;">­ƒôê Rouge ┬À Hausse</span> ÔÇö Ce mois a aggrav├® la sinistralit├® pr├®visionnelle</span>
+            <span style="font-size:12px; color:#64748b;"><span style="color:#16a34a; font-weight:700;">­ƒôë Vert ┬À Baisse</span> ÔÇö Ce mois a att├®nu├® la sinistralit├® pr├®visionnelle</span>
+            <span style="font-size:12px; color:#64748b;"><strong>Force d'influence</strong> = importance relative du mois par rapport au plus d├®cisif</span>
           </div>
 
-          <!-- Paragraphe d'interprétation actuarielle dynamique -->
-          <div id="m4-shap-interpretation" style="margin-top:16px; padding:24px 28px; background:linear-gradient(135deg,#edf8f0 0%,#f5fbf6 100%); border:1px solid #b7d9bf; border-radius:16px; display:none;">
+          <!-- Paragraphe d'interpr├®tation actuarielle dynamique -->
+          <div id="m4-shap-interpretation" style="margin-top:16px; padding:24px 28px; background:linear-gradient(135deg,#f0f4ff 0%,#faf5ff 100%); border:1px solid #c7d2fe; border-radius:16px; display:none;">
             <div style="display:flex; align-items:flex-start; gap:16px;">
-              <div style="font-size:32px; line-height:1; flex-shrink:0;">🧠</div>
+              <div style="font-size:32px; line-height:1; flex-shrink:0;">­ƒºá</div>
               <div>
-                <div style="font-size:15px; font-weight:800; color:#183927; margin-bottom:8px;">Interprétation Actuarielle — Lecture du Modèle LSTM</div>
+                <div style="font-size:15px; font-weight:800; color:#3730a3; margin-bottom:8px;">Interpr├®tation Actuarielle ÔÇö Lecture du Mod├¿le LSTM</div>
                 <div id="m4-shap-text" style="font-size:13px; color:#374151; line-height:1.8;"></div>
               </div>
             </div>
@@ -1444,22 +1441,22 @@
 
       </div><!-- /panel-series -->
 
-      <!-- ══════════════════════════════════════
-           MODULE 5 — RATIO COMBINÉ
-      ══════════════════════════════════════ -->
+      <!-- ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+           MODULE 5 ÔÇö RATIO COMBIN├ë
+      ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ -->
       <div class="section-panel" id="panel-ratio">
       
-        <!-- Contrôles de simulation -->
+        <!-- Contr├┤les de simulation -->
         <div class="chart-card" style="margin-bottom:20px; padding:20px; background:#f8fafc; border:1px solid #e2e8f0;">
-            <div style="font-weight:600; margin-bottom:15px;">Simulateur de Scénarios de Stress (ML Dynamics)</div>
+            <div style="font-weight:600; margin-bottom:15px;">Simulateur de Sc├®narios de Stress (ML Dynamics)</div>
             <div style="display:flex; gap:30px; align-items:center;">
                 <div style="flex:1;">
-                    <label style="font-size:13px; font-weight:600; display:block; margin-bottom:8px;">Inflation (% d'augmentation des coûts)</label>
+                    <label style="font-size:13px; font-weight:600; display:block; margin-bottom:8px;">Inflation (% d'augmentation des co├╗ts)</label>
                     <input type="range" id="m5-inflation" min="0" max="20" value="0" style="width:100%;" oninput="document.getElementById('m5-inflation-val').innerText = this.value + '%'">
                     <div style="text-align:right; font-size:12px; font-weight:700; color:var(--blue);" id="m5-inflation-val">0%</div>
                 </div>
                 <div style="flex:1;">
-                    <label style="font-size:13px; font-weight:600; display:block; margin-bottom:8px;">Retard Règlement (% d'impact)</label>
+                    <label style="font-size:13px; font-weight:600; display:block; margin-bottom:8px;">Retard R├¿glement (% d'impact)</label>
                     <input type="range" id="m5-retard" min="0" max="30" value="0" style="width:100%;" oninput="document.getElementById('m5-retard-val').innerText = this.value + '%'">
                     <div style="text-align:right; font-size:12px; font-weight:700; color:var(--blue);" id="m5-retard-val">0%</div>
                 </div>
@@ -1471,22 +1468,22 @@
 
         <div class="kpi-row" style="grid-template-columns:repeat(4,1fr);">
           <div class="kpi-card accent-green">
-            <div class="kc-head"><div class="kc-label">Ratio Combiné Global</div><div class="kc-icon" style="background:#dcfce7;">⚖️</div></div>
+            <div class="kc-head"><div class="kc-label">Ratio Combin├® Global</div><div class="kc-icon" style="background:#dcfce7;">ÔÜû´©Å</div></div>
             <div class="kc-value">97<small>%</small></div>
-            <div class="kc-footer"><span class="pill green">< 100% · Rentable</span></div>
+            <div class="kc-footer"><span class="pill green">< 100% ┬À Rentable</span></div>
           </div>
           <div class="kpi-card accent-green">
-            <div class="kc-head"><div class="kc-label">Meilleur segment</div><div class="kc-icon" style="background:#dcfce7;">🏅</div></div>
+            <div class="kc-head"><div class="kc-label">Meilleur segment</div><div class="kc-icon" style="background:#dcfce7;">­ƒÅà</div></div>
             <div class="kc-value">78<small>%</small></div>
-            <div class="kc-footer"><span class="trend-vs">Privé · Électrique</span></div>
+            <div class="kc-footer"><span class="trend-vs">Priv├® ┬À ├ëlectrique</span></div>
           </div>
           <div class="kpi-card accent-danger">
-            <div class="kc-head"><div class="kc-label">Pire segment</div><div class="kc-icon" style="background:#fee2e2;">⚠️</div></div>
+            <div class="kc-head"><div class="kc-label">Pire segment</div><div class="kc-icon" style="background:#fee2e2;">ÔÜá´©Å</div></div>
             <div class="kc-value">108<small>%</small></div>
-            <div class="kc-footer"><span class="trend-vs">Commercial · GPL</span></div>
+            <div class="kc-footer"><span class="trend-vs">Commercial ┬À GPL</span></div>
           </div>
           <div class="kpi-card accent-yellow">
-            <div class="kc-head"><div class="kc-label">Segments déficitaires</div><div class="kc-icon" style="background:#fef3c7;">🔴</div></div>
+            <div class="kc-head"><div class="kc-label">Segments d├®ficitaires</div><div class="kc-icon" style="background:#fef3c7;">­ƒö┤</div></div>
             <div class="kc-value">3<small>/7</small></div>
             <div class="kc-footer"><span class="trend-vs">Ratio > 100%</span></div>
           </div>
@@ -1494,88 +1491,88 @@
 
         <div class="chart-row cols-2">
           <div class="chart-card">
-            <div class="cc-header"><div><div class="cc-title">Ratio Combiné par Segment</div><div class="cc-subtitle">Classement décroissant · Seuil 100%</div></div></div>
+            <div class="cc-header"><div><div class="cc-title">Ratio Combin├® par Segment</div><div class="cc-subtitle">Classement d├®croissant ┬À Seuil 100%</div></div></div>
             <div id="ratio-chart-segments"></div>
           </div>
           <div class="chart-card">
-            <div class="cc-header"><div><div class="cc-title">Évolution du Ratio Combiné (2018–2023)</div><div class="cc-subtitle">Ratio sinistres + frais généraux</div></div></div>
+            <div class="cc-header"><div><div class="cc-title">├ëvolution du Ratio Combin├® (2018ÔÇô2023)</div><div class="cc-subtitle">Ratio sinistres + frais g├®n├®raux</div></div></div>
             <div id="ratio-chart-years"></div>
           </div>
         </div>
 
         <div class="data-table-card">
-          <div class="dtc-header"><div class="dtc-title">Ratio Combiné détaillé par Segment (Usage × Énergie) — Éditable</div></div>
+          <div class="dtc-header"><div class="dtc-title">Ratio Combin├® d├®taill├® par Segment (Usage ├ù ├ënergie) ÔÇö ├ëditable</div></div>
           <table class="dt" id="table-m5">
             <thead>
               <tr>
-                <th>Segment</th><th>Usage</th><th>Énergie</th>
-                <th>Primes Acquises (TND) (Éditable)</th><th>Sinistres Payés (TND) (Éditable)</th>
-                <th>Ratio Sinistres</th><th>Frais (Éditable)</th><th>Ratio Combiné</th><th>Statut</th>
+                <th>Segment</th><th>Usage</th><th>├ënergie</th>
+                <th>Primes Acquises (TND) (├ëditable)</th><th>Sinistres Pay├®s (TND) (├ëditable)</th>
+                <th>Ratio Sinistres</th><th>Frais (├ëditable)</th><th>Ratio Combin├®</th><th>Statut</th>
               </tr>
             </thead>
             <tbody>
               <tr class="row-m5">
-                <td><strong>Privé · Électrique</strong></td><td>Privé</td><td><span class="pill blue">Élec.</span></td>
+                <td><strong>Priv├® ┬À ├ëlectrique</strong></td><td>Priv├®</td><td><span class="pill blue">├ëlec.</span></td>
                 <td contenteditable="true" class="val-m5-primes" onblur="recalculerM5()">4 800 000</td>
                 <td contenteditable="true" class="val-m5-sinistres" onblur="recalculerM5()">3 180 000</td>
                 <td class="val-m5-ratio-sin">66%</td>
                 <td contenteditable="true" class="val-m5-frais" onblur="recalculerM5()">12%</td>
                 <td class="val-m5-ratio-comb"><strong style="color:var(--success);">78%</strong></td>
-                <td class="val-m5-status"><span class="pill green">✓ Excellent</span></td>
+                <td class="val-m5-status"><span class="pill green">Ô£ô Excellent</span></td>
               </tr>
               <tr class="row-m5">
-                <td><strong>Privé · Diesel</strong></td><td>Privé</td><td><span class="pill blue">Diesel</span></td>
+                <td><strong>Priv├® ┬À Diesel</strong></td><td>Priv├®</td><td><span class="pill blue">Diesel</span></td>
                 <td contenteditable="true" class="val-m5-primes" onblur="recalculerM5()">128 500 000</td>
                 <td contenteditable="true" class="val-m5-sinistres" onblur="recalculerM5()">96 400 000</td>
                 <td class="val-m5-ratio-sin">75%</td>
                 <td contenteditable="true" class="val-m5-frais" onblur="recalculerM5()">13%</td>
                 <td class="val-m5-ratio-comb"><strong style="color:var(--success);">88%</strong></td>
-                <td class="val-m5-status"><span class="pill green">✓ Rentable</span></td>
+                <td class="val-m5-status"><span class="pill green">Ô£ô Rentable</span></td>
               </tr>
               <tr class="row-m5">
-                <td><strong>Privé · Essence</strong></td><td>Privé</td><td><span class="pill green">Essence</span></td>
+                <td><strong>Priv├® ┬À Essence</strong></td><td>Priv├®</td><td><span class="pill green">Essence</span></td>
                 <td contenteditable="true" class="val-m5-primes" onblur="recalculerM5()">89 200 000</td>
                 <td contenteditable="true" class="val-m5-sinistres" onblur="recalculerM5()">71 400 000</td>
                 <td class="val-m5-ratio-sin">80%</td>
                 <td contenteditable="true" class="val-m5-frais" onblur="recalculerM5()">12%</td>
                 <td class="val-m5-ratio-comb"><strong style="color:var(--success);">92%</strong></td>
-                <td class="val-m5-status"><span class="pill green">✓ Rentable</span></td>
+                <td class="val-m5-status"><span class="pill green">Ô£ô Rentable</span></td>
               </tr>
               <tr class="row-m5">
-                <td><strong>Commercial · Diesel</strong></td><td>Commercial</td><td><span class="pill blue">Diesel</span></td>
+                <td><strong>Commercial ┬À Diesel</strong></td><td>Commercial</td><td><span class="pill blue">Diesel</span></td>
                 <td contenteditable="true" class="val-m5-primes" onblur="recalculerM5()">67 800 000</td>
                 <td contenteditable="true" class="val-m5-sinistres" onblur="recalculerM5()">62 400 000</td>
                 <td class="val-m5-ratio-sin">92%</td>
                 <td contenteditable="true" class="val-m5-frais" onblur="recalculerM5()">6%</td>
                 <td class="val-m5-ratio-comb"><strong style="color:var(--warning);">98%</strong></td>
-                <td class="val-m5-status"><span class="pill yellow">⚠ Limite</span></td>
+                <td class="val-m5-status"><span class="pill yellow">ÔÜá Limite</span></td>
               </tr>
               <tr class="row-m5">
-                <td><strong>Administratif · Diesel</strong></td><td>Administratif</td><td><span class="pill blue">Diesel</span></td>
+                <td><strong>Administratif ┬À Diesel</strong></td><td>Administratif</td><td><span class="pill blue">Diesel</span></td>
                 <td contenteditable="true" class="val-m5-primes" onblur="recalculerM5()">17 200 000</td>
                 <td contenteditable="true" class="val-m5-sinistres" onblur="recalculerM5()">15 600 000</td>
                 <td class="val-m5-ratio-sin">91%</td>
                 <td contenteditable="true" class="val-m5-frais" onblur="recalculerM5()">8%</td>
                 <td class="val-m5-ratio-comb"><strong style="color:var(--warning);">99%</strong></td>
-                <td class="val-m5-status"><span class="pill yellow">⚠ Attention</span></td>
+                <td class="val-m5-status"><span class="pill yellow">ÔÜá Attention</span></td>
               </tr>
               <tr class="row-m5">
-                <td><strong>Commercial · Essence</strong></td><td>Commercial</td><td><span class="pill green">Essence</span></td>
+                <td><strong>Commercial ┬À Essence</strong></td><td>Commercial</td><td><span class="pill green">Essence</span></td>
                 <td contenteditable="true" class="val-m5-primes" onblur="recalculerM5()">12 400 000</td>
                 <td contenteditable="true" class="val-m5-sinistres" onblur="recalculerM5()">12 200 000</td>
                 <td class="val-m5-ratio-sin">98%</td>
                 <td contenteditable="true" class="val-m5-frais" onblur="recalculerM5()">6%</td>
                 <td class="val-m5-ratio-comb"><strong style="color:var(--danger);">104%</strong></td>
-                <td class="val-m5-status"><span class="pill red">✗ Déficitaire</span></td>
+                <td class="val-m5-status"><span class="pill red">Ô£ù D├®ficitaire</span></td>
               </tr>
               <tr class="row-m5">
-                <td><strong>Commercial · GPL</strong></td><td>Commercial</td><td><span class="pill red">GPL</span></td>
+                <td><strong>Commercial ┬À GPL</strong></td><td>Commercial</td><td><span class="pill red">GPL</span></td>
                 <td contenteditable="true" class="val-m5-primes" onblur="recalculerM5()">28 600 000</td>
                 <td contenteditable="true" class="val-m5-sinistres" onblur="recalculerM5()">29 200 000</td>
                 <td class="val-m5-ratio-sin">102%</td>
                 <td contenteditable="true" class="val-m5-frais" onblur="recalculerM5()">6%</td>
                 <td class="val-m5-ratio-comb"><strong style="color:var(--danger);">108%</strong></td>
-                <td class="val-m5-status"><span class="pill red">✗ Déficitaire</span></td>
+                <td class="val-m5-status"><span class="pill red">Ô£ù D├®ficitaire</span></td>
               </tr>
               <tr style="background:#f8fafc;" id="row-m5-total">
                 <td colspan="3" style="font-weight:700;color:var(--navy);">TOTAL PORTEFEUILLE</td>
@@ -1584,119 +1581,119 @@
                 <td id="total-m5-ratio-sin" style="font-weight:700;">82%</td>
                 <td id="total-m5-frais" style="font-weight:700;">11%</td>
                 <td id="total-m5-ratio-comb" style="font-weight:700;"><strong style="color:var(--success);">93%</strong></td>
-                <td id="total-m5-status"><span class="pill green">✓ Rentable</span></td>
+                <td id="total-m5-status"><span class="pill green">Ô£ô Rentable</span></td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        <!-- ══════════════════════════════════════
-             EXPLAINABLE AI — DÉCOMPOSITION DU RATIO
-        ══════════════════════════════════════ -->
-        <div id="m5-xai-panel" style="display:none; margin-top:24px; background:linear-gradient(135deg,#183927 0%,#0f7041 100%); border-radius:20px; padding:28px; color:white;">
+        <!-- ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+             EXPLAINABLE AI ÔÇö D├ëCOMPOSITION DU RATIO
+        ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ -->
+        <div id="m5-xai-panel" style="display:none; margin-top:24px; background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 100%); border-radius:20px; padding:28px; color:white;">
           <div style="display:flex; align-items:center; gap:16px; margin-bottom:24px;">
-            <div style="font-size:36px; line-height:1;">🔬</div>
+            <div style="font-size:36px; line-height:1;">­ƒö¼</div>
             <div>
-              <div style="font-size:18px; font-weight:800; letter-spacing:-0.3px;">Explainable AI — Décomposition du Ratio Combiné</div>
-              <div style="font-size:13px; color:rgba(255,255,255,0.6); margin-top:3px;">Quels facteurs expliquent votre ratio simulé ? (Valeurs de Shapley simplifiées)</div>
+              <div style="font-size:18px; font-weight:800; letter-spacing:-0.3px;">Explainable AI ÔÇö D├®composition du Ratio Combin├®</div>
+              <div style="font-size:13px; color:rgba(255,255,255,0.6); margin-top:3px;">Quels facteurs expliquent votre ratio simul├® ? (Valeurs de Shapley simplifi├®es)</div>
             </div>
           </div>
 
           <!-- Waterfall Visuel -->
           <div id="m5-xai-waterfall" style="display:flex; flex-direction:column; gap:12px; margin-bottom:24px;"></div>
 
-          <!-- Résultat final + Interprétation -->
+          <!-- R├®sultat final + Interpr├®tation -->
           <div style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.15); border-radius:14px; padding:20px;">
-            <div style="font-size:13px; font-weight:700; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:1px; margin-bottom:12px;">📋 Interprétation Actuarielle Générée par l'IA</div>
+            <div style="font-size:13px; font-weight:700; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:1px; margin-bottom:12px;">­ƒôï Interpr├®tation Actuarielle G├®n├®r├®e par l'IA</div>
             <div id="m5-xai-text" style="font-size:14px; color:rgba(255,255,255,0.85); line-height:1.8;"></div>
           </div>
         </div>
 
       </div><!-- /panel-ratio -->
 
-      <!-- ══════════════════════════════════════
-           BONUS MALUS — TARIFICATION PRÉDICTIVE
-      ══════════════════════════════════════ -->
+      <!-- ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+           BONUS MALUS ÔÇö TARIFICATION PR├ëDICTIVE
+      ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ -->
       <div class="section-panel" id="panel-tarification">
         <div class="section-header">
-          <div class="section-title">🧮 Tarification Prédictive — Bonus Malus</div>
-          <div class="section-subtitle">Modèle XGBoost Tweedie · Portefeuille 2018-2023 · 94 852 polices analysées</div>
+          <div class="section-title">­ƒº« Tarification Pr├®dictive ÔÇö Bonus Malus</div>
+          <div class="section-subtitle">Mod├¿le XGBoost Tweedie ┬À Portefeuille 2018-2023 ┬À 94 852 polices analys├®es</div>
         </div>
 
-        <!-- ── KPI Cards ── -->
+        <!-- ÔöÇÔöÇ KPI Cards ÔöÇÔöÇ -->
         <div class="kpi-row" style="margin-bottom:24px;">
           <div class="kpi-card">
             <div class="kc-head">
               <div class="kc-label">Indice de Gini</div>
-              <div class="kc-icon">🎯</div>
+              <div class="kc-icon">­ƒÄ»</div>
             </div>
-            <div class="kc-value" id="tarif-kpi-gini" style="color:var(--blue);">—</div>
-            <div class="kc-footer"><span class="trend-up">↑ Bon pouvoir discriminant</span></div>
+            <div class="kc-value" id="tarif-kpi-gini" style="color:var(--blue);">ÔÇö</div>
+            <div class="kc-footer"><span class="trend-up">Ôåæ Bon pouvoir discriminant</span></div>
           </div>
           <div class="kpi-card">
             <div class="kc-head">
               <div class="kc-label">Loss Ratio Portefeuille</div>
-              <div class="kc-icon">📊</div>
+              <div class="kc-icon">­ƒôè</div>
             </div>
-            <div class="kc-value" id="tarif-kpi-lr">—</div>
-            <div class="kc-footer"><span class="trend-vs">2018 – 2023</span></div>
+            <div class="kc-value" id="tarif-kpi-lr">ÔÇö</div>
+            <div class="kc-footer"><span class="trend-vs">2018 ÔÇô 2023</span></div>
           </div>
           <div class="kpi-card">
             <div class="kc-head">
               <div class="kc-label">Nb Sinistres total</div>
-              <div class="kc-icon">📋</div>
+              <div class="kc-icon">­ƒôï</div>
             </div>
-            <div class="kc-value" id="tarif-kpi-expo">—</div>
+            <div class="kc-value" id="tarif-kpi-expo">ÔÇö</div>
             <div class="kc-footer"><span class="trend-vs">Portefeuille 2018-2023</span></div>
           </div>
           <div class="kpi-card">
             <div class="kc-head">
-              <div class="kc-label">Taux de sinistralité</div>
-              <div class="kc-icon">⚠️</div>
+              <div class="kc-label">Taux de sinistralit├®</div>
+              <div class="kc-icon">ÔÜá´©Å</div>
             </div>
-            <div class="kc-value" id="tarif-kpi-tx">—</div>
+            <div class="kc-value" id="tarif-kpi-tx">ÔÇö</div>
             <div class="kc-footer"><span class="trend-vs">Sinistres / exposition annuelle</span></div>
           </div>
         </div>
 
-        <!-- ── Row 1 : Courbe de Lift + Importance des Variables ── -->
+        <!-- ÔöÇÔöÇ Row 1 : Courbe de Lift + Importance des Variables ÔöÇÔöÇ -->
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:24px;">
 
           <!-- Courbe de Lift -->
           <div style="background:var(--white); border-radius:12px; padding:20px; border:1px solid var(--border); box-shadow:0 2px 8px rgba(0,0,0,0.04);">
-            <div style="font-weight:700; font-size:13px; color:var(--navy); margin-bottom:4px;">📈 Courbe de Lift — Déciles de risque</div>
-            <div style="font-size:11px; color:var(--muted); margin-bottom:14px;">Prime prédite vs coût réel vs prime actuelle (échantillon test)</div>
+            <div style="font-weight:700; font-size:13px; color:var(--navy); margin-bottom:4px;">­ƒôê Courbe de Lift ÔÇö D├®ciles de risque</div>
+            <div style="font-size:11px; color:var(--muted); margin-bottom:14px;">Prime pr├®dite vs co├╗t r├®el vs prime actuelle (├®chantillon test)</div>
             <div id="chart-tarif-lift" style="height:240px;"></div>
           </div>
 
           <!-- Importance des variables -->
           <div style="background:var(--white); border-radius:12px; padding:20px; border:1px solid var(--border); box-shadow:0 2px 8px rgba(0,0,0,0.04);">
-            <div style="font-weight:700; font-size:13px; color:var(--navy); margin-bottom:4px;">🔍 Importance des variables</div>
-            <div style="font-size:11px; color:var(--muted); margin-bottom:14px;">Contribution de chaque facteur au modèle XGBoost</div>
+            <div style="font-weight:700; font-size:13px; color:var(--navy); margin-bottom:4px;">­ƒöì Importance des variables</div>
+            <div style="font-size:11px; color:var(--muted); margin-bottom:14px;">Contribution de chaque facteur au mod├¿le XGBoost</div>
             <div id="chart-tarif-importance" style="height:240px;"></div>
           </div>
         </div>
 
-        <!-- ── Tableau des déciles ── -->
+        <!-- ÔöÇÔöÇ Tableau des d├®ciles ÔöÇÔöÇ -->
         <div style="background:var(--white); border-radius:12px; padding:20px; border:1px solid var(--border); box-shadow:0 2px 8px rgba(0,0,0,0.04); margin-bottom:24px;">
-          <div style="font-weight:700; font-size:13px; color:var(--navy); margin-bottom:4px;">📋 Comparaison Tarif Actuel vs Risque Réel vs Modèle</div>
-          <div style="font-size:11px; color:var(--muted); margin-bottom:16px;">Portefeuille complet 2018-2023 réparti en 10 déciles de risque selon le score du modèle (TND / année d'exposition)</div>
+          <div style="font-weight:700; font-size:13px; color:var(--navy); margin-bottom:4px;">­ƒôï Comparaison Tarif Actuel vs Risque R├®el vs Mod├¿le</div>
+          <div style="font-size:11px; color:var(--muted); margin-bottom:16px;">Portefeuille complet 2018-2023 r├®parti en 10 d├®ciles de risque selon le score du mod├¿le (TND / ann├®e d'exposition)</div>
           <div style="overflow-x:auto;">
             <table style="width:100%; border-collapse:collapse; font-size:13px;">
               <thead>
                 <tr style="background:var(--navy); color:white;">
-                  <th style="padding:10px 14px; text-align:left; border-radius:8px 0 0 0; font-weight:600;">Décile</th>
-                  <th style="padding:10px 14px; text-align:right; font-weight:600;">Coût réel / expo (TND)</th>
-                  <th style="padding:10px 14px; text-align:right; font-weight:600;">Prime prédite / expo (TND)</th>
+                  <th style="padding:10px 14px; text-align:left; border-radius:8px 0 0 0; font-weight:600;">D├®cile</th>
+                  <th style="padding:10px 14px; text-align:right; font-weight:600;">Co├╗t r├®el / expo (TND)</th>
+                  <th style="padding:10px 14px; text-align:right; font-weight:600;">Prime pr├®dite / expo (TND)</th>
                   <th style="padding:10px 14px; text-align:right; border-radius:0 8px 0 0; font-weight:600;">Prime actuelle / expo (TND)</th>
                 </tr>
               </thead>
               <tbody id="tarif-decile-tbody">
                 <tr style="background:#e6faf2;">
-                  <td style="padding:9px 14px; font-weight:600; color:var(--blue);">1 — Meilleur risque</td>
+                  <td style="padding:9px 14px; font-weight:600; color:var(--blue);">1 ÔÇö Meilleur risque</td>
                   <td style="padding:9px 14px; text-align:right; color:#059669; font-weight:700;">158</td>
                   <td style="padding:9px 14px; text-align:right;">181</td>
-                  <td style="padding:9px 14px; text-align:right; color:#dc2626; font-weight:600;">455 <span style="font-size:10px;">⚠️ sur-facturé</span></td>
+                  <td style="padding:9px 14px; text-align:right; color:#dc2626; font-weight:600;">455 <span style="font-size:10px;">ÔÜá´©Å sur-factur├®</span></td>
                 </tr>
                 <tr>
                   <td style="padding:9px 14px; font-weight:500;">2</td>
@@ -1747,34 +1744,34 @@
                   <td style="padding:9px 14px; text-align:right;">1 613</td>
                 </tr>
                 <tr style="background:#fef2f2;">
-                  <td style="padding:9px 14px; font-weight:700; color:#dc2626;">10 — Risque le plus élevé</td>
+                  <td style="padding:9px 14px; font-weight:700; color:#dc2626;">10 ÔÇö Risque le plus ├®lev├®</td>
                   <td style="padding:9px 14px; text-align:right; color:#dc2626; font-weight:700;">3 147</td>
                   <td style="padding:9px 14px; text-align:right;">2 378</td>
-                  <td style="padding:9px 14px; text-align:right; color:#059669; font-weight:600;">2 784 <span style="font-size:10px;">⚠️ sous-facturé</span></td>
+                  <td style="padding:9px 14px; text-align:right; color:#059669; font-weight:600;">2 784 <span style="font-size:10px;">ÔÜá´©Å sous-factur├®</span></td>
                 </tr>
               </tbody>
             </table>
           </div>
           <div style="margin-top:12px; padding:10px 14px; background:#fffbeb; border:1px solid #fcd34d; border-radius:8px; font-size:12px; color:#92400e;">
-            💡 <strong>Lecture :</strong> Les déciles 1-4 sont <strong>sur-facturés</strong> (la prime actuelle dépasse le coût réel), subventionnant les déciles 8-10 qui sont <strong>sous-facturés</strong>. Le modèle permet de corriger cet écart.
+            ­ƒÆí <strong>Lecture :</strong> Les d├®ciles 1-4 sont <strong>sur-factur├®s</strong> (la prime actuelle d├®passe le co├╗t r├®el), subventionnant les d├®ciles 8-10 qui sont <strong>sous-factur├®s</strong>. Le mod├¿le permet de corriger cet ├®cart.
           </div>
         </div>
 
-        <!-- ── Calculateur de prime ── -->
+        <!-- ÔöÇÔöÇ Calculateur de prime ÔöÇÔöÇ -->
         <div style="background:var(--white); border-radius:12px; padding:28px; border:1px solid var(--border); box-shadow:0 2px 8px rgba(0,0,0,0.04);">
-          <div style="font-weight:700; font-size:14px; color:var(--navy); margin-bottom:4px;">🧮 Calculateur de Prime Pure Individuelle</div>
-          <div style="font-size:12px; color:var(--muted); margin-bottom:20px;">Entrez les caractéristiques du profil pour obtenir une estimation du coût technique attendu</div>
+          <div style="font-weight:700; font-size:14px; color:var(--navy); margin-bottom:4px;">­ƒº« Calculateur de Prime Pure Individuelle</div>
+          <div style="font-size:12px; color:var(--muted); margin-bottom:20px;">Entrez les caract├®ristiques du profil pour obtenir une estimation du co├╗t technique attendu</div>
           <form id="tarificationForm" onsubmit="handleTarificationSubmit(event)">
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
 
               <div style="display:flex; flex-direction:column; gap:5px;">
-                <label style="font-size:11px; font-weight:600; color:var(--navy); text-transform:uppercase; letter-spacing:0.5px;">Âge du conducteur (16-100)</label>
+                <label style="font-size:11px; font-weight:600; color:var(--navy); text-transform:uppercase; letter-spacing:0.5px;">├ége du conducteur (16-100)</label>
                 <input type="number" id="tarif_driver_age" value="35" min="16" max="100" required
                   style="padding:9px 12px; border-radius:7px; border:1px solid var(--border); font-family:inherit; font-size:14px; background:var(--bg);">
               </div>
 
               <div style="display:flex; flex-direction:column; gap:5px;">
-                <label style="font-size:11px; font-weight:600; color:var(--navy); text-transform:uppercase; letter-spacing:0.5px;">Âge du véhicule (0-40)</label>
+                <label style="font-size:11px; font-weight:600; color:var(--navy); text-transform:uppercase; letter-spacing:0.5px;">├ége du v├®hicule (0-40)</label>
                 <input type="number" id="tarif_vehicle_age" value="5" min="0" max="40" required
                   style="padding:9px 12px; border-radius:7px; border:1px solid var(--border); font-family:inherit; font-size:14px; background:var(--bg);">
               </div>
@@ -1786,7 +1783,7 @@
               </div>
 
               <div style="display:flex; flex-direction:column; gap:5px;">
-                <label style="font-size:11px; font-weight:600; color:var(--navy); text-transform:uppercase; letter-spacing:0.5px;">Valeur Vénale (TND)</label>
+                <label style="font-size:11px; font-weight:600; color:var(--navy); text-transform:uppercase; letter-spacing:0.5px;">Valeur V├®nale (TND)</label>
                 <input type="number" id="tarif_valeur" value="45000" min="0" required
                   style="padding:9px 12px; border-radius:7px; border:1px solid var(--border); font-family:inherit; font-size:14px; background:var(--bg);">
               </div>
@@ -1794,10 +1791,10 @@
               <div style="display:flex; flex-direction:column; gap:5px;">
                 <label style="font-size:11px; font-weight:600; color:var(--navy); text-transform:uppercase; letter-spacing:0.5px;">Classe Bonus Malus (1-11)</label>
                 <select id="tarif_bm" style="padding:9px 12px; border-radius:7px; border:1px solid var(--border); font-family:inherit; font-size:14px; background:var(--bg);">
-                  <option value="1">1 — Bonus maximum</option><option value="2">2</option><option value="3">3</option>
-                  <option value="4">4</option><option value="5">5</option><option value="6">6 — Neutre</option>
+                  <option value="1">1 ÔÇö Bonus maximum</option><option value="2">2</option><option value="3">3</option>
+                  <option value="4">4</option><option value="5">5</option><option value="6">6 ÔÇö Neutre</option>
                   <option value="7">7</option><option value="8">8</option><option value="9">9</option>
-                  <option value="10">10</option><option value="11">11 — Malus maximum</option>
+                  <option value="10">10</option><option value="11">11 ÔÇö Malus maximum</option>
                 </select>
               </div>
 
@@ -1813,24 +1810,24 @@
                 <label style="font-size:11px; font-weight:600; color:var(--navy); text-transform:uppercase; letter-spacing:0.5px;">Sexe</label>
                 <select id="tarif_sex" style="padding:9px 12px; border-radius:7px; border:1px solid var(--border); font-family:inherit; font-size:14px; background:var(--bg);">
                   <option value="M">Masculin</option>
-                  <option value="F">Féminin</option>
+                  <option value="F">F├®minin</option>
                   <option value="Inconnu">Inconnu</option>
                 </select>
               </div>
 
               <div style="display:flex; flex-direction:column; gap:5px;">
-                <label style="font-size:11px; font-weight:600; color:var(--navy); text-transform:uppercase; letter-spacing:0.5px;">Énergie</label>
+                <label style="font-size:11px; font-weight:600; color:var(--navy); text-transform:uppercase; letter-spacing:0.5px;">├ënergie</label>
                 <select id="tarif_energie" style="padding:9px 12px; border-radius:7px; border:1px solid var(--border); font-family:inherit; font-size:14px; background:var(--bg);">
                   <option value="Essence">Essence</option>
                   <option value="Diesel">Diesel</option>
                   <option value="Gaz">Gaz</option>
                   <option value="HYBRIDE">Hybride</option>
-                  <option value="Electrique">Électrique</option>
+                  <option value="Electrique">├ëlectrique</option>
                 </select>
               </div>
 
               <div style="display:flex; flex-direction:column; gap:5px; grid-column:1 / -1;">
-                <label style="font-size:11px; font-weight:600; color:var(--navy); text-transform:uppercase; letter-spacing:0.5px;">Région / Gouvernorat</label>
+                <label style="font-size:11px; font-weight:600; color:var(--navy); text-transform:uppercase; letter-spacing:0.5px;">R├®gion / Gouvernorat</label>
                 <select id="tarif_region" style="padding:9px 12px; border-radius:7px; border:1px solid var(--border); font-family:inherit; font-size:14px; background:var(--bg);">
                   <option value="TUNIS">TUNIS</option><option value="SFAX">SFAX</option><option value="SOUSSE">SOUSSE</option>
                   <option value="ARIANA">ARIANA</option><option value="BEJA">BEJA</option><option value="BEN AROUS">BEN AROUS</option>
@@ -1848,7 +1845,7 @@
             <div style="margin-top:20px; display:flex; justify-content:flex-end;">
               <button type="submit" id="tarif_btn"
                 style="background:linear-gradient(135deg, var(--blue), #1d4ed8); color:white; border:none; padding:12px 28px; border-radius:8px; cursor:pointer; font-weight:700; font-size:14px; font-family:inherit; box-shadow:0 4px 12px rgba(37,99,235,0.35);">
-                🧮 Calculer la Prime Pure
+                ­ƒº« Calculer la Prime Pure
               </button>
             </div>
           </form>
@@ -1856,30 +1853,30 @@
           <div id="tarif_error" style="display:none; margin-top:16px; padding:14px 18px; background:#fef2f2; border:1px solid #f87171; color:#b91c1c; border-radius:8px; font-size:13px;"></div>
 
           <div id="tarif_result" style="display:none; margin-top:20px; padding:24px 28px; background:linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border:2px solid #6ee7b7; border-radius:12px;">
-            <div style="font-size:11px; font-weight:700; color:#065f46; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">✅ Résultat de Tarification</div>
+            <div style="font-size:11px; font-weight:700; color:#065f46; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">Ô£à R├®sultat de Tarification</div>
             <div style="font-size:38px; font-weight:900; color:#047857; line-height:1.1;">
-              <span id="tarif_amount">—</span>
+              <span id="tarif_amount">ÔÇö</span>
               <span style="font-size:18px; font-weight:600; color:#065f46;"> TND / an</span>
             </div>
             <div style="font-size:12px; color:#065f46; opacity:0.75; margin-top:10px;">
-              ⚠️ <strong>Note :</strong> Coût technique estimé (Prime Pure calibrée). Les chargements, taxes et frais de gestion ne sont pas inclus dans ce montant — il s'agit du risque pur attendu.
+              ÔÜá´©Å <strong>Note :</strong> Co├╗t technique estim├® (Prime Pure calibr├®e). Les chargements, taxes et frais de gestion ne sont pas inclus dans ce montant ÔÇö il s'agit du risque pur attendu.
             </div>
           </div>
         </div>
 
       </div><!-- /panel-tarification -->
 
-      <!-- ══════════════════════════════════════
-           MODULE 6 — ASSISTANT IA
-      ══════════════════════════════════════ -->
+      <!-- ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+           MODULE 6 ÔÇö ASSISTANT IA
+      ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ -->
       <div class="section-panel" id="panel-assistant">
         <div style="display:flex; flex-direction:column; height:100%; border:1px solid var(--border); border-radius:12px; background:var(--white); overflow:hidden; box-shadow:0 4px 6px -1px rgba(0,0,0,0.05);">
           <!-- Header Chat -->
           <div style="padding:16px 20px; border-bottom:1px solid var(--border); background:linear-gradient(to right, var(--navy), var(--blue)); color:white; display:flex; align-items:center; gap:12px;">
-            <div style="font-size:24px;">🤖</div>
+            <div style="font-size:24px;">­ƒñû</div>
             <div>
               <div style="font-weight:700; font-size:15px; letter-spacing:0.3px;">Assistant IA Actuariel</div>
-              <div style="font-size:11px; opacity:0.8;">Modèle RAG · Connaissance du portefeuille BIAT</div>
+              <div style="font-size:11px; opacity:0.8;">Mod├¿le RAG ┬À Connaissance du portefeuille BIAT</div>
             </div>
           </div>
           
@@ -1887,25 +1884,25 @@
           <div id="chat-messages" style="flex:1; padding:20px; overflow-y:auto; background:var(--bg); display:flex; flex-direction:column; gap:16px;">
             <div style="align-self:flex-start; max-width:75%; background:white; padding:12px 16px; border-radius:12px 12px 12px 0; border:1px solid var(--border); box-shadow:0 1px 2px rgba(0,0,0,0.02);">
               <div style="font-size:13px; color:var(--text); line-height:1.5;">
-                Bonjour ! Je suis l'Assistant IA Actuariel. Je peux répondre à vos questions sur :
+                Bonjour ! Je suis l'Assistant IA Actuariel. Je peux r├®pondre ├á vos questions sur :
                 <ul style="margin-top:6px; padding-left:20px; color:var(--muted);">
                   <li>Le provisionnement IBNR (M2)</li>
-                  <li>La modélisation des risques (M3)</li>
-                  <li>La sinistralité et la rentabilité (M1 & M5)</li>
+                  <li>La mod├®lisation des risques (M3)</li>
+                  <li>La sinistralit├® et la rentabilit├® (M1 & M5)</li>
                 </ul>
                 <br>
-                <em>Note : Les vrais modèles <code>.pkl</code> et les notebooks Python ne sont pas encore branchés dans le dossier <code>notebooks</code>, mais je peux vous faire une démonstration de mes réponses.</em>
+                <em>Note : Les vrais mod├¿les <code>.pkl</code> et les notebooks Python ne sont pas encore branch├®s dans le dossier <code>notebooks</code>, mais je peux vous faire une d├®monstration de mes r├®ponses.</em>
               </div>
             </div>
           </div>
 
           <!-- Suggested Prompts -->
           <div style="padding:10px 20px; background:white; display:flex; gap:8px; overflow-x:auto; border-top:1px solid var(--border-light);" id="chat-suggestions">
-            <button onclick="fillChat('Combien dois-je mettre de côté pour les sinistres tardifs (IBNR) ?')" style="white-space:nowrap; background:#f1f5f9; border:1px solid var(--border); border-radius:99px; padding:6px 12px; font-size:11px; color:var(--navy); cursor:pointer;">Combien mettre de côté (IBNR) ?</button>
-            <button onclick="fillChat('Que dit la décision du ministre des finances du 8 Mai 2019 sur le provisionnement ?')" style="white-space:nowrap; background:#f1f5f9; border:1px solid var(--border); border-radius:99px; padding:6px 12px; font-size:11px; color:var(--navy); cursor:pointer;">Décision du 8 Mai 2019 ?</button>
-            <button onclick="fillChat('Quels sont les segments les plus déficitaires de notre portefeuille automobile ?')" style="white-space:nowrap; background:#f1f5f9; border:1px solid var(--border); border-radius:99px; padding:6px 12px; font-size:11px; color:var(--navy); cursor:pointer;">Segments déficitaires ?</button>
-            <button onclick="fillChat('Quels sont les principes clés de la norme IFRS 17 pour les contrats d\\'assurance ?')" style="white-space:nowrap; background:#f1f5f9; border:1px solid var(--border); border-radius:99px; padding:6px 12px; font-size:11px; color:var(--navy); cursor:pointer;">Principes IFRS 17 ?</button>
-            <button onclick="fillChat('Quels sont les modèles de Machine Learning utilisés par BIAT pour la tarification ?')" style="white-space:nowrap; background:#f1f5f9; border:1px solid var(--border); border-radius:99px; padding:6px 12px; font-size:11px; color:var(--navy); cursor:pointer;">Modèles de Tarification ML ?</button>
+            <button onclick="fillChat('Combien dois-je mettre de c├┤t├® pour les sinistres tardifs (IBNR) ?')" style="white-space:nowrap; background:#f1f5f9; border:1px solid var(--border); border-radius:99px; padding:6px 12px; font-size:11px; color:var(--navy); cursor:pointer;">Combien mettre de c├┤t├® (IBNR) ?</button>
+            <button onclick="fillChat('Que dit la d├®cision du ministre des finances du 8 Mai 2019 sur le provisionnement ?')" style="white-space:nowrap; background:#f1f5f9; border:1px solid var(--border); border-radius:99px; padding:6px 12px; font-size:11px; color:var(--navy); cursor:pointer;">D├®cision du 8 Mai 2019 ?</button>
+            <button onclick="fillChat('Quels sont les segments les plus d├®ficitaires de notre portefeuille automobile ?')" style="white-space:nowrap; background:#f1f5f9; border:1px solid var(--border); border-radius:99px; padding:6px 12px; font-size:11px; color:var(--navy); cursor:pointer;">Segments d├®ficitaires ?</button>
+            <button onclick="fillChat('Quels sont les principes cl├®s de la norme IFRS 17 pour les contrats d\\'assurance ?')" style="white-space:nowrap; background:#f1f5f9; border:1px solid var(--border); border-radius:99px; padding:6px 12px; font-size:11px; color:var(--navy); cursor:pointer;">Principes IFRS 17 ?</button>
+            <button onclick="fillChat('Quels sont les mod├¿les de Machine Learning utilis├®s par BIAT pour la tarification ?')" style="white-space:nowrap; background:#f1f5f9; border:1px solid var(--border); border-radius:99px; padding:6px 12px; font-size:11px; color:var(--navy); cursor:pointer;">Mod├¿les de Tarification ML ?</button>
           </div>
 
           <!-- Input Area -->
@@ -1922,12 +1919,12 @@
   </div><!-- /main-wrapper -->
 
   <!-- ApexCharts -->
-  <script src="/src/plugins/apexcharts/apexcharts.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
   <script>
-    // ══════════════════════════════════════════════════
-    // MODULE 1 — PRÉDICTION IA SINISTRALITÉ
-    // ══════════════════════════════════════════════════
+    // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+    // MODULE 1 ÔÇö PR├ëDICTION IA SINISTRALIT├ë
+    // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
     async function predireSinistralite() {
       const btn = document.getElementById('m1-predict-btn');
       const usage = document.getElementById('m1-usage').value;
@@ -1935,11 +1932,11 @@
       const region = document.getElementById('m1-region').value;
       const puissance = parseInt(document.getElementById('m1-puissance').value) || 8;
 
-      btn.innerHTML = '⏳ Calcul en cours...';
+      btn.innerHTML = 'ÔÅ│ Calcul en cours...';
       btn.disabled = true;
 
       try {
-        const response = await fetch('/api/predict/assure', {
+        const response = await fetch('http://127.0.0.1:8000/api/predict/assure', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -1966,41 +1963,41 @@
 
           // Niveau de risque
           let risque, risqueCoul;
-          if (freq > 0.7) { risque = '🔴 Élevé'; risqueCoul = '#f87171'; }
-          else if (freq > 0.4) { risque = '🟡 Modéré'; risqueCoul = '#fbbf24'; }
-          else { risque = '🟢 Faible'; risqueCoul = '#34d399'; }
+          if (freq > 0.7) { risque = '­ƒö┤ ├ëlev├®'; risqueCoul = '#f87171'; }
+          else if (freq > 0.4) { risque = '­ƒƒí Mod├®r├®'; risqueCoul = '#fbbf24'; }
+          else { risque = '­ƒƒó Faible'; risqueCoul = '#34d399'; }
           document.getElementById('m1-out-risque').textContent = risque;
           document.getElementById('m1-out-risque').style.color = risqueCoul;
 
-          // Interprétation
-          const interp = `Le modèle XGBoost prédit pour un véhicule <strong>${usage}</strong> · <strong>${energie}</strong> en région <strong>${region}</strong> (puissance ${puissance} CV) :<br>
-          → Fréquence de sinistre de <strong>${(freq*100).toFixed(1)}%</strong> — sur 100 polices similaires, environ <strong>${Math.round(freq*100)} déclarent un sinistre</strong>.<br>
-          → Sévérité moyenne de <strong>${Math.round(sev).toLocaleString('fr-TN')} TND</strong> par sinistre déclaré.<br>
-          → Prime pure actuarielle recommandée : <strong>${Math.round(prime).toLocaleString('fr-TN')} TND</strong>.`;
+          // Interpr├®tation
+          const interp = `Le mod├¿le XGBoost pr├®dit pour un v├®hicule <strong>${usage}</strong> ┬À <strong>${energie}</strong> en r├®gion <strong>${region}</strong> (puissance ${puissance} CV) :<br>
+          ÔåÆ Fr├®quence de sinistre de <strong>${(freq*100).toFixed(1)}%</strong> ÔÇö sur 100 polices similaires, environ <strong>${Math.round(freq*100)} d├®clarent un sinistre</strong>.<br>
+          ÔåÆ S├®v├®rit├® moyenne de <strong>${Math.round(sev).toLocaleString('fr-TN')} TND</strong> par sinistre d├®clar├®.<br>
+          ÔåÆ Prime pure actuarielle recommand├®e : <strong>${Math.round(prime).toLocaleString('fr-TN')} TND</strong>.`;
           document.getElementById('m1-out-interpretation').innerHTML = interp;
 
           document.getElementById('m1-results').style.display = 'block';
         } else {
-          alert('Erreur modèle : ' + (res.message || 'Inconnu'));
+          alert('Erreur mod├¿le : ' + (res.message || 'Inconnu'));
         }
       } catch(e) {
         alert('Impossible de contacter le serveur : ' + e.message);
       } finally {
-        btn.innerHTML = '⚡ Calculer la Prédiction IA';
+        btn.innerHTML = 'ÔÜí Calculer la Pr├®diction IA';
         btn.disabled = false;
       }
     }
 
-    // ══════════════════════════════════════════════════
-    // MODULE 2 — PRÉDICTION IA PROVISIONNEMENT
-    // ══════════════════════════════════════════════════
+    // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+    // MODULE 2 ÔÇö PR├ëDICTION IA PROVISIONNEMENT
+    // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
     async function predireReserves() {
       const btn = document.getElementById('m2-predict-btn');
       const segment = document.getElementById('m2-segment').value;
       const inflation = parseFloat(document.getElementById('m2-inflation').value) || 0;
       const acceleration = parseFloat(document.getElementById('m2-acceleration').value) || 0;
 
-      btn.innerHTML = '⏳ Calcul du Triangle...';
+      btn.innerHTML = 'ÔÅ│ Calcul du Triangle...';
       btn.disabled = true;
 
       // Triangles de base (en TND)
@@ -2033,19 +2030,19 @@
 
       let triData = baseTriangles[segment].map(row => [...row]);
 
-      // Appliquer les chocs : inflation et accélération
+      // Appliquer les chocs : inflation et acc├®l├®ration
       const infFactor = 1 + (inflation / 100);
       const accFactor = 1 + (acceleration / 100);
       
       for(let i=0; i<triData.length; i++) {
         for(let j=0; j<triData[i].length; j++) {
           if (triData[i][j] !== null) {
-            // Inflation s'applique plus fort sur les années récentes (diagonale bas)
+            // Inflation s'applique plus fort sur les ann├®es r├®centes (diagonale bas)
             const anneeActuelle = 2018 + i + j;
             if (anneeActuelle >= 2021) {
                 triData[i][j] = triData[i][j] * infFactor;
             }
-            // L'accélération augmente les paiements précoces (j=0 ou 1) et réduit les tardifs
+            // L'acc├®l├®ration augmente les paiements pr├®coces (j=0 ou 1) et r├®duit les tardifs
             if (j <= 1) triData[i][j] = triData[i][j] * accFactor;
             if (j >= 3) triData[i][j] = triData[i][j] / accFactor;
           }
@@ -2053,7 +2050,7 @@
       }
 
       try {
-        const response = await fetch('/api/predict/reserving', {
+        const response = await fetch('http://127.0.0.1:8000/api/predict/reserving', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -2081,7 +2078,7 @@
           const thead = document.getElementById('m2-tri-head');
           const tbody = document.getElementById('m2-tri-body');
           
-          let headHtml = `<tr><th style="text-align:left; background:var(--navy); color:white;">Année \\ Dév.</th>`;
+          let headHtml = `<tr><th style="text-align:left; background:var(--navy); color:white;">Ann├®e \\ D├®v.</th>`;
           for(let j=0; j<triComplet[0].length; j++) {
             headHtml += `<th style="background:var(--navy); color:white;">${j}</th>`;
           }
@@ -2093,7 +2090,7 @@
             let rowHtml = `<tr><td style="text-align:left; font-weight:700; color:var(--navy); border:1px solid #e2e8f0; padding:8px;">${2018 + i}</td>`;
             for(let j=0; j<triComplet[i].length; j++) {
               let val = triComplet[i][j];
-              // Vérifier si c'est une donnée historique (base) ou une prédiction (IA)
+              // V├®rifier si c'est une donn├®e historique (base) ou une pr├®diction (IA)
               let isPred = (triData[i][j] === null);
               if (val === null) val = 0;
               
@@ -2104,7 +2101,7 @@
               }
             }
             
-            // Calcul de l'IBNR par année (Ultime - Dernier connu)
+            // Calcul de l'IBNR par ann├®e (Ultime - Dernier connu)
             const dernierConnu = triData[i].filter(v => v !== null).pop() || 0;
             const ultime = triComplet[i][triComplet[i].length - 1] || 0;
             const ibnrLigne = ultime - dernierConnu;
@@ -2114,33 +2111,33 @@
           }
           tbody.innerHTML = bodyHtml;
 
-          // Interprétation
+          // Interpr├®tation
           let diff = d.ibnr_total_xgb ? (d.ibnr_total_xgb - d.ibnr_total) : 0;
           let diffStr = Math.abs(diff).toLocaleString('fr-TN');
-          let interp = `L'IA a complété le triangle de développement sur la base des cadences historiques. `;
+          let interp = `L'IA a compl├®t├® le triangle de d├®veloppement sur la base des cadences historiques. `;
           if (d.ibnr_total_xgb) {
-            interp += `Le modèle Machine Learning (XGBoost) ajuste l'IBNR Chain-Ladder avec un écart de <strong>${diffStr} TND</strong> en tenant compte des caractéristiques latentes du portefeuille. `;
+            interp += `Le mod├¿le Machine Learning (XGBoost) ajuste l'IBNR Chain-Ladder avec un ├®cart de <strong>${diffStr} TND</strong> en tenant compte des caract├®ristiques latentes du portefeuille. `;
           }
           if (inflation > 0) {
-            interp += `<br>Le choc d'inflation de ${inflation}% a mécaniquement alourdi la sinistralité des années récentes, augmentant le besoin de provisionnement.`;
+            interp += `<br>Le choc d'inflation de ${inflation}% a m├®caniquement alourdi la sinistralit├® des ann├®es r├®centes, augmentant le besoin de provisionnement.`;
           }
           document.getElementById('m2-out-interpretation').innerHTML = interp;
 
           document.getElementById('m2-results').style.display = 'block';
         } else {
-          alert('Erreur modèle : ' + (res.message || 'Inconnu'));
+          alert('Erreur mod├¿le : ' + (res.message || 'Inconnu'));
         }
       } catch(e) {
         alert('Impossible de contacter le serveur : ' + e.message);
       } finally {
-        btn.innerHTML = '🚀 Calculer le Triangle IA';
+        btn.innerHTML = '­ƒÜÇ Calculer le Triangle IA';
         btn.disabled = false;
       }
     }
 
-    // ══════════════════════════════════════════════════
+    // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
     // NAVIGATION
-    // ══════════════════════════════════════════════════
+    // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
     function showSection(name) {
       document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
@@ -2151,7 +2148,7 @@
         }
       });
 
-      // Re-rendre les graphiques du module affiché (ApexCharts ne se rend pas correctement sur display:none)
+      // Re-rendre les graphiques du module affich├® (ApexCharts ne se rend pas correctement sur display:none)
       requestAnimationFrame(() => {
         if (typeof window.renderChartsForModule === 'function') {
           window.renderChartsForModule(name);
@@ -2159,9 +2156,9 @@
       });
     }
 
-    // ══════════════════════════════════════════════════
-    // PRÉDICTION PRIME PURE — Modèle Fréquence × Sévérité
-    // ══════════════════════════════════════════════════
+    // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+    // PR├ëDICTION PRIME PURE ÔÇö Mod├¿le Fr├®quence ├ù S├®v├®rit├®
+    // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
     async function predire(event) {
       event.preventDefault();
       
@@ -2189,7 +2186,7 @@
       };
 
       try {
-        const response = await fetch('/api/predict/assure', {
+        const response = await fetch('http://localhost:8000/api/predict/assure', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
@@ -2204,26 +2201,26 @@
           const sev = data.severite;
           
           if (prime === null || prime === undefined || freq === null || freq === undefined) {
-              alert("Prédiction indisponible (Modèle non chargé ou profil hors domaine).");
+              alert("Pr├®diction indisponible (Mod├¿le non charg├® ou profil hors domaine).");
               return;
           }
           
-          // Afficher les résultats
+          // Afficher les r├®sultats
           document.getElementById('pred-freq').textContent  = (freq * 100).toFixed(2) + '%';
           const probEl = document.getElementById('pred-prob');
           if (probEl) probEl.textContent = (freq * 100).toFixed(2) + '%';
           document.getElementById('pred-sev').textContent   = Math.round(sev).toLocaleString('fr-TN') + ' TND';
           document.getElementById('pred-prime').textContent = Math.round(prime).toLocaleString('fr-TN') + ' TND';
 
-          // ── SHAP — Top 3 facteurs les plus impactants (VENANT DE L'IA EN TEMPS RÉEL)
+          // ÔöÇÔöÇ SHAP ÔÇö Top 3 facteurs les plus impactants (VENANT DE L'IA EN TEMPS R├ëEL)
           const shapFactors = data.shap_top3;
           
           if (shapFactors && shapFactors.length > 0) {
             document.getElementById('shap-container').innerHTML = shapFactors.map(f => {
               // f.importance est la valeur SHAP
-              const w   = Math.min(100, Math.round(Math.abs(f.importance) * 200)); // Mise à l'échelle visuelle
+              const w   = Math.min(100, Math.round(Math.abs(f.importance) * 200)); // Mise ├á l'├®chelle visuelle
               const dir = f.importance >= 0;
-              const col = dir ? '#dc2626' : '#16a34a'; // rouge = risque +, vert = risque −
+              const col = dir ? '#dc2626' : '#16a34a'; // rouge = risque +, vert = risque ÔêÆ
               const sign = dir ? '+' : '';
               return `<div class="shap-row">
                 <div class="shap-label">${f.feature}<span style="color:${col};font-weight:700;margin-left:5px;">${sign}${(f.importance * 100).toFixed(2)}</span></div>
@@ -2233,7 +2230,7 @@
               </div>`;
             }).join('');
           } else {
-             document.getElementById('shap-container').innerHTML = "<div style='font-size:13px; color:var(--slate-500)'>Explicabilité SHAP indisponible.</div>";
+             document.getElementById('shap-container').innerHTML = "<div style='font-size:13px; color:var(--slate-500)'>Explicabilit├® SHAP indisponible.</div>";
           }
 
         } else {
@@ -2251,12 +2248,12 @@
     }
     function applyFilters() { /* API call placeholder */ }
 
-    // ══════════════════════════════════════════════════
+    // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
     // COLORS
-    // ══════════════════════════════════════════════════
-    const NAVY = '#183927', BLUE = '#183927', ACCENT = '#2f8a55';
-    const SUCCESS = '#2f8a55', DANGER = '#dc2626', WARN = '#d97706';
-    const PALETTE = [NAVY, BLUE, '#2f8a55', '#8fc9a8', '#d4ecd9'];
+    // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+    const NAVY = '#0d2b1f', BLUE = '#1b5e3a', ACCENT = '#2e7d4f';
+    const SUCCESS = '#16a34a', DANGER = '#dc2626', WARN = '#d97706';
+    const PALETTE = [NAVY, BLUE, '#2e7d4f', '#86efac', '#d4ecd9'];
 
     const chartOpts = {
       chart: { toolbar: { show: false }, fontFamily: 'Inter, sans-serif', animations: { enabled: true, speed: 600 } },
@@ -2265,18 +2262,18 @@
       grid: { borderColor: '#f1f5f9', strokeDashArray: 4 }
     };
 
-    // ══════════════════════════════════════════════════
-    // VUE GÉNÉRALE & MODULES CHARTS (Dynamique)
-    // ══════════════════════════════════════════════════
-    // Les graphiques sont désormais chargés dynamiquement depuis les modèles et notebooks.
+    // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+    // VUE G├ëN├ëRALE & MODULES CHARTS (Dynamique)
+    // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+    // Les graphiques sont d├®sormais charg├®s dynamiquement depuis les mod├¿les et notebooks.
     // Voir le fichier js/dashboard-dynamic.js
     // Graphiques dynamiques : voir script tag js/dashboard-dynamic.js en bas de page
 
 
 
-    // ══════════════════════════════════════════════════
+    // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
     // IBNR ESTIMATOR
-    // ══════════════════════════════════════════════════
+    // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
     function chargerExemple() {
       document.getElementById('triangle-input').value = JSON.stringify({
         triangle: [
@@ -2308,14 +2305,14 @@
         return;
       }
       
-      // Bouton : état chargement
+      // Bouton : ├®tat chargement
       const btn = document.querySelector('[onclick="estimerIBNR()"]');
       const originalText = btn.innerHTML;
-      btn.innerHTML = '⏳ Calcul en cours...';
+      btn.innerHTML = 'ÔÅ│ Calcul en cours...';
       btn.disabled = true;
       
       try {
-        const response = await fetch('/api/predict/reserving', {
+        const response = await fetch('http://localhost:8000/api/predict/reserving', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ triangle_data: tri })
@@ -2333,22 +2330,22 @@
           
           tbody.innerHTML = rows.map(r => {
             const ibnr = r.ibnr ? Math.round(r.ibnr).toLocaleString('fr-TN') : '0';
-            const connu = r.dernier_connu ? Math.round(r.dernier_connu).toLocaleString('fr-TN') : '—';
-            const ultimate = r.cout_ultimate ? Math.round(r.cout_ultimate).toLocaleString('fr-TN') : '—';
+            const connu = r.dernier_connu ? Math.round(r.dernier_connu).toLocaleString('fr-TN') : 'ÔÇö';
+            const ultimate = r.cout_ultimate ? Math.round(r.cout_ultimate).toLocaleString('fr-TN') : 'ÔÇö';
             return `<tr>
               <td style="font-weight:600;">${r.annee}</td>
               <td>${connu}</td>
               <td style="color:var(--blue);font-weight:600;">${ultimate}</td>
-              <td style="color:#183927;">${ibnr}</td>
+              <td style="color:#7c3aed;">${ibnr}</td>
               <td style="color:#059669;">${ibnr}</td>
             </tr>`;
           }).join('');
           
           tfoot.innerHTML = `
             <td>TOTAL</td>
-            <td>—</td>
+            <td>ÔÇö</td>
             <td style="color:var(--blue);">${Math.round(data.cout_ultimate_total).toLocaleString('fr-TN')}</td>
-            <td style="color:#183927;font-weight:800;">${Math.round(data.ibnr_total).toLocaleString('fr-TN')}</td>
+            <td style="color:#7c3aed;font-weight:800;">${Math.round(data.ibnr_total).toLocaleString('fr-TN')}</td>
             <td style="color:#059669;">${Math.round(data.ibnr_total).toLocaleString('fr-TN')}</td>
           `;
           
@@ -2360,16 +2357,16 @@
         }
         
       } catch(err) {
-        alert('Impossible de contacter le serveur.\nVérifiez que le backend tourne sur http://localhost:8000');
+        alert('Impossible de contacter le serveur.\nV├®rifiez que le backend tourne sur http://localhost:8000');
       } finally {
         btn.innerHTML = originalText;
         btn.disabled = false;
       }
     }
     
-    // ══════════════════════════════════════════════════
-    // MODULE 4 - SÉRIES TEMPORELLES
-    // ══════════════════════════════════════════════════
+    // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+    // MODULE 4 - S├ëRIES TEMPORELLES
+    // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
     let m4Chart = null;
     
     async function predireSaisieManuelle(model) {
@@ -2378,7 +2375,7 @@
       const months = parseInt(monthsStr) || 12;
       
       try {
-        const response = await fetch('/api/forecast/predict', {
+        const response = await fetch('http://localhost:8000/api/forecast/predict', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ variable: variable, months: months, model: model })
@@ -2401,8 +2398,8 @@
               chart: { ...chartOpts.chart, type: 'line', height: 380 },
               series: [
                 { name: 'Historique', data: hist },
-                { name: 'Prévision LSTM', data: lstm },
-                { name: 'Prévision ARIMA', data: arima }
+                { name: 'Pr├®vision LSTM', data: lstm },
+                { name: 'Pr├®vision ARIMA', data: arima }
               ],
               colors: [NAVY, WARN, SUCCESS],
               stroke: { width: [2.5, 2.5, 2.5], dashArray: [0, 0, 0], curve: 'straight' },
@@ -2414,7 +2411,7 @@
            });
            m4Chart.render();
            
-           // ── SHAP Explainability Panel
+           // ÔöÇÔöÇ SHAP Explainability Panel
            const shapPanel = document.getElementById('m4-shap-panel');
            const shapContainer = document.getElementById('m4-shap-container');
            const shapImpacts = res.shap_impacts || [];
@@ -2428,15 +2425,15 @@
                const col = isPositive ? '#dc2626' : '#16a34a';
                const bgLight = isPositive ? '#fff5f5' : '#f0fdf4';
                const borderTop = isPositive ? '#dc2626' : '#16a34a';
-               const arrowIcon = isPositive ? '📈' : '📉';
+               const arrowIcon = isPositive ? '­ƒôê' : '­ƒôë';
                const direction = isPositive ? 'Hausse' : 'Baisse';
-               const rank = ['🥇','🥈','🥉','4️⃣','5️⃣'][idx] || `${idx+1}.`;
-               const valeur = f.valeur_historique ? f.valeur_historique.toLocaleString('fr-TN') : '—';
+               const rank = ['­ƒÑç','­ƒÑê','­ƒÑë','4´©ÅÔâú','5´©ÅÔâú'][idx] || `${idx+1}.`;
+               const valeur = f.valeur_historique ? f.valeur_historique.toLocaleString('fr-TN') : 'ÔÇö';
                const subtitle = f.subtitle || '';
                const impactPct = (Math.abs(f.importance) / maxAbs * 100).toFixed(0);
                const explication = isPositive
-                 ? `Ce mois a <strong>aggravé</strong> la sinistralité — l'IA le retient comme un <strong style="color:#dc2626;">signal de risque</strong>.`
-                 : `Ce mois a <strong>atténué</strong> la sinistralité — l'IA l'interprète comme un <strong style="color:#16a34a;">signal favorable</strong>.`;
+                 ? `Ce mois a <strong>aggrav├®</strong> la sinistralit├® ÔÇö l'IA le retient comme un <strong style="color:#dc2626;">signal de risque</strong>.`
+                 : `Ce mois a <strong>att├®nu├®</strong> la sinistralit├® ÔÇö l'IA l'interpr├¿te comme un <strong style="color:#16a34a;">signal favorable</strong>.`;
                const borderRight = idx < shapImpacts.length - 1 ? '1px solid #e2e8f0' : 'none';
                
                return `<div style="background:${bgLight}; border-top:4px solid ${borderTop}; border-right:${borderRight}; padding:28px 22px; display:flex; flex-direction:column; gap:14px;">
@@ -2470,7 +2467,7 @@
                    </div>
                  </div>
                  
-                 <!-- Explication métier -->
+                 <!-- Explication m├®tier -->
                  <div style="font-size:12px; color:#64748b; line-height:1.6; border-top:1px solid #e2e8f0; padding-top:12px;">${explication}</div>
                  
                </div>`;
@@ -2478,14 +2475,14 @@
              
              shapPanel.style.display = 'block';
              
-             // --- Paragraphe d'interprétation actuarielle ---
+             // --- Paragraphe d'interpr├®tation actuarielle ---
              const interpPanel = document.getElementById('m4-shap-interpretation');
              const interpText = document.getElementById('m4-shap-text');
              if (interpPanel && interpText && shapImpacts.length > 0) {
                const top = shapImpacts[0];
                const hausse = shapImpacts.filter(f => f.importance > 0);
                const baisse = shapImpacts.filter(f => f.importance < 0);
-               const topDir = top.importance >= 0 ? 'à la hausse' : 'à la baisse';
+               const topDir = top.importance >= 0 ? '├á la hausse' : '├á la baisse';
                const topCol = top.importance >= 0 ? '#dc2626' : '#16a34a';
                const varLabel = document.getElementById('m4-variable-input').options[document.getElementById('m4-variable-input').selectedIndex].text;
                const horizonLabel = document.getElementById('m4-months-input').value;
@@ -2494,25 +2491,25 @@
                let phrases = [];
                
                // Phrase 1 : mois le plus influent
-               phrases.push(`Le modèle LSTM a analysé <strong>${shapImpacts.length > 1 ? "l'ensemble de votre historique" : "votre historique"}</strong> pour établir une prévision sur <strong>${horizonLabel} mois</strong> de la variable <strong>${varLabel}</strong>.`);
+               phrases.push(`Le mod├¿le LSTM a analys├® <strong>${shapImpacts.length > 1 ? "l'ensemble de votre historique" : "votre historique"}</strong> pour ├®tablir une pr├®vision sur <strong>${horizonLabel} mois</strong> de la variable <strong>${varLabel}</strong>.`);
                
                // Phrase 2 : mois dominant
-               phrases.push(`Le mois de <strong style="color:${topCol};">${top.feature}</strong> (${top.subtitle}) est le plus déterminant dans cette prévision : il tire la sinistralité <strong>${topDir}</strong> d'environ <strong style="color:${topCol};">${impactAbs} TND</strong>.`);
+               phrases.push(`Le mois de <strong style="color:${topCol};">${top.feature}</strong> (${top.subtitle}) est le plus d├®terminant dans cette pr├®vision : il tire la sinistralit├® <strong>${topDir}</strong> d'environ <strong style="color:${topCol};">${impactAbs} TND</strong>.`);
                
                // Phrase 3 : profil global
                if (hausse.length > 0 && baisse.length > 0) {
-                 phrases.push(`Sur les 5 mois clés retenus, <strong style="color:#dc2626;">${hausse.length} mois ont un effet aggravant</strong> et <strong style="color:#16a34a;">${baisse.length} mois ont un effet atténuant</strong> sur la prévision.`);
+                 phrases.push(`Sur les 5 mois cl├®s retenus, <strong style="color:#dc2626;">${hausse.length} mois ont un effet aggravant</strong> et <strong style="color:#16a34a;">${baisse.length} mois ont un effet att├®nuant</strong> sur la pr├®vision.`);
                } else if (hausse.length === shapImpacts.length) {
-                 phrases.push(`Tous les mois clés retenus ont un <strong style="color:#dc2626;">effet haussier</strong> : le modèle anticipe une tendance à la hausse marquée.`);
+                 phrases.push(`Tous les mois cl├®s retenus ont un <strong style="color:#dc2626;">effet haussier</strong> : le mod├¿le anticipe une tendance ├á la hausse marqu├®e.`);
                } else {
-                 phrases.push(`Tous les mois clés retenus ont un <strong style="color:#16a34a;">effet atténuant</strong> : le modèle anticipe une tendance à la baisse.`);
+                 phrases.push(`Tous les mois cl├®s retenus ont un <strong style="color:#16a34a;">effet att├®nuant</strong> : le mod├¿le anticipe une tendance ├á la baisse.`);
                }
                
                // Phrase 4 : conseil actuariel
                if (hausse.length >= baisse.length) {
-                 phrases.push(`<span style="background:#fff7ed; border:1px solid #fed7aa; border-radius:8px; padding:6px 12px; display:inline-block; margin-top:4px;">⚠️ <strong>Recommandation actuarielle :</strong> Une attention particulière aux mois à fort impact haussier est conseillée pour ajuster les réserves techniques ou les primes futures.</span>`);
+                 phrases.push(`<span style="background:#fff7ed; border:1px solid #fed7aa; border-radius:8px; padding:6px 12px; display:inline-block; margin-top:4px;">ÔÜá´©Å <strong>Recommandation actuarielle :</strong> Une attention particuli├¿re aux mois ├á fort impact haussier est conseill├®e pour ajuster les r├®serves techniques ou les primes futures.</span>`);
                } else {
-                 phrases.push(`<span style="background:#f0fdf4; border:1px solid #86efac; border-radius:8px; padding:6px 12px; display:inline-block; margin-top:4px;">✅ <strong>Recommandation actuarielle :</strong> Le profil historique récent est favorable. Le modèle ne détecte pas de signal de risque majeur sur l'horizon analysé.</span>`);
+                 phrases.push(`<span style="background:#f0fdf4; border:1px solid #86efac; border-radius:8px; padding:6px 12px; display:inline-block; margin-top:4px;">Ô£à <strong>Recommandation actuarielle :</strong> Le profil historique r├®cent est favorable. Le mod├¿le ne d├®tecte pas de signal de risque majeur sur l'horizon analys├®.</span>`);
                }
                
                interpText.innerHTML = phrases.join('<br><br>');
@@ -2531,9 +2528,9 @@
         alert("Erreur de communication avec le serveur: " + e.message);
       }
     }
-  // ══════════════════════════════════════════════════
-  // CHATBOT IA ACTUARIEL (M6) - Mock de démonstration
-  // ══════════════════════════════════════════════════
+  // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+  // CHATBOT IA ACTUARIEL (M6) - Mock de d├®monstration
+  // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
   function fillChat(text) {
     document.getElementById('chat-input').value = text;
     document.getElementById('chat-input').focus();
@@ -2565,7 +2562,7 @@
       msgDiv.style.color = 'var(--navy)';
       msgDiv.style.borderBottomLeftRadius = '0';
       msgDiv.style.border = '1px solid var(--border-light)';
-      msgDiv.innerHTML = parsedText; // Permet le HTML léger du RAG
+      msgDiv.innerHTML = parsedText; // Permet le HTML l├®ger du RAG
     }
 
     chat.appendChild(msgDiv);
@@ -2586,12 +2583,12 @@
     const loadingDiv = document.createElement('div');
     loadingDiv.id = 'chat-loading';
     loadingDiv.style = 'align-self:flex-start; font-size:12px; color:var(--muted); padding:4px 16px; font-style:italic;';
-    loadingDiv.textContent = 'L\'IA réfléchit...';
+    loadingDiv.textContent = 'L\'IA r├®fl├®chit...';
     chat.appendChild(loadingDiv);
     chat.scrollTop = chat.scrollHeight;
 
     try {
-      const response = await fetch('/api/assistant/question', {
+      const response = await fetch('http://127.0.0.1:8000/api/assistant/question', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question: msg })
@@ -2599,14 +2596,14 @@
       const data = await response.json();
       document.getElementById('chat-loading').remove();
       if (data.status === 'ok') {
-        // Afficher la réponse + les sources
+        // Afficher la r├®ponse + les sources
         let html = data.reponse || '';
         if (data.sources && data.sources.length > 1) {
-          html += '<br><small style="color:#94a3b8; font-size:10px;">📚 Sources : ' + data.sources.join(' · ') + '</small>';
+          html += '<br><small style="color:#94a3b8; font-size:10px;">­ƒôÜ Sources : ' + data.sources.join(' ┬À ') + '</small>';
         }
         appendMessage('ia', html);
       } else {
-        appendMessage('ia', '⚠️ ' + (data.reponse || data.message || 'Erreur inconnue'));
+        appendMessage('ia', 'ÔÜá´©Å ' + (data.reponse || data.message || 'Erreur inconnue'));
       }
     } catch(err) {
       document.getElementById('chat-loading').remove();
@@ -2615,6 +2612,6 @@
   }
   </script>
   
-  <script src="/js/dashboard-dynamic.js?v=27"></script>
+  <script src="/js/dashboard-dynamic.js?v=26"></script>
 </body>
 </html>

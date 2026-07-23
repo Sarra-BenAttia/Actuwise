@@ -6,9 +6,8 @@ function logMsg(m) { DBG.innerHTML += m + '<br>'; console.log(m); }
 window.addEventListener('error', function(e) { logMsg('ERR: ' + e.message); });
 window.addEventListener('unhandledrejection', function(e) { logMsg('PROMISE ERR: ' + (e.reason && e.reason.stack ? e.reason.stack : e.reason)); });
 
-const NAVY = '#0d2b1f', BLUE = '#1b5e3a', SKY = '#77bfa3', TEAL = '#16a34a', RED = '#ef4444', GREEN = '#2e7d4f', WARNING = '#f59e0b', DANGER = '#dc2626';
-const PRIMARY = '#00c07f';
-const PALETTE = [PRIMARY, GREEN, SKY, NAVY, WARNING];
+const NAVY = '#183927', BLUE = '#183927', SKY = '#8fc9a8', TEAL = '#2f8a55', RED = '#ef4444', GREEN = '#2f8a55', WARNING = '#f59e0b', DANGER = '#dc2626';
+const PALETTE = [BLUE, GREEN, SKY, NAVY, WARNING];
 const CHARTS = {}, RENDERED = new Set(), CACHE = {};
 const mL = ['Jan','Fev','Mar','Avr','Mai','Jun','Jul','Aou','Sep','Oct','Nov','Dec'];
 const BASE_CHART = {
@@ -16,27 +15,16 @@ const BASE_CHART = {
     toolbar: { show: false },
     zoom: { enabled: false },
     fontFamily: 'Inter, sans-serif',
-    animations: { enabled: true, easing: 'easeInOutQuad', speed: 500, animateGradually: { enabled: true, delay: 50 } },
-    foreColor: '#64748b',
-    sparkline: { enabled: false }
+    animations: { enabled: true, easing: 'easeout', speed: 400 },
+    foreColor: '#475569'
   },
   dataLabels: { enabled: false },
-  stroke: { curve: 'smooth', width: 2.5, lineCap: 'round' },
-  fill: { type: 'gradient', gradient: { shadeIntensity: 0.05, opacityFrom: 0.7, opacityTo: 0.1 } },
-  grid: { borderColor: '#e2e8f0', strokeDashArray: 0, padding: { top: 12, right: 8, bottom: 8, left: 8 }, xaxis: { lines: { show: false } } },
-  tooltip: { 
-    theme: 'light',
-    x: { formatter: v => '' + v },
-    y: { formatter: v => v ? v.toFixed(2) : '0' },
-    style: { fontFamily: 'Inter, sans-serif', fontSize: '13px' },
-    fillSeriesColor: false,
-    marker: { show: true },
-    dropShadow: { enabled: true, top: 4, left: 6, blur: 8, color: '#000', opacity: 0.08 }
-  },
-  xaxis: { labels: { style: { colors: '#64748b', fontSize: '13px', fontWeight: 500 } }, axisBorder: { show: false }, axisTicks: { show: false } },
-  yaxis: { labels: { style: { colors: '#64748b', fontSize: '13px', fontWeight: 500 } } },
-  legend: { show: true, position: 'top', horizontalAlign: 'right', fontFamily: 'Inter, sans-serif', fontSize: '13px', labels: { colors: '#475569', useSeriesColors: false }, markers: { radius: 4, strokeWidth: 0 } },
-  colors: PALETTE
+  stroke: { curve: 'smooth', width: 3 },
+  grid: { borderColor: '#e6f0ea', strokeDashArray: 4, padding: { top: 0, right: 0, bottom: 0, left: 10 } },
+  tooltip: { theme: 'light', x: { formatter: v => '' + v }, style: { fontFamily: 'Inter, sans-serif', fontSize: '12px' } },
+  xaxis: { labels: { style: { colors: '#64748b' } } },
+  yaxis: { labels: { style: { colors: '#64748b' } } },
+  legend: { show: true, position: 'top', fontFamily: 'Inter, sans-serif', labels: { colors: '#475569' } }
 };
 
 function el(id) { return document.getElementById(id); }
@@ -65,7 +53,7 @@ async function api(endpoint, method='GET', body=null) {
   try {
     const opts = { method, headers: { 'Content-Type': 'application/json' } };
     if (body) opts.body = JSON.stringify(body);
-    const res = await fetch('http://127.0.0.1:8000/api/' + endpoint, opts);
+    const res = await fetch('/api/' + endpoint, opts);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const json = await res.json();
     if (json.status !== 'ok') throw new Error('API ERROR: ' + json.message);
@@ -295,7 +283,7 @@ async function simulateRatioCombine(event) {
     btn.disabled = true;
 
     try {
-        const response = await fetch('http://localhost:8000/api/ratio_combine/calculer', {
+        const response = await fetch('/api/ratio_combine/calculer', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -454,11 +442,13 @@ window.predireSaisieManuelle = async function(model) {
       const variable = document.getElementById('m4-variable-input').value;
       const monthsStr = document.getElementById('m4-months-input').value;
       const months = parseInt(monthsStr) || 12;
+      const shapPanel = document.getElementById('m4-shap-panel');
+      const shapContainer = document.getElementById('m4-shap-container');
       
       const payload = { variable, months, model };
       
       try {
-          const response = await fetch('http://127.0.0.1:8000/api/forecast/predict', {
+          const response = await fetch('/api/forecast/predict', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(payload)
@@ -466,6 +456,7 @@ window.predireSaisieManuelle = async function(model) {
           const res = await response.json();
         if (res.status === 'ok') {
             const data = res.data;
+            const shapImpacts = res.shap_impacts || [];
             const cats = data.map(d => d.mois);
             const hist = data.map(d => d.historique);
             const lstm = data.map(d => d.prevision_lstm);
@@ -547,7 +538,6 @@ window.applyFilters = window.applyGlobalFilters;
 
 window.renderChartsForModule = function(name) {
   if (RENDERED.has(name)) {
-    Object.values(CHARTS).forEach(c => { try { c.render(); } catch(e){} });
     return;
   }
   RENDERED.add(name);
@@ -555,13 +545,16 @@ window.renderChartsForModule = function(name) {
   else if (name === 'sinistralite') renderSinistralite();
   else if (name === 'provisionnement') renderProvisionnement();
   else if (name === 'modelisation') renderModelisation();
+  else if (name === 'series') {
+    if (typeof window.predireSaisieManuelle === 'function') window.predireSaisieManuelle('lstm');
+  }
   else if (name === 'ratio') renderRatio();
   else if (name === 'tarification') renderTarification();
 };
 
 function renderTarification() {
   // Appels API dynamiques vers le backend
-  const BASE = 'http://localhost:8000/api';
+  const BASE = '/api';
   const token = localStorage.getItem('actuwise_token') || '';
   const headers = { 'Authorization': 'Bearer ' + token };
 
