@@ -22,7 +22,7 @@
 
 ## 📖 Overview
 
-This project was developed as part of the final-year internship program in **Actuarial Science & Applied Data Science** at **Esprit School of Engineering**.
+This project was developed as part of the final-year internship program in **Actuarial Science & Applied Data Science**.
 
 **ACTUWISE Studio** is a fully functional, end-to-end actuarial intelligence platform applied to a Tunisian automobile insurance portfolio. It bridges traditional actuarial mathematics with state-of-the-art Artificial Intelligence to automate, accelerate and explain the core tasks of a non-life insurance company: pricing, reserving, claims management, and regulatory reporting.
 
@@ -170,7 +170,7 @@ API documentation (Swagger UI): **http://localhost:8000/docs**
 
 ## 🎓 Acknowledgments
 
-This project was developed as a final-year research internship in Actuarial Science & Data Science at **Esprit School of Engineering**, Tunis, Tunisia.
+This project was developed as a final-year research internship in Actuarial Science & Data Science, Tunis, Tunisia.
 
 It was designed to demonstrate the convergence of classical actuarial methods and modern Artificial Intelligence in a production-ready platform for non-life insurance companies.
 
